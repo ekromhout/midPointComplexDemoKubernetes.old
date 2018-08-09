@@ -1,0 +1,55 @@
+#
+#  Composition of midPoint and TIER MariaDB containers.
+#
+#  MariaDB serves as a repository for midPoint.
+#
+#  Features:
+#   - a separate volume for repository data (MySQL database directory), so it persists between creation/removal cycle of this stack
+#   - a separate volume for midPoint home directory, containing config.xml, logs, generated encryption keys, and so on
+#
+
+version: "3"
+services:
+
+  mariadb:
+    image: tier/mariadb:mariadb10
+    deploy:
+      restart_policy:
+        condition: none
+    volumes:
+      - repo-db-data:/var/lib/mysqlmounted
+    networks:
+      - webnet
+
+  mariadbadminer:
+    image: adminer
+    deploy:
+      restart_policy:
+        condition: none
+    depends_on:
+      - mariadb
+    ports:
+      - 18080:8080
+    networks:
+      - webnet
+
+  midpoint:
+    image: midpoint
+    deploy:
+      restart_policy:
+        condition: none
+    depends_on:
+      - mariadb
+    ports:
+      - 8080:8080
+    volumes:
+      - midpoint-home:/opt/midpoint/var           # change this if MP_DIR changes
+    networks:
+      - webnet
+
+networks:
+  webnet:
+
+volumes:
+  repo-db-data:
+  midpoint-home:
