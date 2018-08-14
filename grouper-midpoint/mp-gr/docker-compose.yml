@@ -191,6 +191,33 @@ services:
      - source_mysql:/var/lib/mysql
      - source_ldap:/var/lib/dirsrv
 
+  m-data:
+    build: ./m-data/
+    expose:
+     - "3306"
+    ports:
+     - "23306:3306"
+    networks:
+     - back
+    volumes:
+     - midpoint_mysql:/var/lib/mysql
+
+  m-server:
+    build: ./m-server/
+    depends_on:
+      - m-data
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    volumes:
+      - midpoint_home:/opt/midpoint/var
+    networks:
+      - front
+      - back
+    secrets:
+      - m_database_password.txt
+
   idp:
     build: ./idp/
     depends_on:
@@ -240,15 +267,14 @@ secrets:
     file: ./configs-and-secrets/grouper/subject.properties
   sp-key.pem:
     file: ./configs-and-secrets/shibboleth/sp-key.pem
+  m_database_password.txt:
+    file: ./configs-and-secrets/midpoint/database_password.txt
     
     
 volumes:
   grouper_mysql:
-    driver: local
   source_mysql:
-    driver: local
   source_ldap:
-    driver: local
   intermediate_ldap:
-    driver: local
-
+  midpoint_mysql:
+  midpoint_home:
