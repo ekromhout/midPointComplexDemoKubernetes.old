@@ -41,4 +41,4 @@ RUN useradd ldapadmin \
 
 EXPOSE 389 3306
 
-CMD /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-dir && mysqld_safe
+CMD rm -rf /var/lock/dirsrv/slapd-dir/server/* && /usr/sbin/ns-slapd -D /etc/dirsrv/slapd-dir && mysqld_safe

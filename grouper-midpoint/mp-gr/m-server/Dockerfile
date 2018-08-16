@@ -29,6 +29,7 @@ ENV MP_DIR /opt/midpoint
 RUN mkdir -p ${MP_DIR}/var
 
 COPY ${MP_DIST_FILE} ${MP_DIR}
+COPY container_files/ ${MP_DIR}/var/
 
 RUN echo 'Extracting midPoint archive...' \
  && tar xzf ${MP_DIR}/midpoint-${MP_VERSION}-dist.tar.gz -C ${MP_DIR} --strip-components=1

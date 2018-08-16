@@ -191,6 +191,17 @@ services:
      - source_mysql:/var/lib/mysql
      - source_ldap:/var/lib/dirsrv
 
+  t-data:
+    build: ./t-data/
+    expose:
+     - "389"
+    ports:
+     - "2389:389"
+    networks:
+     - back
+    volumes:
+     - target_ldap:/var/lib/dirsrv
+
   m-data:
     build: ./m-data/
     expose:
@@ -275,6 +286,7 @@ volumes:
   grouper_mysql:
   source_mysql:
   source_ldap:
+  target_ldap:
   intermediate_ldap:
   midpoint_mysql:
   midpoint_home:
