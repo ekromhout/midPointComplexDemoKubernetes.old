@@ -1,25 +1,14 @@
 #
-#  Just a demonstration of how to flexibly use MariaDB running in a separate container, receiving password as a Docker secret.
-#  It requires v3.9devel-274-g1b9943e or later.
-#
-#  Features:
-#   - see docker-compose.yml
-#
-#  Limitations (will be resolved):
-#   - mariadb uses default database of 'registry' and default user of 'root'
-#   - JDBC password is present exclusively as a Docker secret: it would be better to have it switchable between secret and a plaintext value
-#     (probably requiring more elaborate working with -D... switches)
-#
-#  Building:      (assumes midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the current directory)
-#
-#    (build tier/shib-sp-java beforehand)
-#    docker build -t midpoint .
-#    docker stack deploy -c docker-compose.yml mp
+#  Building assumes midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the current directory.
 #
 
-FROM tier/shib-sp-java
+FROM tier/shib-sp
 
 MAINTAINER info@evolveum.com
+
+# TODO switch to other appropriate Java implementation
+
+RUN yum -y install java-1.8.0-openjdk
 
 ARG MP_VERSION=3.9-SNAPSHOT
 ARG MP_DIST_FILE=midpoint-${MP_VERSION}-dist.tar.gz
@@ -41,6 +30,8 @@ ENV REPO_PORT 3306
 ENV REPO_USER root
 ENV REPO_DATABASE midpoint
 ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
+ENV ENV demo
+ENV USERTOKEN $MP_VERSION
 
 CMD java -Xmx2048M -Xms2048M -Dfile.encoding=UTF8 \
        -Dmidpoint.home=$MP_DIR/var \
@@ -51,4 +42,5 @@ CMD java -Xmx2048M -Xms2048M -Dfile.encoding=UTF8 \
        -Dmidpoint.repository.hibernateHbm2ddl=none \
        -Dmidpoint.repository.missingSchemaAction=create \
        -Dmidpoint.repository.initializationFailTimeout=60000 \
+       -Dmidpoint.logging.console.enabled=true -Dmidpoint.logging.console.prefix="midpoint;midpoint.log;$ENV;$USERTOKEN;" -Dmidpoint.logging.console.timezone=UTC \
        -jar $MP_DIR/lib/midpoint.war

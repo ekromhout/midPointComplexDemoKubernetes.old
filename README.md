@@ -2,11 +2,6 @@
 
 Eventually here will be a dockerized version of midPoint suitable for the use within TIER environment.
 
-Currently there are some prototypes (concepts) of meeting TIER requirements, e.g.
+Currently there is [midPoint <-> Grouper integration demo](grouper-midpoint), a work still in progress.
 
-* logging,
-* MariaDB repository integration,
-* passing sensitive information as secrets,
-* and so on.
-
-More comprehensive configurations will follow.
+The documentation will be eventually [here](https://spaces.at.internet2.edu/display/TIERENTREG/midPoint+-+Grouper+integration+demo).

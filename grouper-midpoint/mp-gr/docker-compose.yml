@@ -1,3 +1,10 @@
+#
+# Building:
+#  - docker-compose up --build
+#
+# It assumes that midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the 'midpoint-server' directory. (TODO: eliminate this!)
+#
+
 version: "3.3"
 
 services:
