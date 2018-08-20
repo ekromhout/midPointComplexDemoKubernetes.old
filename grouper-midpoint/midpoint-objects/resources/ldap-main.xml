@@ -20,7 +20,7 @@
 
 	<resource oid="0a37121f-d515-4a23-9b6d-554c5ef61272">
 
-		<name>OpenLDAP for Grouper (i-data)</name>
+		<name>OpenLDAP (directory)</name>
 
 		<connectorRef type="ConnectorType">
 			<filter>
@@ -36,8 +36,8 @@
 			xmlns:icfcldap="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-ldap/com.evolveum.polygon.connector.ldap.LdapConnector">
 			<icfc:configurationProperties
 				xmlns:icfcldap="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-ldap/com.evolveum.polygon.connector.ldap.LdapConnector">
-                <icfcldap:port>$(i-data.ldap.port)</icfcldap:port>
-                <icfcldap:host>$(i-data.ldap.host)</icfcldap:host>
+                <icfcldap:port>$(directory.ldap.port)</icfcldap:port>
+                <icfcldap:host>$(directory.ldap.host)</icfcldap:host>
 				<icfcldap:baseContext>dc=internet2,dc=edu</icfcldap:baseContext>
 				<icfcldap:bindDn>cn=Directory Manager</icfcldap:bindDn>
 				<icfcldap:bindPassword>
@@ -80,14 +80,23 @@
 				<attribute>
 					<ref>ri:dn</ref>
 					<displayName>Distinguished Name</displayName>
-					<limitations>
-						<minOccurs>0</minOccurs>
-					</limitations>
+                    <limitations>
+                        <minOccurs>0</minOccurs>
+                    </limitations>
+                    <tolerant>false</tolerant>
 					<matchingRule>mr:stringIgnoreCase</matchingRule>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
-                            <path>extension/ldap_dn</path>
+                            <path>name</path>
                         </source>
+                        <expression>
+                            <script>
+                                <code>
+                                    'uid=' + name + ',ou=People,dc=internet2,dc=edu'
+                                </code>
+                            </script>
+                        </expression>
                     </outbound>
 				</attribute>
 				<attribute>
@@ -96,7 +105,9 @@
 					<limitations>
 						<minOccurs>0</minOccurs>
 					</limitations>
+                    <tolerant>false</tolerant>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>fullName</path>
                         </source>
@@ -105,10 +116,12 @@
 				<attribute>
 					<ref>ri:sn</ref>
 					<displayName>Surname</displayName>
-					<limitations>
-						<minOccurs>0</minOccurs>
-					</limitations>
+                    <limitations>
+                        <minOccurs>0</minOccurs>
+                    </limitations>
+                    <tolerant>false</tolerant>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>familyName</path>
                         </source>
@@ -117,7 +130,12 @@
 				<attribute>
 					<ref>ri:givenName</ref>
 					<displayName>Given Name</displayName>
+                    <limitations>
+                        <minOccurs>0</minOccurs>
+                    </limitations>
+                    <tolerant>false</tolerant>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>givenName</path>
                         </source>
@@ -126,8 +144,10 @@
 				<attribute>
 					<ref>ri:uid</ref>
 					<displayName>Login Name</displayName>
+                    <tolerant>false</tolerant>
 					<matchingRule>mr:stringIgnoreCase</matchingRule>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>name</path>
                         </source>
@@ -137,7 +157,9 @@
 					<ref>ri:mail</ref>
 					<displayName>Mail</displayName>
 					<matchingRule>mr:stringIgnoreCase</matchingRule>
+                    <tolerant>false</tolerant>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>emailAddress</path>
                         </source>
@@ -145,7 +167,9 @@
 				</attribute>
 				<attribute>
 					<ref>ri:employeeNumber</ref>
+                    <tolerant>false</tolerant>
                     <outbound>
+                        <strength>strong</strength>
                         <source>
                             <path>employeeNumber</path>
                         </source>
@@ -161,19 +185,9 @@
 				</attribute>
                 <association>
                     <tolerant>false</tolerant>
-                    <ref>ri:courseGroup</ref>
-                    <displayName>Course-related groups membership</displayName>
+                    <ref>ri:group</ref>
                     <kind>entitlement</kind>
                     <intent>course-group</intent>
-                    <direction>objectToSubject</direction>
-                    <associationAttribute>ri:uniqueMember</associationAttribute>
-                    <valueAttribute>ri:dn</valueAttribute>
-                </association>
-                <association>
-                    <tolerant>false</tolerant>
-                    <ref>ri:genericGroup</ref>
-                    <displayName>Generic groups membership</displayName>
-                    <kind>entitlement</kind>
                     <intent>generic-group</intent>
                     <direction>objectToSubject</direction>
                     <associationAttribute>ri:uniqueMember</associationAttribute>

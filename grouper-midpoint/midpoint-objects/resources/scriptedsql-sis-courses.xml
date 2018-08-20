@@ -18,14 +18,14 @@
 
 		<icfc:configurationProperties 
 			xmlns:icscscriptedsql="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/net.tirasa.connid.bundles.db.scriptedsql/net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector">
-			<icscscriptedsql:host>$(s-data.db.host)</icscscriptedsql:host>
-			<icscscriptedsql:port>$(s-data.db.port)</icscscriptedsql:port>
+			<icscscriptedsql:host>$(sources.db.host)</icscscriptedsql:host>
+			<icscscriptedsql:port>$(sources.db.port)</icscscriptedsql:port>
 			<icscscriptedsql:quoting></icscscriptedsql:quoting>
 			<icscscriptedsql:user>root</icscscriptedsql:user>
 			<icscscriptedsql:password>
 				<clearValue></clearValue>
 			</icscscriptedsql:password>
-			<icscscriptedsql:database>grouper</icscscriptedsql:database>
+			<icscscriptedsql:database>sis</icscscriptedsql:database>
 			<!-- >icscscriptedsql:clearTextPasswordToScript>true</icscscriptedsql:clearTextPasswordToScript -->
 			<icscscriptedsql:scriptingLanguage>GROOVY</icscscriptedsql:scriptingLanguage>
 

@@ -20,7 +20,7 @@
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP for Grouper (i-data) -->
             <association>
-                <c:ref>ri:courseGroup</c:ref>
+                <c:ref>ri:group</c:ref>
                 <outbound>
                     <expression>
                         <associationFromLink>
