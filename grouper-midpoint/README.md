@@ -19,9 +19,7 @@ There are the following containers:
 
 All files needed to build and compose these containers are in `mp-gr` directory.
 
-TODO ...
-
 TODO:
  - Grouper -> midPoint via MQ
- - groups for courses are not created automatically on first import (why?)
+ - performance of initial import from courses (500ms per user)
  - fix hardcoded password for grouper loader LDAP

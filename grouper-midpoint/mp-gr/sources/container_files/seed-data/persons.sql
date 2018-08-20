@@ -15,7 +15,7 @@ CREATE TABLE SIS_AFFILIATIONS (
 );
 
 INSERT INTO SIS_PERSONS (uid, surname, givenName, fullName, department, mail) VALUES ('jsmith','Smith','Joe','John Smith',NULL,NULL);
-INSERT INTO SIS_PERSONS (uid, surname, givenName, fullName, department, mail) VALUES ('banderson',NULL,'Bob','Bob Anderson',NULL,NULL);
+INSERT INTO SIS_PERSONS (uid, surname, givenName, fullName, department, mail) VALUES ('banderson','Anderson','Bob','Bob Anderson',NULL,NULL);
 INSERT INTO SIS_PERSONS (uid, surname, givenName, fullName, department, mail) VALUES ('kwhite','White','Karl','Karl White','Law','kwhite@example.edu');
 INSERT INTO SIS_AFFILIATIONS (uid, affiliation) VALUES ('kwhite','member');
 INSERT INTO SIS_AFFILIATIONS (uid, affiliation) VALUES ('kwhite','student');
