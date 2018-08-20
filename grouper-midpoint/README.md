@@ -8,24 +8,20 @@ In contrary to the original idea, the midPoint -> Grouper connection is realized
 
 There are the following containers:
 
-- `s-data`: source data (LDAP & MySQL), simulating systems of record
-- `m-server`: midPoint application (GUI, REST, tasks, etc); it reads from `s-data`, updates its own repository and pushes data to Grouper via `i-data`
-- `m-data`: midPoint repository (MySQL)
-- `i-data`: intermediate repository for communication from midPoint to Grouper (LDAP)
-- `g-ui`, `g-daemon`, `g-ws`, `gsh`: Grouper containers
-- `g-data`: the Grouper repository (MySQL)
-- `idp`: Shibboleth identity provider; it uses `i-data` as the auhentication source
-- `t-data`: target(s) where identities should be provisioned (currently LDAP)
+- `sources`: source data (MySQL), simulating systems of record
+- `midpoint-server`: midPoint application (GUI, REST, tasks, etc); it reads from `sources`, updates its own repository and `directory`
+- `midpoint-data`: midPoint repository (MySQL)
+- `directory`: central LDAP directory; used also by Grouper and Shibboleth IdP
+- `grouper-ui`, `grouper-daemon`, `grouper-ws`, `gsh`: Grouper containers
+- `grouper-data`: the Grouper repository (MySQL)
+- `idp`: Shibboleth identity provider; it uses `directory` as the auhentication source
+- `targets`: target(s) where identities should be provisioned (currently MySQL)
 
 All files needed to build and compose these containers are in `mp-gr` directory.
 
 TODO ...
 
 TODO:
- - grouper loader jobs
- - grouper -> midPoint connection
- - add banderson to sysadmin group (via midPoint)
- - user passwords in i-data (via midPoint)
+ - Grouper -> midPoint via MQ
  - groups for courses are not created automatically on first import (why?)
- - grouper loader jobs should be created at initialization
  - fix hardcoded password for grouper loader LDAP

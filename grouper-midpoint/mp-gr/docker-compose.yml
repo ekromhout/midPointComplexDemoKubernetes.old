@@ -1,12 +1,12 @@
 version: "3.3"
 
 services:
-  g-daemon:
-    build: ./g-daemon/
-    command: bash -c "while ! curl -s g-data:3306 > /dev/null; do echo waiting for mysql on g-data to start; sleep 3; done; while ! curl -s ldap://i-data:389 > /dev/null; do echo waiting for ldap on i-data to start; sleep 3; done; exec daemon"
+  grouper-daemon:
+    build: ./grouper-daemon/
+    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec daemon"
     depends_on:
-     - g-data
-     - i-data
+     - grouper-data
+     - directory
     environment:
      - ENV=dev
      - GROUPER_CLIENT_WEBSERVICE_PASSWORD_FILE=password
@@ -34,12 +34,12 @@ services:
        target: /opt/grouper/conf/grouper.client.properties
 
 
-  g-ui:
-    build: ./g-ui/
-    command: bash -c "while ! curl -s g-data:3306 > /dev/null; do echo waiting for mysql on g-data to start; sleep 3; done; while ! curl -s ldap://i-data:389 > /dev/null; do echo waiting for ldap on i-data to start; sleep 3; done; exec ui"
+  grouper-ui:
+    build: ./grouper-ui/
+    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ui"
     depends_on:
-     - g-data
-     - i-data
+     - grouper-data
+     - directory
     environment:
      - ENV=dev
      - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
@@ -86,12 +86,12 @@ services:
        target: /etc/pki/tls/certs/cachain.pem
 
 
-#  g-ws:
-#    build: ./g-ws/
-#    command: bash -c "while ! curl -s g-data:3306 > /dev/null; do echo waiting for mysql on g-data to start; sleep 3; done; while ! curl -s ldap://i-data:389 > /dev/null; do echo waiting for ldap on i-data to start; sleep 3; done; exec ws"
+#  grouper-ws:
+#    build: ./grouper-ws/
+#    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ws"
 #    depends_on:
-#     - g-data
-#     - i-data
+#     - grouper-data
+#     - directory
 #    environment:
 #     - ENV=dev
 #     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
@@ -130,8 +130,8 @@ services:
 #  gsh:
 #    build: ./gsh/
 #    depends_on:
-#     - g-data
-#     - i-data
+#     - grouper-data
+#     - directory
 #    environment:
 #     - ENV=dev
 #     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
@@ -155,8 +155,8 @@ services:
 #       source: ./configs-and-secrets/grouper/grouper.client.properties
 #       target: /opt/grouper/conf/grouper.client.properties
 
-  g-data:
-    build: ./g-data/
+  grouper-data:
+    build: ./grouper-data/
     expose:
      - "3306"
     networks:
@@ -166,8 +166,8 @@ services:
     volumes:
      - grouper_mysql:/var/lib/mysql  
 
-  i-data:
-    build: ./i-data/
+  directory:
+    build: ./directory/
     expose:
      - "389"
     ports:
@@ -175,48 +175,45 @@ services:
     networks:
      - back
     volumes:
-     - intermediate_ldap:/var/lib/dirsrv
+     - ldap:/var/lib/dirsrv
 
-  s-data:
-    build: ./s-data/
+  sources:
+    build: ./sources/
     expose:
-     - "389"
      - "3306"
     ports:
-     - "1389:389"
      - "13306:3306"
     networks:
      - back
     volumes:
      - source_mysql:/var/lib/mysql
-     - source_ldap:/var/lib/dirsrv
 
-  t-data:
-    build: ./t-data/
-    expose:
-     - "389"
-    ports:
-     - "2389:389"
-    networks:
-     - back
-    volumes:
-     - target_ldap:/var/lib/dirsrv
-
-  m-data:
-    build: ./m-data/
+  targets:
+    build: ./targets/
     expose:
      - "3306"
     ports:
-     - "23306:3306"
+     - "23306:389"
+    networks:
+     - back
+    volumes:
+     - target_mysql:/var/lib/mysql
+
+  midpoint-data:
+    build: ./midpoint-data/
+    expose:
+     - "3306"
+    ports:
+     - "33306:3306"
     networks:
      - back
     volumes:
      - midpoint_mysql:/var/lib/mysql
 
-  m-server:
-    build: ./m-server/
+  midpoint-server:
+    build: ./midpoint-server/
     depends_on:
-      - m-data
+      - midpoint-data
     expose:
       - 8080
     ports:
@@ -232,7 +229,7 @@ services:
   idp:
     build: ./idp/
     depends_on:
-     - i-data
+     - directory
     environment:
      - JETTY_MAX_HEAP=64m
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
@@ -243,8 +240,7 @@ services:
     ports:
      - "4443:4443"
 
-
-  rabbitmq:
+  mq:
     image: rabbitmq:management
     environment:
      - RABBITMQ_NODENAME=docker-rabbit
@@ -285,8 +281,7 @@ secrets:
 volumes:
   grouper_mysql:
   source_mysql:
-  source_ldap:
-  target_ldap:
-  intermediate_ldap:
+  target_mysql:
+  ldap:
   midpoint_mysql:
   midpoint_home:

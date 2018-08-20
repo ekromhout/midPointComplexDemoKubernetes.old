@@ -36,7 +36,7 @@ RUN echo 'Extracting midPoint archive...' \
 
 VOLUME ${MP_DIR}/var
 
-ENV REPO_HOST m-data
+ENV REPO_HOST midpoint-data
 ENV REPO_PORT 3306
 ENV REPO_USER root
 ENV REPO_DATABASE midpoint

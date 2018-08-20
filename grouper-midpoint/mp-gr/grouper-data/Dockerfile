@@ -8,7 +8,7 @@ RUN yum install -y epel-release \
     && yum clean all \
     && rm -rf /var/cache/yum
 
-#COPY container_files/seed-data/ /seed-data/
+COPY container_files/seed-data/ /seed-data/
 COPY container_files/conf/ /opt/grouper/grouper.apiBinary/conf/
 
 RUN mysql_install_db \
@@ -28,7 +28,12 @@ RUN mysql_install_db \
 
 RUN (mysqld_safe & ) \
     && while ! curl -s localhost:3306 > /dev/null; do echo waiting for mysqld to start; sleep 1; done; \
-    bin/gsh -registry -check -runscript -noprompt
+    bin/gsh -registry -check -runscript -noprompt && \
+    echo "Running demo.gsh" && \
+    sleep 10 && \
+    bin/gsh /seed-data/demo.gsh && \
+    echo "demo.gsh DONE" && \
+    rm /seed-data/demo.gsh
 
 EXPOSE 3306
 
