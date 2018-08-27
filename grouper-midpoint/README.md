@@ -61,8 +61,19 @@ Uploading midpoint-objects/roles/role-grouper-basic.xml (roles, c89f31dd-8d4f-4e
 Uploading midpoint-objects/roles/metarole-generic-group.xml (roles, c691e15a-f30b-4e15-8445-532db07ceeeb)
 ```
 
+## Importing persons
+
+Now log into midPoint as `administrator`, and
+
+1. Go through all 4 resources, and execute `Test resource` on each of them. Verify that everything is OK (green).
+2. Open role `role-grouper-sysadmin` and reconcile it. Verify that LDAP group of `cn=sysadmingroup,ou=Groups,dc=internet2,dc=edu` was be created. 
+3. Manually import `midpoint-objects-manual/tasks/task-import-sis-persons.xml` and wait for its successful completion. It should import 1000 users from SIS Persons and create appropriate midPoint users and LDAP accounts.
+4. After the previous task is done, manually import `midpoint-objects-manual/tasks/task-import-sis-courses.xml` and wait for its successful completion. It should import courses for the users from SIS Courses and create appropriate groups and group membership in LDAP.
+5. Select Grouper administrator: in midPoint open e.g. user `banderson` and assign him a role `role-grouper-sysadmin`. Also, set up his password to some value, e.g. `password`. Check that he is now member of LDAP group `cn=sysadmingroup,ou=Groups,dc=internet2,dc=edu`.
+6. Wait for a minute so that Grouper gets synchronized. Then try to log in as `banderson` using `https://localhost/grouper`.
+
 # TODO
 
- - see the [wiki page](https://spaces.at.internet2.edu/pages/viewpage.action?spaceKey=TIERENTREG&title=midPoint+-+Grouper+integration+demo)
+ - see the TODO items in [wiki page](https://spaces.at.internet2.edu/pages/viewpage.action?spaceKey=TIERENTREG&title=midPoint+-+Grouper+integration+demo)
  - performance of initial import from courses (500ms per user)
  - fix hardcoded password for grouper loader LDAP
