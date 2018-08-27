@@ -9,7 +9,8 @@
 	under the License. -->
 
 
-<objects xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+<resource oid="0a37121f-d515-4a23-9b6d-554c5ef61272"
+        xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
 	xmlns:t='http://prism.evolveum.com/xml/ns/public/types-3' xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
@@ -17,8 +18,6 @@
 	xmlns:my="http://whatever.com/my" xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
 	xmlns:mr="http://prism.evolveum.com/xml/ns/public/matching-rule-3"
 	xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
-
-	<resource oid="0a37121f-d515-4a23-9b6d-554c5ef61272">
 
 		<name>OpenLDAP (directory)</name>
 
@@ -36,8 +35,8 @@
 			xmlns:icfcldap="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-ldap/com.evolveum.polygon.connector.ldap.LdapConnector">
 			<icfc:configurationProperties
 				xmlns:icfcldap="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-ldap/com.evolveum.polygon.connector.ldap.LdapConnector">
-                <icfcldap:port>$(directory.ldap.port)</icfcldap:port>
-                <icfcldap:host>$(directory.ldap.host)</icfcldap:host>
+                <icfcldap:port>389</icfcldap:port>
+                <icfcldap:host>directory</icfcldap:host>
 				<icfcldap:baseContext>dc=internet2,dc=edu</icfcldap:baseContext>
 				<icfcldap:bindDn>cn=Directory Manager</icfcldap:bindDn>
 				<icfcldap:bindPassword>
@@ -442,5 +441,4 @@
         <consistency>
             <avoidDuplicateValues>true</avoidDuplicateValues>
         </consistency>
-	</resource>
-</objects>
+</resource>

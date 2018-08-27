@@ -2,7 +2,7 @@
 #  Building assumes midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the current directory.
 #
 
-FROM tier/shib-sp
+FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 

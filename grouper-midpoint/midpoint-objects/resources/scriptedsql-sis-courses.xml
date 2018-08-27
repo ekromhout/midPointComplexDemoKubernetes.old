@@ -18,8 +18,8 @@
 
 		<icfc:configurationProperties 
 			xmlns:icscscriptedsql="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/net.tirasa.connid.bundles.db.scriptedsql/net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector">
-			<icscscriptedsql:host>$(sources.db.host)</icscscriptedsql:host>
-			<icscscriptedsql:port>$(sources.db.port)</icscscriptedsql:port>
+			<icscscriptedsql:host>sources</icscscriptedsql:host>
+			<icscscriptedsql:port>3306</icscscriptedsql:port>
 			<icscscriptedsql:quoting></icscscriptedsql:quoting>
 			<icscscriptedsql:user>root</icscscriptedsql:user>
 			<icscscriptedsql:password>
