@@ -48,7 +48,6 @@ Uploading midpoint-objects/objectTemplates/template-org-department.xml (objectTe
 Uploading midpoint-objects/resources/scriptedsql-sis-courses.xml (resources, 13660d60-071b-4596-9aa1-5efcd1256c04)
 Uploading midpoint-objects/resources/ldap-main.xml (resources, 0a37121f-d515-4a23-9b6d-554c5ef61272)
 Uploading midpoint-objects/resources/scriptedsql-sis-persons.xml (resources, 4d70a0da-02dd-41cf-b0a1-00e75d3eaa15)
-Uploading midpoint-objects/resources/scriptedsql-grouper.xml (resources, ef2bc95b-76e0-48e2-86d6-3d4f02d420db)
 Uploading midpoint-objects/resources/scriptedsql-grouper2.xml (resources, 6dcb84f5-bf82-4931-9072-fbdf87f96442)
 Uploading midpoint-objects/systemConfigurations/SystemConfiguration.xml (systemConfigurations, 00000000-0000-0000-0000-000000000001)
 Uploading midpoint-objects/orgs/org-departments.xml (orgs, bee44c51-2469-411d-bac7-695728e9c241)
@@ -61,12 +60,12 @@ Uploading midpoint-objects/roles/role-grouper-basic.xml (roles, c89f31dd-8d4f-4e
 Uploading midpoint-objects/roles/metarole-generic-group.xml (roles, c691e15a-f30b-4e15-8445-532db07ceeeb)
 ```
 
-## Importing persons
+## First steps after installation (importing persons, and so on)
 
 Now log into midPoint as `administrator`, and
 
 1. Go through all 4 resources, and execute `Test resource` on each of them. Verify that everything is OK (green).
-2. Open role `role-grouper-sysadmin` and reconcile it. Verify that LDAP group of `cn=sysadmingroup,ou=Groups,dc=internet2,dc=edu` was be created. 
+2. Open role `role-grouper-sysadmin` and reconcile it. Verify that LDAP group of `cn=sysadmingroup,ou=Groups,dc=internet2,dc=edu` was created. 
 3. Manually import `midpoint-objects-manual/tasks/task-import-sis-persons.xml` and wait for its successful completion. It should import 1000 users from SIS Persons and create appropriate midPoint users and LDAP accounts.
 4. After the previous task is done, manually import `midpoint-objects-manual/tasks/task-import-sis-courses.xml` and wait for its successful completion. It should import courses for the users from SIS Courses and create appropriate groups and group membership in LDAP.
 5. Select Grouper administrator: in midPoint open e.g. user `banderson` and assign him a role `role-grouper-sysadmin`. Also, set up his password to some value, e.g. `password`. Check that he is now member of LDAP group `cn=sysadmingroup,ou=Groups,dc=internet2,dc=edu`.
