@@ -5,24 +5,22 @@
       xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3"
       xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3"
       xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
-      oid="b73a2e66-8233-4c20-928f-acb30027b33e">
-   <name>Import from SIS courses</name>
-   <extension xmlns:mext="http://midpoint.evolveum.com/xml/ns/public/model/extension-3"
-              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-              xsi:type="c:ExtensionType">
+      oid="617fec0c-f7a6-4f91-89d0-395fb8878edd">
+   <name>Import from Grouper</name>
+   <extension xmlns:mext="http://midpoint.evolveum.com/xml/ns/public/model/extension-3">
       <mext:kind>account</mext:kind>
       <mext:objectclass>ri:AccountObjectClass</mext:objectclass>
    </extension>
-   <taskIdentifier>1535408076153-0-1</taskIdentifier>
+   <taskIdentifier>1535468542646-0-1</taskIdentifier>
    <ownerRef oid="00000000-0000-0000-0000-000000000002"
              relation="org:default"
              type="c:UserType"><!-- administrator --></ownerRef>
-   <executionStatus>runnable</executionStatus>
+   <executionStatus>runable</executionStatus>
    <category>ImportingAccounts</category>
    <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/synchronization/task/import/handler-3</handlerUri>
-   <objectRef oid="13660d60-071b-4596-9aa1-5efcd1256c04"
+   <objectRef oid="6dcb84f5-bf82-4931-9072-fbdf87f96442"
               relation="org:default"
-              type="c:ResourceType"><!-- SQL SIS courses (sources) --></objectRef>
+              type="c:ResourceType"><!-- Grouper SQL NEW --></objectRef>
    <recurrence>single</recurrence>
    <binding>loose</binding>
 </task>

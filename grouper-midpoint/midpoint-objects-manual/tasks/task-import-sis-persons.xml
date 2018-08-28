@@ -6,7 +6,7 @@
       xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3"
       xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
       oid="22c2a3d0-0961-4255-9eec-c550a79aeaaa">
-   <name>Import SIS persons</name>
+   <name>Import from SIS persons</name>
    <extension xmlns:mext="http://midpoint.evolveum.com/xml/ns/public/model/extension-3"
               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
               xsi:type="c:ExtensionType">
