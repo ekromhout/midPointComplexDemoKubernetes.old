@@ -3,7 +3,7 @@
 <c:resource oid="6dcb84f5-bf82-4931-9072-fbdf87f96442" xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3" xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3"
 	xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3" xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3" xmlns:my="http://myself.me/schemas/whatever" xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
 
-	<c:name>Grouper SQL NEW</c:name>
+	<c:name>Grouper SQL/MQ</c:name>
 
 	<connectorRef type="ConnectorType">
 		<filter>
@@ -64,10 +64,6 @@
 				<displayName>Subject ID</displayName>
 			</attribute>
 			<attribute>
-				<ref>ri:subject_identifier0</ref>
-				<displayName>Subject Identifier</displayName>
-			</attribute>
-			<attribute>
 				<ref>ri:name</ref>
 				<displayName>Name</displayName>
 			</attribute>
@@ -111,17 +107,17 @@
         </objectType>
 	</schemaHandling>
 
-	<!-- >synchronization>
+	<synchronization>
 		<objectSynchronization>
 			<enabled>true</enabled>
 
 			<correlation>
 				<q:equal>
-					<q:path>employeeNumber</q:path>
+					<q:path>name</q:path>
 					<expression>
 						<path>
 							declare namespace ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3";
-							$account/attributes/ri:subject_identifier0
+							$account/attributes/icfs:name
 						</path>
 					</expression>
 				</q:equal>
@@ -138,7 +134,6 @@
 					<handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#unlink</handlerUri>
 				</action>
 			</reaction>
-
 			<reaction>
 				<situation>unlinked</situation>
 				<synchronize>true</synchronize>
@@ -151,7 +146,7 @@
 				<synchronize>true</synchronize>
 			</reaction>
 		</objectSynchronization>
-	</synchronization -->
+	</synchronization>
 
 </c:resource>
 

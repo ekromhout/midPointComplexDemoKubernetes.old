@@ -182,6 +182,15 @@
 					<ref>ri:eduPersonAffiliation</ref>
                     <tolerant>false</tolerant>
 				</attribute>
+                <attribute>
+                    <ref>ri:eduPersonEntitlement</ref>
+                    <tolerant>false</tolerant>
+                    <outbound>
+                        <source>
+                            <path>extension/grouper_group</path>
+                        </source>
+                    </outbound>
+                </attribute>
                 <association>
                     <tolerant>false</tolerant>
                     <ref>ri:group</ref>

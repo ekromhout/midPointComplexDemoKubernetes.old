@@ -81,7 +81,7 @@
                     <expression>
                         <assignmentTargetSearch>
                             <targetType>RoleType</targetType>
-                            <oid>c89f31dd-8d4f-4e0a-82cb-58ff9d8c1b2f</oid>     <!--  role-grouper-basic -->
+                            <oid>c89f31dd-8d4f-4e0a-82cb-58ff9d8c1b2f</oid>     <!--  role-ldap-basic -->
                             <assignmentProperties>
                                 <subtype>grouper-basic</subtype>
                             </assignmentProperties>
