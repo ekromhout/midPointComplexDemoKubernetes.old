@@ -24,6 +24,9 @@
    <objectRef oid="6dcb84f5-bf82-4931-9072-fbdf87f96442"
               relation="org:default"
               type="c:ResourceType"><!-- Grouper SQL NEW --></objectRef>
-   <recurrence>single</recurrence>
+   <recurrence>recurring</recurrence>
+   <schedule>
+     <interval>60</interval>
+   </schedule>
    <binding>loose</binding>
 </task>
