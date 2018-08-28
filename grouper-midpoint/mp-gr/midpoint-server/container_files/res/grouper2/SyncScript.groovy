@@ -52,25 +52,32 @@ import com.rabbitmq.client.*
 // "attributes":Map<String,List> of attributes name/values
 // ]
 
+def MQ_HOST = 'mq'
+def MQ_PORT = 5672
+def QUEUE = 'sampleQueue'
+def MAX_SQL_IN = 200			// maximum number of subject IDs in one SQL IN clause
+def MAX_CHANGED_USERS = 1000		// maximum number of changed users (approximate)
+def AUTO_ACKNOWLEDGE = true		// use 'false' only for testing
+
 log.info("Entering "+action+" Script");
 def sql = new Sql(connection);
 
 if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
-  return 0
+  return System.currentTimeMillis()
 } else if (action.equalsIgnoreCase("SYNC")) {
 
-
   factory = new ConnectionFactory()
-  factory.host = 'mq'
-  factory.port = 5672
+  factory.host = MQ_HOST
+  factory.port = MQ_PORT
   connection = factory.newConnection()
   channel = connection.createChannel()
   println 'RabbitMQ: conn=' + connection + ', channel=' + channel
 
   result = []
+  subjectsChanged = new HashSet()
 
   for (;;) {
-    response = channel.basicGet('sampleQueue', false)
+    response = channel.basicGet(QUEUE, AUTO_ACKNOWLEDGE)
     println 'got response: ' + response
     if (response == null) {
       break
@@ -94,7 +101,6 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
     }
 
     for (event in events) {
-
       type = event.eventType
       if (type != 'MEMBERSHIP_ADD' && type != 'MEMBERSHIP_DELETE') {
         println 'event type does not match, getting next message; type = ' + type
@@ -112,8 +118,21 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
         continue
       }
       println 'subject membership changed: ' + subjectId
+      subjectsChanged.add(subjectId)
+    }
+    if (subjectsChanged.size() >= MAX_CHANGED_USERS) {
+      println 'MAX_CHANGED_USERS reached, finishing fetching from MQ'
+      break
+    }
+  }
 
-      sql.eachRow("\
+  println 'subjects changed: ' + subjectsChanged
+
+  for (ids in subjectsChanged.asList().collate(MAX_SQL_IN)) {
+    idsIn = '(' + ids.collect { "'" + it + "'" }.join(',') + ')'
+    println 'idsIn = ' + idsIn
+
+    sql.eachRow("\
 select m.id, m.name, m.subject_id, m.subject_identifier0, m.sort_string0, m.search_string0, m.description, m.subject_source, m.subject_type, group_concat(distinct g.name) as groups \
 from \
     grouper_members m \
@@ -124,20 +143,21 @@ from \
         left join grouper_groups g on gm.owner_id=g.id \
 group by m.id \
 having \
-        subject_source = 'ldap' and subject_type = 'person' and subject_id = '" + subjectId + "'",
+        subject_source = 'ldap' and subject_type = 'person' and subject_id IN " + idsIn,
       {result.add(
         [operation:"CREATE_OR_UPDATE",
         token:System.currentTimeMillis(),
-        __UID__:it.id,
-        __NAME__:it.subject_id,
-        subject_id:it.subject_id,
-        subject_identifier0:it.subject_identifier0,
-        sort_string0:it.sort_string0,
-        search_string0:it.search_string0,
-        name:it.name,
-        description:it.description,
-        group:it.groups?.tokenize(',')])} )
-    }
+        uid:it.id,
+        attributes:[
+          __UID__:it.id,
+          __NAME__:it.subject_id,
+          subject_id:it.subject_id,
+          subject_identifier0:it.subject_identifier0,
+          sort_string0:it.sort_string0,
+          search_string0:it.search_string0,
+          name:it.name,
+          description:it.description,
+          group:it.groups?.tokenize(',')]])} )
   }
 
   channel.close()

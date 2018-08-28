@@ -63,3 +63,10 @@ attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperL
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectExpressionName(), '${loaderLdapElUtils.convertDnToSpecificValue(subjectId)}');
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+
+testGroup = new GroupSave(gs).assignName("etc:testGroup").assignCreateParentStemsIfNotExist(true).save();
+
+exportedGroups = new GroupSave(gs).assignName("etc:exportedGroups").assignCreateParentStemsIfNotExist(true).save();
+
+s = SubjectFinder.findById(testGroup.getId(), 'group', 'g:gsa');
+exportedGroups.addMember(s, false);
