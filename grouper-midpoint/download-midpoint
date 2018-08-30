@@ -2,7 +2,7 @@
 
 echo "Downloading midPoint 3.9-SNAPSHOT"
 echo "-----------------------------------------"
-curl --output mp-gr/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz "https://nexus.evolveum.com/nexus/service/local/artifact/maven/content?r=snapshots&g=com.evolveum.midpoint&a=dist&v=LATEST&c=dist&p=tar.gz"
+curl --output mp-gr/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-3.9-SNAPSHOT-dist.tar.gz"
 echo "-----------------------------------------"
 echo "Checking the download..."
 if tar -tf mp-gr/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz >/dev/null; then
