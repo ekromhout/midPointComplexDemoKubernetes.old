@@ -1,5 +1,7 @@
 # midPoint_container
 
-Eventually here will be a dockerized version of midPoint suitable for the use within TIER environment.
+In the [grouper-midpoint](grouper-midpoint) directory there is a [midPoint <-> Grouper integration demo](https://spaces.at.internet2.edu/display/TIERENTREG/midPoint+-+Grouper+integration+demo).
 
-Currently there is [midPoint <-> Grouper integration demo](grouper-midpoint), a work still in progress.
+In the [midpoint](midpoint) directory there is a dockerized version of midPoint suitable for the use within TIER environment.
+
+Both are in progress.

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+C=${COMPONENT//[;]/_}
+L=${LOGFILE//[;]/_}
+E=${ENV//[; ]/_}
+U=${USERTOKEN//[; ]/_}
+echo $C\;$L\;$E\;$U\;

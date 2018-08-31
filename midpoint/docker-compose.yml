@@ -1,0 +1,61 @@
+#
+# Building:
+#  - docker-compose up --build
+#
+# It assumes that midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the 'midpoint-server' directory. (TODO: eliminate this!)
+#
+
+version: "3.3"
+
+services:
+  midpoint-data:
+    build: ./midpoint-data/
+    expose:
+     - 3306
+    ports:
+     - 3306:3306
+    networks:
+     - back
+    volumes:
+     - midpoint_mysql:/var/lib/mysql
+
+  midpoint-server:
+    build: ./midpoint-server/
+    depends_on:
+      - midpoint-data
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    volumes:
+      - midpoint_home:/opt/midpoint/var
+    networks:
+      - back
+    secrets:
+      - m_database_password.txt
+# the following is just to demonstrate required normalization of logging parameters
+#    environment:
+#      - LOGFILE=midpoint.log
+#      - COMPONENT=midpoint;tier
+#      - "USERTOKEN=user token "
+#      - ENV=demo only
+#
+# repository configuration examples
+#      - REPO_DATABASE_TYPE=mariadb
+#      - REPO_HOST=xyz
+#      - REPO_PORT=10000
+#      the following overrides default URL construction
+#      - REPO_JDBC_URL=jdbc:mariadb://midpoint-data:3306/midpoint
+
+networks:
+  back:    
+    driver: bridge
+
+
+secrets:
+  m_database_password.txt:
+    file: ./configs-and-secrets/midpoint/database_password.txt
+    
+volumes:
+  midpoint_mysql:
+  midpoint_home:
