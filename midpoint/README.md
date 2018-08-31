@@ -11,7 +11,7 @@ There are two containers there:
 ## Downloading midPoint
 
 Before building, please build or download current `midpoint-3.9-SNAPSHOT-dist.tar.gz` file and put it into `midpoint-server` directory. There are the following options:
-1. Build midPoint from sources as described [here](https://wiki.evolveum.com/display/midPoint/Building+MidPoint+From+Source+Code) - but use `tmp/tier` branch instead of `master`. It should contain a bit more stable code in comparison with the master branch.
+1. Build midPoint from sources as described [here](https://wiki.evolveum.com/display/midPoint/Building+MidPoint+From+Source+Code) - *but use `tmp/tier` branch instead of `master`*. It should contain a bit more stable code in comparison with the master branch.
 2. Use `download-midpoint` script.
 3. Download midPoint manually from [Evolveum web site](https://evolveum.com/downloads/midpoint-tier/midpoint-3.9-SNAPSHOT-dist.tar.gz).
 
