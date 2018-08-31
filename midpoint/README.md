@@ -5,11 +5,7 @@ This is a preliminary version of midPoint dockerization for TIER environment.
 There are two containers there:
 
 - `midpoint-server`: provides the midPoint application
-- `midpoint-data`: provides the default midPoint repository
-
-The repository can be implemented in any other way: by another container (perhaps hosting a different database) or by providing it externally: on premises or in cloud.
-
-All files needed to build and compose these containers are in this directory.
+- `midpoint-data`: provides the default midPoint repository; note that the repository can be implemented in any other way - by another container (perhaps hosting a different database) or by providing it externally: on premises or in cloud.
 
 # Building and starting
 ## Downloading midPoint
