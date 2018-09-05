@@ -1,6 +1,6 @@
 # Overview
 
-This is a demonstration of midPoint - Grouper integration. It is a work in progress. It is described in more detail [here](https://spaces.at.internet2.edu/pages/viewpage.action?spaceKey=TIERENTREG&title=midPoint+-+Grouper+integration+demo).
+This is a demonstration of midPoint - Grouper integration. It is a work in progress. It is described in more detail [here](https://spaces.at.internet2.edu/x/VhLtBw).
 
 This demonstration is derived from [TIER Grouper composition](https://github.internet2.edu/docker/grouper/tree/master/test-compose).
 
