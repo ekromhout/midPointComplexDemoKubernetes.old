@@ -101,4 +101,4 @@ Uploading midpoint-objects/roles/role-grouper-basic.xml (roles, c89f31dd-8d4f-4e
 Uploading midpoint-objects/roles/metarole-generic-group.xml (roles, c691e15a-f30b-4e15-8445-532db07ceeeb)
 ```
 
-After that you can log into midPoint and continue with steps described [in the After installation section](https://spaces.at.internet2.edu/display/MID/midPoint+-+Grouper+integration+demo#afterInst) of the integration demo description.
+After that you can log into midPoint and continue with steps described [in the After Installation section](https://spaces.at.internet2.edu/display/MID/midPoint+-+Grouper+integration+demo#midPoint-Grouperintegrationdemo-afterInstAfterinstallation) of the integration demo description.
