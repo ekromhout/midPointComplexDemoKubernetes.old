@@ -33,6 +33,7 @@ services:
       - back
     secrets:
       - m_database_password.txt
+      - m_keystore_password.txt
 # the following is just to demonstrate required normalization of logging parameters
 #    environment:
 #      - LOGFILE=midpoint.log
@@ -55,6 +56,8 @@ networks:
 secrets:
   m_database_password.txt:
     file: ./configs-and-secrets/midpoint/database_password.txt
+  m_keystore_password.txt:
+    file: ./configs-and-secrets/midpoint/keystore_password.txt
     
 volumes:
   midpoint_mysql:

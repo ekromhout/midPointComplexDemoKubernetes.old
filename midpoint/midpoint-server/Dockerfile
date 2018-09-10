@@ -37,6 +37,8 @@ ENV REPO_JDBC_URL default
 ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
 ENV REPO_DATABASE_TYPE mariadb
 
+ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
+
 # Logging parameters
 
 ENV COMPONENT midpoint
@@ -54,11 +56,12 @@ CMD java -Xmx$MEM -Xms2048M -Dfile.encoding=UTF8 \
        -Dmidpoint.home=$MP_DIR/var \
        -Dmidpoint.repository.database=$REPO_DATABASE_TYPE \
        -Dmidpoint.repository.jdbcUsername=$REPO_USER \
-       -Dmidpoint.repository.jdbcPasswordFile=$REPO_PASSWORD_FILE \
+       -Dmidpoint.repository.jdbcPassword_FILE=$REPO_PASSWORD_FILE \
        -Dmidpoint.repository.jdbcUrl="`$MP_DIR/repository-url`" \
        -Dmidpoint.repository.hibernateHbm2ddl=none \
        -Dmidpoint.repository.missingSchemaAction=create \
        -Dmidpoint.repository.initializationFailTimeout=60000 \
+       -Dmidpoint.keystore.keyStorePassword_FILE=$KEYSTORE_PASSWORD_FILE \
        -Dmidpoint.logging.console.enabled=true \
        -Dmidpoint.logging.console.prefix="`$MP_DIR/log-prefix`" \
        -Dmidpoint.logging.console.timezone=UTC \
