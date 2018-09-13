@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# There's something wrong with Evolveum nexus, so we have to manually resolve 3.9-SNAPSHOT
+
+echo "Determining midPoint 3.9-SNAPSHOT version"
+echo "-----------------------------------------"
+v=`curl "http://nexus.evolveum.com/nexus/content/repositories/snapshots/com/evolveum/midpoint/dist/3.9-SNAPSHOT/maven-metadata.xml" | sed -n 's:.*<value>\(.*\)</value>.*:\1:p' | sed -n '1 p'`
+echo "-----------------------------------------"
+echo "Current midPoint 3.9-SNAPSHOT version is $v; starting the download"
+echo "-----------------------------------------"
+curl --output mp-gr/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-3.9-SNAPSHOT-dist.tar.gz"
+echo "-----------------------------------------"
+echo "Checking the download..."
+if tar -tf mp-gr/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz >/dev/null; then
+  echo "OK"
+else
+  echo "The file was not downloaded correctly"
+fi
+
