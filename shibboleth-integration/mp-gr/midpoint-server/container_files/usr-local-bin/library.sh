@@ -12,3 +12,12 @@ linkSecrets(){
     	fi
      done
 }
+
+
+checkMidpointSecurityProfile(){
+     if [[ $ACTIVE_PROFILE = *'sso'* ]]; then
+	cp /etc/httpd/possible-conf/midpoint-www-with-shibboleth-sso.conf /etc/httpd/conf.d/midpoint-www.conf
+     else
+        cp /etc/httpd/possible-conf/midpoint-www-without-shibboleth-sso.conf /etc/httpd/conf.d/midpoint-www.conf
+     fi
+}

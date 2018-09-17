@@ -6,20 +6,6 @@ FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 
-RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
-
-COPY container_files/httpd/* /etc/httpd/conf.d/
-COPY container_files/shibboleth/* /etc/shibboleth/
-COPY container_files/usr-local-bin/ /usr/local/bin/
-
-RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
-    && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
-    && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
-    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
-    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
-    && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
-    && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
-
 # TODO switch to other appropriate Java implementation
 
 RUN yum -y install java-1.8.0-openjdk
@@ -38,6 +24,23 @@ RUN echo 'Extracting midPoint archive...' \
  && tar xzf ${MP_DIR}/midpoint-${MP_VERSION}-dist.tar.gz -C ${MP_DIR} --strip-components=1
 
 VOLUME ${MP_DIR}/var
+
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
+
+COPY container_files/httpd/conf/* /etc/httpd/conf.d/
+COPY container_files/httpd/possible-conf/* /etc/httpd/possible-conf/
+COPY container_files/shibboleth/* /etc/shibboleth/
+COPY container_files/usr-local-bin/ /usr/local/bin/
+
+RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
+    && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
+
+
 
 ENV REPO_HOST midpoint-data
 ENV REPO_PORT 3306

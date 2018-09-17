@@ -3,6 +3,10 @@
 . /usr/local/bin/library.sh
 linkSecrets
 
+. /usr/local/bin/library.sh
+checkMidpointSecurityProfile
+
+
 httpd-shib-foreground & 
 
 java -Xmx2048M -Xms2048M -Dfile.encoding=UTF8 \
