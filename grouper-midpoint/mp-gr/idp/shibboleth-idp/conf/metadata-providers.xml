@@ -26,6 +26,7 @@
     <!-- ========================================================================================== -->
 
     <MetadataProvider id="GrouperSP"  xsi:type="FilesystemMetadataProvider" metadataFile="%{idp.home}/metadata/grouper-sp.xml"/>
+    <MetadataProvider id="MidpointSP"  xsi:type="FilesystemMetadataProvider" metadataFile="%{idp.home}/metadata/midpoint-sp.xml"/>
 
     <!-- Example HTTP metadata provider.  Use this if you want to download
          the metadata from a remote service.

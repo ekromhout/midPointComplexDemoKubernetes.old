@@ -66,9 +66,10 @@ services:
        target: grouper_grouper-loader.properties
      - source: subject.properties
        target: grouper_subject.properties
-     - source: sp-key.pem
+     - source: grouper-sp-key.pem
        target: shib_sp-key.pem
-     - source: host-key.pem
+     - source: grouper-host-key.pem
+       target: host-key.pem
     volumes:
      - type: bind
        source: ./configs-and-secrets/grouper/grouper.properties
@@ -77,19 +78,19 @@ services:
        source: ./configs-and-secrets/grouper/grouper.client.properties
        target: /opt/grouper/conf/grouper.client.properties
      - type: bind
-       source: ./configs-and-secrets/shibboleth/sp-cert.pem
+       source: ./configs-and-secrets/shibboleth/grouper/sp-cert.pem
        target: /etc/shibboleth/sp-cert.pem
      - type: bind
-       source: ./configs-and-secrets/shibboleth/shibboleth2.xml
+       source: ./configs-and-secrets/shibboleth/grouper/shibboleth2.xml
        target: /etc/shibboleth/shibboleth2.xml
      - type: bind
        source: ./configs-and-secrets/shibboleth/idp-metadata.xml
        target: /etc/shibboleth/idp-metadata.xml
      - type: bind
-       source: ./configs-and-secrets/httpd/host-cert.pem
+       source: ./configs-and-secrets/httpd/grouper/host-cert.pem
        target: /etc/pki/tls/certs/host-cert.pem
      - type: bind
-       source: ./configs-and-secrets/httpd/host-cert.pem
+       source: ./configs-and-secrets/httpd/grouper/host-cert.pem
        target: /etc/pki/tls/certs/cachain.pem
 
 
@@ -220,18 +221,41 @@ services:
   midpoint-server:
     build: ./midpoint-server/
     depends_on:
-      - midpoint-data
+     - midpoint-data
     expose:
-      - 8080
+     - "8080"
+     - "4438"
     ports:
-      - 8080:8080
-    volumes:
-      - midpoint_home:/opt/midpoint/var
+     - "8080:80"
+     - "4438:443"
+    environment:
+     - ACTIVE_PROFILE=default
     networks:
-      - front
-      - back
+     - front
+     - back
     secrets:
-      - m_database_password.txt
+     - m_database_password.txt
+     - source: midpoint-sp-key.pem
+       target: shib_sp-key.pem
+     - source: midpoint-host-key.pem
+       target: host-key.pem
+    volumes:
+     - midpoint_home:/opt/midpoint/var
+     - type: bind
+       source: ./configs-and-secrets/shibboleth/midpoint/sp-cert.pem
+       target: /etc/shibboleth/sp-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/shibboleth/midpoint/shibboleth2.xml
+       target: /etc/shibboleth/shibboleth2.xml
+     - type: bind
+       source: ./configs-and-secrets/shibboleth/idp-metadata.xml
+       target: /etc/shibboleth/idp-metadata.xml
+     - type: bind
+       source: ./configs-and-secrets/httpd/midpoint/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/httpd/midpoint/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
 
   idp:
     build: ./idp/
@@ -273,14 +297,18 @@ secrets:
     file: ./configs-and-secrets/grouper/grouper.hibernate.properties
   grouper-loader.properties:
     file: ./configs-and-secrets/grouper/grouper-loader.properties
-  host-key.pem:
-    file: ./configs-and-secrets/httpd/host-key.pem
+  grouper-host-key.pem:
+    file: ./configs-and-secrets/httpd/grouper/host-key.pem
   rabbitmq_password.txt:
     file: ./configs-and-secrets/grouper/rabbitmq_password.txt
   subject.properties:
     file: ./configs-and-secrets/grouper/subject.properties
-  sp-key.pem:
-    file: ./configs-and-secrets/shibboleth/sp-key.pem
+  grouper-sp-key.pem:
+    file: ./configs-and-secrets/shibboleth/grouper/sp-key.pem
+  midpoint-host-key.pem:
+    file: ./configs-and-secrets/httpd/midpoint/host-key.pem
+  midpoint-sp-key.pem:
+    file: ./configs-and-secrets/shibboleth/midpoint/sp-key.pem
   m_database_password.txt:
     file: ./configs-and-secrets/midpoint/database_password.txt
     

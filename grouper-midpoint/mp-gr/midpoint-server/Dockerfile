@@ -6,9 +6,29 @@ FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 
+RUN yum -y install java-1.8.0-openjdk
+
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
+
+COPY container_files/httpd/conf/* /etc/httpd/conf.d/
+COPY container_files/httpd/possible-conf/* /etc/httpd/possible-conf/
+COPY container_files/shibboleth/* /etc/shibboleth/
+COPY container_files/usr-local-bin/ /usr/local/bin/
+
+RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
+    && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
+
+
+
+
 # TODO switch to other appropriate Java implementation
 
-RUN yum -y install java-1.8.0-openjdk
+
 
 ARG MP_VERSION=3.9-SNAPSHOT
 ARG MP_DIST_FILE=midpoint-${MP_VERSION}-dist.tar.gz
@@ -18,12 +38,13 @@ ENV MP_DIR /opt/midpoint
 RUN mkdir -p ${MP_DIR}/var
 
 COPY ${MP_DIST_FILE} ${MP_DIR}
-COPY container_files/ ${MP_DIR}/var/
+COPY container_files/mp-home/ ${MP_DIR}/var/
 
 RUN echo 'Extracting midPoint archive...' \
  && tar xzf ${MP_DIR}/midpoint-${MP_VERSION}-dist.tar.gz -C ${MP_DIR} --strip-components=1
 
 VOLUME ${MP_DIR}/var
+
 
 ENV REPO_HOST midpoint-data
 ENV REPO_PORT 3306
@@ -32,15 +53,10 @@ ENV REPO_DATABASE midpoint
 ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
 ENV ENV demo
 ENV USERTOKEN $MP_VERSION
+#ENV ACTIVE_PROFILE default,sso
+ENV SSO_HEADER uid
+ENV AJP_ENABLED true
+ENV AJP_PORT 9090
+ENV LOGOUT_URL https://localhost:4438/Shibboleth.sso/Logout
 
-CMD java -Xmx2048M -Xms2048M -Dfile.encoding=UTF8 \
-       -Dmidpoint.home=$MP_DIR/var \
-       -Dmidpoint.repository.database=mariadb \
-       -Dmidpoint.repository.jdbcUsername=$REPO_USER \
-       -Dmidpoint.repository.jdbcPasswordFile=$REPO_PASSWORD_FILE \
-       -Dmidpoint.repository.jdbcUrl=jdbc:mariadb://$REPO_HOST:$REPO_PORT/$REPO_DATABASE?characterEncoding=utf8 \
-       -Dmidpoint.repository.hibernateHbm2ddl=none \
-       -Dmidpoint.repository.missingSchemaAction=create \
-       -Dmidpoint.repository.initializationFailTimeout=60000 \
-       -Dmidpoint.logging.console.enabled=true -Dmidpoint.logging.console.prefix="midpoint;midpoint.log;$ENV;$USERTOKEN;" -Dmidpoint.logging.console.timezone=UTC \
-       -jar $MP_DIR/lib/midpoint.war
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

@@ -34,4 +34,14 @@
         </afp:AttributeRule>
 
     </afp:AttributeFilterPolicy>
+
+    <afp:AttributeFilterPolicy id="midpoint">
+        <afp:PolicyRequirementRule xsi:type="basic:AttributeRequesterString" value="https://midpointdemo/shibboleth" />
+
+        <afp:AttributeRule attributeID="uid">
+            <afp:PermitValueRule xsi:type="basic:ANY" />
+        </afp:AttributeRule>
+
+    </afp:AttributeFilterPolicy>
+
 </afp:AttributeFilterPolicyGroup>
