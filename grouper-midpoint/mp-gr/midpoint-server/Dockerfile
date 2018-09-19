@@ -6,7 +6,13 @@ FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 
-RUN yum -y install java-1.8.0-openjdk
+RUN rpm --import http://repos.azulsystems.com/RPM-GPG-KEY-azulsystems
+RUN curl -o /etc/yum.repos.d/zulu.repo http://repos.azulsystems.com/rhel/zulu.repo
+RUN yum -y update
+RUN yum -y install zulu-8
+
+RUN yum -y install supervisor
+COPY container_files/supervisor/supervisord.conf /etc/supervisord.conf
 
 RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
 
@@ -59,4 +65,4 @@ ENV AJP_ENABLED true
 ENV AJP_PORT 9090
 ENV LOGOUT_URL https://localhost:4438/Shibboleth.sso/Logout
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/usr/bin/supervisord"]
