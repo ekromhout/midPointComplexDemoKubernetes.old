@@ -11,6 +11,9 @@ RUN curl -o /etc/yum.repos.d/zulu.repo http://repos.azulsystems.com/rhel/zulu.re
 RUN yum -y update
 RUN yum -y install zulu-8
 
+RUN yum -y install supervisor
+COPY container_files/supervisor/supervisord.conf /etc/supervisord.conf
+
 RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
 
 COPY container_files/httpd/conf/* /etc/httpd/conf.d/
@@ -62,4 +65,4 @@ ENV AJP_ENABLED true
 ENV AJP_PORT 9090
 ENV LOGOUT_URL https://localhost:4438/Shibboleth.sso/Logout
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD ["/usr/bin/supervisord"]
