@@ -8,7 +8,7 @@ services:
     ports:
      - "389:389"
     networks:
-     - back
+     - net
     volumes:
      - ldap:/var/lib/dirsrv
 
@@ -21,17 +21,13 @@ services:
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
     networks:
-     - front
-     - back
+     - net
     ports:
      - "4443:4443"
 
 networks:
-  front:
+  net:
     driver: bridge
-  back:    
-    driver: bridge
-
 
 volumes:
   ldap:
