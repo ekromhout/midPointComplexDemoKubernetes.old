@@ -1,0 +1,45 @@
+#
+# This is a file with additions to ../midpoint/docker-compose.yml file, to be used in the following way:
+#
+# (in this directory)
+#
+# $ docker-compose up --build
+#
+# (in ../midpoint directory)
+#
+# $ docker-compose -f docker-compose.yml -f ../demo/postgresql/midpoint-additions-for-standalone-run.yml up --build
+#
+# It expects that PostgreSQL is started independently of midPoint. When executing the containers in this way, there are two compositions with the following containers:
+#
+# "midpoint"
+#
+# 1) midpoint-server
+# 2) midpoint-data    <-- this is the original MariaDB container; it will execute command of 'true' i.e. exiting just upon the startup
+#
+# "postgresql"
+#
+# 1) postgresql
+#
+
+version: "3.3"
+
+services:
+  midpoint-server:
+    environment:
+     - REPO_DATABASE_TYPE=postgresql
+     - REPO_HOST=postgresql
+     - REPO_PORT=5432
+     - REPO_DATABASE=midpoint
+     - REPO_USER=midpoint
+    networks:
+     - postgresql_net
+
+  # effectively disable original MariaDB service
+  midpoint-data:
+    image: alpine:latest
+    command: "true"
+    entrypoint: "true"
+
+networks:
+  postgresql_net:
+    external: true
