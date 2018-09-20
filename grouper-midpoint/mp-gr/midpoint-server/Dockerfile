@@ -14,7 +14,7 @@ RUN yum -y install zulu-8
 RUN yum -y install supervisor
 COPY container_files/supervisor/supervisord.conf /etc/supervisord.conf
 
-RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem /etc/httpd/conf.d/ssl.conf
 
 COPY container_files/httpd/conf/* /etc/httpd/conf.d/
 COPY container_files/httpd/possible-conf/* /etc/httpd/possible-conf/
@@ -24,8 +24,8 @@ COPY container_files/usr-local-bin/ /usr/local/bin/
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
-    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
-    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/dev\/fd\/1"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/dev\/fd\/1"/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
 
