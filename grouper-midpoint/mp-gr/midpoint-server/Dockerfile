@@ -9,17 +9,28 @@ MAINTAINER info@evolveum.com
 RUN rpm --import http://repos.azulsystems.com/RPM-GPG-KEY-azulsystems
 RUN curl -o /etc/yum.repos.d/zulu.repo http://repos.azulsystems.com/rhel/zulu.repo
 RUN yum -y update
-RUN yum -y install zulu-8
+RUN yum -y install \
+ 	zulu-8 \
+        cronie \
+        supervisor \
+	libcurl \
+	&& yum clean -y all
 
-RUN yum -y install supervisor
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem \
+    && cd /etc/httpd/conf.d/ \
+    && rm -f autoindex.conf ssl.conf userdir.conf welcome.conf
+
 COPY container_files/supervisor/supervisord.conf /etc/supervisord.conf
-
-RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem /etc/httpd/conf.d/ssl.conf
-
 COPY container_files/httpd/conf/* /etc/httpd/conf.d/
 COPY container_files/httpd/possible-conf/* /etc/httpd/possible-conf/
 COPY container_files/shibboleth/* /etc/shibboleth/
 COPY container_files/usr-local-bin/ /usr/local/bin/
+
+RUN chmod 755 /usr/local/bin/sendtierbeacon.sh \
+    && chmod 755 /usr/local/bin/setupcron.sh \
+    && chmod 755 /usr/local/bin/init.sh \
+    && chmod 755 /usr/local/bin/library.sh \
+    && /usr/local/bin/setupcron.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
@@ -64,5 +75,8 @@ ENV SSO_HEADER uid
 ENV AJP_ENABLED true
 ENV AJP_PORT 9090
 ENV LOGOUT_URL https://localhost:4438/Shibboleth.sso/Logout
+
+ENV TIER_RELEASE=test-non-release
+ENV TIER_MAINTAINER=tier
 
 CMD ["/usr/bin/supervisord"]
