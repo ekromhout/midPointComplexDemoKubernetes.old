@@ -17,48 +17,68 @@ services:
     networks:
      - back
     volumes:
-     - midpoint_mysql:/var/lib/mysql
+     - midpoint_data:/var/lib/mysql
 
   midpoint-server:
     build: ./midpoint-server/
     depends_on:
       - midpoint-data
     expose:
-      - 8080
+      - 443
     ports:
-      - 8080:8080
-    volumes:
-      - midpoint_home:/opt/midpoint/var
+      - 8443:443
+    environment:
+     - AUTHENTICATION
+     - ENV
+     - USERTOKEN
+     - REPO_DATABASE_TYPE
+     - REPO_JDBC_URL
+     - REPO_HOST
+     - REPO_PORT
+     - REPO_DATABASE
+     - REPO_USER
+     - REPO_PASSWORD_FILE
+     - KEYSTORE_PASSWORD_FILE
+     - MEM
     networks:
-      - back
+     - back
     secrets:
-      - m_database_password.txt
-      - m_keystore_password.txt
-# the following is just to demonstrate required normalization of logging parameters
-#    environment:
-#      - LOGFILE=midpoint.log
-#      - COMPONENT=midpoint;tier
-#      - "USERTOKEN=user token "
-#      - ENV=demo only
-#
-# repository configuration examples
-#      - REPO_DATABASE_TYPE=mariadb
-#      - REPO_HOST=xyz
-#      - REPO_PORT=10000
-#      the following overrides default URL construction
-#      - REPO_JDBC_URL=jdbc:mariadb://midpoint-data:3306/midpoint
+     - m_database_password.txt
+     - m_keystore_password.txt
+     - m_sp-key.pem
+     - m_host-key.pem
+    volumes:
+     - midpoint_home:/opt/midpoint/var
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/shibboleth2.xml
+       target: /etc/shibboleth/shibboleth2.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/idp-metadata.xml
+       target: /etc/shibboleth/idp-metadata.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
+       target: /etc/shibboleth/sp-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
 
 networks:
   back:    
     driver: bridge
 
-
 secrets:
+  m_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
+  m_sp-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
   m_database_password.txt:
-    file: ./configs-and-secrets/midpoint/database_password.txt
+    file: ./configs-and-secrets/midpoint/application/database_password.txt
   m_keystore_password.txt:
-    file: ./configs-and-secrets/midpoint/keystore_password.txt
+    file: ./configs-and-secrets/midpoint/application/keystore_password.txt
     
 volumes:
-  midpoint_mysql:
+  midpoint_data:
   midpoint_home:
