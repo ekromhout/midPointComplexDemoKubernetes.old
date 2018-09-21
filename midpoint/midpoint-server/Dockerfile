@@ -42,7 +42,7 @@ VOLUME ${MP_DIR}/var
 # Repository parameters
 
 ENV REPO_HOST midpoint-data
-ENV REPO_PORT 3306
+ENV REPO_PORT default
 ENV REPO_USER root
 ENV REPO_DATABASE midpoint
 ENV REPO_JDBC_URL default

@@ -1,6 +1,33 @@
 #!/bin/bash
 
+function resolvePort() {
+    if [ $REPO_PORT == "default" ]; then
+        case $REPO_DATABASE_TYPE in
+            mariadb)
+              echo 3306
+              ;;
+            mysql)
+              echo 3306
+              ;;
+            oracle)
+              echo 1521
+              ;;
+            postgresql)
+              echo 5432
+              ;;
+            sqlserver)
+              echo 1433
+              ;;
+            *)
+              echo "~~~~~ please supply JDBC port for your repository ~~~~~"
+        esac
+    else
+        echo $REPO_PORT
+    fi
+}
+
 if [ $REPO_JDBC_URL == "default" ]; then
+  REPO_PORT=$( resolvePort )
   case $REPO_DATABASE_TYPE in
 	mariadb)
 	  echo "jdbc:mariadb://$REPO_HOST:$REPO_PORT/$REPO_DATABASE?characterEncoding=utf8"

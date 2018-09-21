@@ -21,8 +21,6 @@ services:
 
   midpoint-server:
     build: ./midpoint-server/
-    depends_on:
-      - midpoint-data
     expose:
       - 443
     ports:
