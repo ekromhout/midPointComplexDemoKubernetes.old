@@ -1,16 +1,5 @@
 #!/bin/bash
 
-# normalizing logging variables as required by TIER
-export ENV=${ENV//[; ]/_}
-export USERTOKEN=${USERTOKEN//[; ]/_}
-
-echo "Linking secrets and config files; using authentication: $AUTHENTICATION"
-ln -sf /run/secrets/m_sp-key.pem /etc/shibboleth/sp-key.pem
-ln -sf /run/secrets/m_host-key.pem /etc/pki/tls/private/host-key.pem
-ln -sf /etc/httpd/conf.d/midpoint.conf.auth.$AUTHENTICATION /etc/httpd/conf.d/midpoint.conf
-
-httpd-shib-foreground &
-
 if [ "$AUTHENTICATION" = "shibboleth" ]; then
   LOGOUT_URL_DIRECTIVE="-Dauth.logout.url=$LOGOUT_URL"
 else
@@ -35,4 +24,5 @@ java -Xmx$MEM -Xms2048m -Dfile.encoding=UTF8 \
        $LOGOUT_URL_DIRECTIVE \
        -Dserver.tomcat.ajp.enabled=$AJP_ENABLED \
        -Dserver.tomcat.ajp.port=$AJP_PORT \
+       -Dlogging.path=/tmp/logtomcat \
        -jar $MP_DIR/lib/midpoint.war

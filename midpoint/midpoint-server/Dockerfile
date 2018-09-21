@@ -6,19 +6,38 @@ FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 
-RUN yum -y install java-1.8.0-openjdk
+RUN rpm --import http://repos.azulsystems.com/RPM-GPG-KEY-azulsystems
+RUN curl -o /etc/yum.repos.d/zulu.repo http://repos.azulsystems.com/rhel/zulu.repo
+RUN yum -y update
+RUN yum -y install \
+ 	zulu-8 \
+        cron \
+        supervisor \
+	libcurl \
+	&& yum clean -y all
 
-RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem \
+    && cd /etc/httpd/conf.d/ \
+    && rm -f autoindex.conf ssl.conf userdir.conf welcome.conf
 
+COPY container_files/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY container_files/httpd/conf/* /etc/httpd/conf.d/
 COPY container_files/shibboleth/* /etc/shibboleth/
 COPY container_files/usr-local-bin/* /usr/local/bin/
+COPY container_files/opt-tier/* /opt/tier/
+
+RUN chmod 755 /opt/tier/setenv.sh \
+    && chmod 755 /usr/local/bin/send-tier-beacon.sh \
+    && chmod 755 /usr/local/bin/setup-cron.sh \
+    && chmod 755 /usr/local/bin/start-midpoint.sh \
+    && chmod 755 /usr/local/bin/start-httpd-shib.sh \
+    && chmod 755 /usr/local/bin/start-all.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
-    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
-    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/loghttpd"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/loghttpd"/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
 
@@ -67,4 +86,13 @@ ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
 ENV MEM 2048m
 
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENV TIER_RELEASE=test-non-release
+ENV TIER_MAINTAINER=tier
+ENV TIER_BEACON_ENABLED=true
+
+RUN pwd
+
+# requires MP_VERSION and TIER_xyz variables so we have to execute it here
+RUN /opt/tier/setenv.sh
+
+CMD ["/usr/local/bin/start-all.sh"]
