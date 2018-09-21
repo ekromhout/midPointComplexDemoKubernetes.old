@@ -42,18 +42,18 @@ log4j.additivity.Shibboleth-TRANSACTION=false
 # define the appenders
 
 log4j.appender.shibd_log=org.apache.log4j.FileAppender
-log4j.appender.shibd_log.fileName=/dev/fd/3
+log4j.appender.shibd_log.fileName=/tmp/logshib
 log4j.appender.shibd_log.maxFileSize=0
 log4j.appender.shibd_log.layout=org.apache.log4j.PatternLayout
 log4j.appender.shibd_log.layout.ConversionPattern=shibd;shibd.log;${ENV};${USERTOKEN};%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n
 
 log4j.appender.tran_log=org.apache.log4j.FileAppender
-log4j.appender.tran_log.fileName=/dev/fd/4
+log4j.appender.tran_log.fileName=/tmp/logshib
 log4j.appender.tran_log.maxFileSize=0
 log4j.appender.tran_log.layout=org.apache.log4j.PatternLayout
 log4j.appender.tran_log.layout.ConversionPattern=shibd;transaction.log;${ENV};${USERTOKEN};%d{%Y-%m-%d %H:%M:%S} %p %c %x: %m%n
 
 log4j.appender.sig_log=org.apache.log4j.FileAppender
-log4j.appender.sig_log.fileName=/dev/fd/5
+log4j.appender.sig_log.fileName=/tmp/logshib
 log4j.appender.sig_log.layout=org.apache.log4j.PatternLayout
 log4j.appender.sig_log.layout.ConversionPattern=shibd;signature.log;${ENV};${USERTOKEN};%m
