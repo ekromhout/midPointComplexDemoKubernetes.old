@@ -11,7 +11,7 @@ RUN curl -o /etc/yum.repos.d/zulu.repo http://repos.azulsystems.com/rhel/zulu.re
 RUN yum -y update
 RUN yum -y install \
  	zulu-8 \
-        cronie \
+        cron \
         supervisor \
 	libcurl \
 	&& yum clean -y all
@@ -20,32 +20,29 @@ RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem \
     && cd /etc/httpd/conf.d/ \
     && rm -f autoindex.conf ssl.conf userdir.conf welcome.conf
 
-COPY container_files/supervisor/supervisord.conf /etc/supervisord.conf
+COPY container_files/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
 COPY container_files/httpd/conf/* /etc/httpd/conf.d/
 COPY container_files/httpd/possible-conf/* /etc/httpd/possible-conf/
 COPY container_files/shibboleth/* /etc/shibboleth/
 COPY container_files/usr-local-bin/ /usr/local/bin/
 
+RUN mv /usr/local/bin/setenv.sh /opt/tier/setenv.sh \
+    && chmod 755 /opt/tier/setenv.sh
+
 RUN chmod 755 /usr/local/bin/sendtierbeacon.sh \
     && chmod 755 /usr/local/bin/setupcron.sh \
     && chmod 755 /usr/local/bin/init.sh \
     && chmod 755 /usr/local/bin/library.sh \
+    && chmod 755 /usr/local/bin/startup.sh \
     && /usr/local/bin/setupcron.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
-    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/dev\/fd\/1"/g' /etc/httpd/conf/httpd.conf \
-    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/dev\/fd\/1"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/loghttpd"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/loghttpd"/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
     && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
-
-
-
-
-# TODO switch to other appropriate Java implementation
-
-
 
 ARG MP_VERSION=3.9-SNAPSHOT
 ARG MP_DIST_FILE=midpoint-${MP_VERSION}-dist.tar.gz
@@ -79,4 +76,5 @@ ENV LOGOUT_URL https://localhost:4438/Shibboleth.sso/Logout
 ENV TIER_RELEASE=test-non-release
 ENV TIER_MAINTAINER=tier
 
-CMD ["/usr/bin/supervisord"]
+#CMD ["/usr/bin/supervisord"]
+CMD ["/usr/local/bin/startup.sh"]

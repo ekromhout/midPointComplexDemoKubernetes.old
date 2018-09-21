@@ -3,6 +3,10 @@
 LOGHOST="localhost"
 LOGPORT="80"
 
+if [ -s /opt/tier/env.bash ]; then
+  . /opt/tier/env.bash
+fi
+
 messagefile="/tmp/beaconmsg"
 
 if [ -z "$TIER_BEACON_OPT_OUT" ]; then
