@@ -6,22 +6,34 @@ FROM tier/shibboleth_sp
 
 MAINTAINER info@evolveum.com
 
-# TODO switch to other appropriate Java implementation
-
 RUN yum -y install java-1.8.0-openjdk
+
+RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem
+
+COPY container_files/httpd/conf/* /etc/httpd/conf.d/
+COPY container_files/shibboleth/* /etc/shibboleth/
+COPY container_files/usr-local-bin/* /usr/local/bin/
+
+RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
+    && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
+    && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && sed -i 's/ErrorLog "logs\/error_log"/ErrorLog "\/tmp\/logpipe"/g' /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv ENV" >> /etc/httpd/conf/httpd.conf \
+    && echo -e "\nPassEnv USERTOKEN" >> /etc/httpd/conf/httpd.conf
 
 # Build arguments
 
 ARG MP_VERSION=3.9-SNAPSHOT
 ARG MP_DIST_FILE=midpoint-${MP_VERSION}-dist.tar.gz
 
-ENV MP_DIR=/opt/midpoint
-
-# Copying files
+ENV MP_DIR /opt/midpoint
 
 RUN mkdir -p ${MP_DIR}/var
+
 COPY ${MP_DIST_FILE} ${MP_DIR}
-COPY container_files/ ${MP_DIR}/
+COPY container_files/mp-dir/ ${MP_DIR}/
+
 RUN echo 'Extracting midPoint archive...' \
  && tar xzf ${MP_DIR}/midpoint-${MP_VERSION}-dist.tar.gz -C ${MP_DIR} --strip-components=1
 
@@ -30,39 +42,29 @@ VOLUME ${MP_DIR}/var
 # Repository parameters
 
 ENV REPO_HOST midpoint-data
-ENV REPO_PORT 3306
+ENV REPO_PORT default
 ENV REPO_USER root
 ENV REPO_DATABASE midpoint
 ENV REPO_JDBC_URL default
 ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
 ENV REPO_DATABASE_TYPE mariadb
 
-ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
-
 # Logging parameters
 
-ENV COMPONENT midpoint
-ENV LOGFILE midpoint.log
 ENV ENV demo
 ENV USERTOKEN $MP_VERSION
 
+# Authentication/web
+
+ENV AUTHENTICATION internal
+ENV SSO_HEADER uid
+ENV AJP_ENABLED true
+ENV AJP_PORT 9090
+ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
+
 # Other parameters
 
-ENV MEM 2048M
+ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
+ENV MEM 2048m
 
-# Execution
-
-CMD java -Xmx$MEM -Xms2048M -Dfile.encoding=UTF8 \
-       -Dmidpoint.home=$MP_DIR/var \
-       -Dmidpoint.repository.database=$REPO_DATABASE_TYPE \
-       -Dmidpoint.repository.jdbcUsername=$REPO_USER \
-       -Dmidpoint.repository.jdbcPassword_FILE=$REPO_PASSWORD_FILE \
-       -Dmidpoint.repository.jdbcUrl="`$MP_DIR/repository-url`" \
-       -Dmidpoint.repository.hibernateHbm2ddl=none \
-       -Dmidpoint.repository.missingSchemaAction=create \
-       -Dmidpoint.repository.initializationFailTimeout=60000 \
-       -Dmidpoint.keystore.keyStorePassword_FILE=$KEYSTORE_PASSWORD_FILE \
-       -Dmidpoint.logging.console.enabled=true \
-       -Dmidpoint.logging.console.prefix="`$MP_DIR/log-prefix`" \
-       -Dmidpoint.logging.console.timezone=UTC \
-       -jar $MP_DIR/lib/midpoint.war
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

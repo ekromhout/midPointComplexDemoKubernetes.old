@@ -1,0 +1,33 @@
+version: "3.3"
+
+services:
+  directory:
+    build: ./directory/
+    expose:
+     - "389"
+    ports:
+     - "389:389"
+    networks:
+     - net
+    volumes:
+     - ldap:/var/lib/dirsrv
+
+  idp:
+    build: ./idp/
+    depends_on:
+     - directory
+    environment:
+     - JETTY_MAX_HEAP=64m
+     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+    networks:
+     - net
+    ports:
+     - "4443:4443"
+
+networks:
+  net:
+    driver: bridge
+
+volumes:
+  ldap:
