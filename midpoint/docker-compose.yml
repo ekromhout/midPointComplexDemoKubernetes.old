@@ -38,6 +38,8 @@ services:
      - REPO_PASSWORD_FILE
      - KEYSTORE_PASSWORD_FILE
      - MEM
+     - SSO_HEADER
+     - LOGOUT_URL
     networks:
      - back
     secrets:
