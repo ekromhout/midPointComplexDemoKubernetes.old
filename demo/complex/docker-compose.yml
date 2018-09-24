@@ -1,0 +1,315 @@
+version: "3.3"
+
+services:
+  grouper-daemon:
+    build: ./grouper-daemon/
+    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec daemon"
+    depends_on:
+     - grouper-data
+     - directory
+    environment:
+     - ENV=demo
+     - GROUPER_CLIENT_WEBSERVICE_PASSWORD_FILE=password
+     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
+     - RABBITMQ_PASSWORD_FILE=/run/secrets/rabbitmq_password.txt
+     - SUBJECT_SOURCE_LDAP_PASSWORD=password
+     - USERTOKEN=build-2
+    networks:
+     - back
+    secrets:
+     - g_database_password.txt
+     - rabbitmq_password.txt
+     - source: grouper.hibernate.properties
+       target: grouper_grouper.hibernate.properties
+     - source: grouper-loader.properties
+       target: grouper_grouper-loader.properties
+     - source: subject.properties
+       target: grouper_subject.properties
+    volumes:
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.properties
+       target: /opt/grouper/conf/grouper.properties
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.client.properties
+       target: /opt/grouper/conf/grouper.client.properties
+
+
+  grouper-ui:
+    build: ./grouper-ui/
+    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ui"
+    depends_on:
+     - grouper-data
+     - directory
+    environment:
+     - ENV=demo
+     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
+     - SUBJECT_SOURCE_LDAP_PASSWORD=password
+     - USERTOKEN=build-2
+    networks:
+     - front
+     - back
+    ports:
+     - "80:80"
+     - "443:443"
+    secrets:
+     - g_database_password.txt
+     - source: grouper.hibernate.properties
+       target: grouper_grouper.hibernate.properties
+     - source: grouper-loader.properties
+       target: grouper_grouper-loader.properties
+     - source: subject.properties
+       target: grouper_subject.properties
+     - source: g_sp-key.pem
+       target: shib_sp-key.pem
+     - source: g_host-key.pem
+       target: host-key.pem
+    volumes:
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.properties
+       target: /opt/grouper/conf/grouper.properties
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.client.properties
+       target: /opt/grouper/conf/grouper.client.properties
+     - type: bind
+       source: ./configs-and-secrets/grouper/shibboleth/sp-cert.pem
+       target: /etc/shibboleth/sp-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/grouper/shibboleth/shibboleth2.xml
+       target: /etc/shibboleth/shibboleth2.xml
+     - type: bind
+       source: ./configs-and-secrets/grouper/shibboleth/idp-metadata.xml
+       target: /etc/shibboleth/idp-metadata.xml
+     - type: bind
+       source: ./configs-and-secrets/grouper/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/grouper/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
+
+
+#  grouper-ws:
+#    build: ./grouper-ws/
+#    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ws"
+#    depends_on:
+#     - grouper-data
+#     - directory
+#    environment:
+#     - ENV=dev
+#     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
+#     - SUBJECT_SOURCE_LDAP_PASSWORD=password
+#     - USERTOKEN=build-2
+#    networks:
+#     - front
+#     - back
+#    ports:
+#     - "8443:443"
+#    secrets:
+#     - g_database_password.txt
+#     - source: grouper.hibernate.properties
+#       target: grouper_grouper.hibernate.properties
+#     - source: grouper-loader.properties
+#       target: grouper_grouper-loader.properties
+#     - source: subject.properties
+#       target: grouper_subject.properties
+#     - source: sp-key.pem
+#       target: shib_sp-key.pem
+#     - source: host-key.pem
+#    volumes:
+#     - type: bind
+#       source: ./configs-and-secrets/grouper/grouper.properties
+#       target: /opt/grouper/conf/grouper.properties
+#     - type: bind
+#       source: ./configs-and-secrets/grouper/grouper.client.properties
+#       target: /opt/grouper/conf/grouper.client.properties
+#     - type: bind
+#       source: ./configs-and-secrets/httpd/host-cert.pem
+#       target: /etc/pki/tls/certs/host-cert.pem
+#     - type: bind
+#       source: ./configs-and-secrets/httpd/host-cert.pem
+#       target: /etc/pki/tls/certs/cachain.pem
+#
+#  gsh:
+#    build: ./gsh/
+#    depends_on:
+#     - grouper-data
+#     - directory
+#    environment:
+#     - ENV=dev
+#     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
+#     - SUBJECT_SOURCE_LDAP_PASSWORD=password
+#     - USERTOKEN=build-2
+#    networks:
+#     - back
+#    secrets:
+#     - g_database_password.txt
+#     - source: grouper.hibernate.properties
+#       target: grouper_grouper.hibernate.properties
+#     - source: grouper-loader.properties
+#       target: grouper_grouper-loader.properties
+#     - source: subject.properties
+#       target: grouper_subject.properties
+#    volumes:
+#     - type: bind
+#       source: ./configs-and-secrets/grouper/grouper.properties
+#       target: /opt/grouper/conf/grouper.properties
+#     - type: bind
+#       source: ./configs-and-secrets/grouper/grouper.client.properties
+#       target: /opt/grouper/conf/grouper.client.properties
+
+  grouper-data:
+    build: ./grouper-data/
+    networks:
+     - back
+    ports:
+     - "3306:3306"
+    volumes:
+     - grouper_data:/var/lib/mysql  
+
+  directory:
+    build: ./directory/
+    ports:
+     - "389:389"
+    networks:
+     - back
+    volumes:
+     - ldap:/var/lib/dirsrv
+
+  sources:
+    build: ./sources/
+    ports:
+     - "13306:3306"
+    networks:
+     - back
+    volumes:
+     - source_data:/var/lib/mysql
+
+  targets:
+    build: ./targets/
+    ports:
+     - "23306:389"
+    networks:
+     - back
+    volumes:
+     - target_data:/var/lib/mysql
+
+  midpoint-data:
+    image: tier/midpoint-mariadb:latest
+    ports:
+     - "33306:3306"
+    networks:
+     - back
+    volumes:
+     - midpoint_data:/var/lib/mysql
+
+  midpoint-server:
+    build: ./midpoint-server/
+    depends_on:
+     - midpoint-data
+    ports:
+     - "8443:443"
+    environment:
+     - AUTHENTICATION
+     - ENV
+     - USERTOKEN
+     - REPO_DATABASE_TYPE
+     - REPO_JDBC_URL
+     - REPO_HOST
+     - REPO_PORT
+     - REPO_DATABASE
+     - REPO_USER
+     - REPO_PASSWORD_FILE
+     - KEYSTORE_PASSWORD_FILE
+     - MEM
+     - SSO_HEADER
+     - LOGOUT_URL
+     - TIER_BEACON_OPT_OUT
+    networks:
+     - front
+     - back
+    secrets:
+     - m_database_password.txt
+     - m_keystore_password.txt
+     - m_sp-key.pem
+     - m_host-key.pem
+    volumes:
+     - midpoint_home:/opt/midpoint/var
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/shibboleth2.xml
+       target: /etc/shibboleth/shibboleth2.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/idp-metadata.xml
+       target: /etc/shibboleth/idp-metadata.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
+       target: /etc/shibboleth/sp-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
+
+  idp:
+    build: ./idp/
+    depends_on:
+     - directory
+    environment:
+     - JETTY_MAX_HEAP=64m
+     - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
+     - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
+    networks:
+     - front
+     - back
+    ports:
+     - "4443:4443"
+
+  mq:
+    image: rabbitmq:management
+    environment:
+     - RABBITMQ_NODENAME=docker-rabbit
+    hostname: rabbitmq
+    networks:
+     - front
+     - back
+    ports:
+     - "15672:15672"
+
+networks:
+  front:
+    driver: bridge
+  back:    
+    driver: bridge
+
+secrets:
+# grouper
+  g_host-key.pem:
+    file: ./configs-and-secrets/grouper/httpd/host-key.pem
+  g_sp-key.pem:
+    file: ./configs-and-secrets/grouper/shibboleth/sp-key.pem
+  g_database_password.txt:
+    file: ./configs-and-secrets/grouper/application/database_password.txt
+  rabbitmq_password.txt:
+    file: ./configs-and-secrets/grouper/application/rabbitmq_password.txt
+  grouper.hibernate.properties:
+    file: ./configs-and-secrets/grouper/application/grouper.hibernate.properties
+  grouper-loader.properties:
+    file: ./configs-and-secrets/grouper/application/grouper-loader.properties
+  subject.properties:
+    file: ./configs-and-secrets/grouper/application/subject.properties
+# midPoint
+  m_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
+  m_sp-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
+  m_database_password.txt:
+    file: ./configs-and-secrets/midpoint/application/database_password.txt
+  m_keystore_password.txt:
+    file: ./configs-and-secrets/midpoint/application/keystore_password.txt    
+    
+volumes:
+  grouper_data:
+  source_data:
+  target_data:
+  ldap:
+  midpoint_data:
+  midpoint_home:
