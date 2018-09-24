@@ -27,11 +27,11 @@ COPY container_files/usr-local-bin/* /usr/local/bin/
 COPY container_files/opt-tier/* /opt/tier/
 
 RUN chmod 755 /opt/tier/setenv.sh \
-    && chmod 755 /usr/local/bin/send-tier-beacon.sh \
+    && chmod 755 /usr/local/bin/sendtierbeacon.sh \
     && chmod 755 /usr/local/bin/setup-cron.sh \
     && chmod 755 /usr/local/bin/start-midpoint.sh \
-    && chmod 755 /usr/local/bin/start-httpd-shib.sh \
-    && chmod 755 /usr/local/bin/start-all.sh
+    && chmod 755 /usr/local/bin/start-httpd.sh \
+    && chmod 755 /usr/local/bin/startup.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
@@ -71,7 +71,7 @@ ENV REPO_DATABASE_TYPE mariadb
 # Logging parameters
 
 ENV ENV demo
-ENV USERTOKEN $MP_VERSION
+ENV USERTOKEN ""
 
 # Authentication/web
 
@@ -85,14 +85,22 @@ ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 
 ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
 ENV MEM 2048m
-
-ENV TIER_RELEASE=test-non-release
+ENV TIER_RELEASE=not-released-yet
 ENV TIER_MAINTAINER=tier
-ENV TIER_BEACON_ENABLED=true
 
-RUN pwd
+# TIER Beacon Opt-out
+# Completely uncomment the following ENV line to prevent the containers from sending analytics information to Internet2.
+# With the default/release configuration, it will only send product (Shibb/Grouper/COmanage/midPoint) and version (3.9, etc)
+# once daily between midnight and 4am.  There is no configuration or private information collected or sent.
+# This data helps with the scaling and funding of TIER.  Please do not disable it if you find the TIER tools useful.
+# To keep it commented, keep multiple comments on the following line (to prevent other scripts from processing it).
+#####     ENV TIER_BEACON_OPT_OUT true
 
 # requires MP_VERSION and TIER_xyz variables so we have to execute it here
+
+# TODO JUST FOR TESTING -- REMOVE BEFORE RELEASE
+RUN /usr/local/bin/set-timezone.sh
+
 RUN /opt/tier/setenv.sh
 
-CMD ["/usr/local/bin/start-all.sh"]
+CMD ["/usr/local/bin/startup.sh"]

@@ -16,13 +16,13 @@ java -Xmx$MEM -Xms2048m -Dfile.encoding=UTF8 \
        -Dmidpoint.repository.missingSchemaAction=create \
        -Dmidpoint.repository.initializationFailTimeout=60000 \
        -Dmidpoint.keystore.keyStorePassword_FILE=$KEYSTORE_PASSWORD_FILE \
-       -Dmidpoint.logging.console.enabled=true \
-       -Dmidpoint.logging.console.prefix="midpoint;midpoint.log;$ENV;$USERTOKEN;" \
-       -Dmidpoint.logging.console.timezone=UTC \
+       -Dmidpoint.logging.alt.enabled=true \
+       -Dmidpoint.logging.alt.filename=/tmp/logmidpoint \
+       -Dmidpoint.logging.alt.timezone=UTC \
        -Dspring.profiles.active="`$MP_DIR/active-spring-profiles`" \
        -Dauth.sso.header=$SSO_HEADER \
        $LOGOUT_URL_DIRECTIVE \
        -Dserver.tomcat.ajp.enabled=$AJP_ENABLED \
        -Dserver.tomcat.ajp.port=$AJP_PORT \
        -Dlogging.path=/tmp/logtomcat \
-       -jar $MP_DIR/lib/midpoint.war
+       -jar $MP_DIR/lib/midpoint.war &>/tmp/logmidpoint-console

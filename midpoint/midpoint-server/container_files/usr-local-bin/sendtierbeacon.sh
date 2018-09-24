@@ -1,7 +1,7 @@
 #!/bin/bash
 
-LOGHOST="localhost"
-LOGPORT="80"
+LOGHOST="collector.testbed.tier.internet2.edu"
+LOGPORT="5001"
 
 if [ -s /opt/tier/env.bash ]; then
   . /opt/tier/env.bash
@@ -15,21 +15,21 @@ if [ -z "$TIER_BEACON_OPT_OUT" ]; then
     "msgType"          : "TIERBEACON",
     "msgName"          : "TIER",
     "msgVersion"       : "1.0",
-    "tbProduct"        : "MIDPOINT",
+    "tbProduct"        : "midPoint",
     "tbProductVersion" : "$MP_VERSION",
     "tbTIERRelease"    : "$TIER_RELEASE",
     "tbMaintainer"     : "$TIER_MAINTAINER"
 }
 EOF
 
-#    echo `date`": going to send TIER beacon to ${LOGHOST}:${LOGPORT}:"
+#    echo "going to send TIER beacon to ${LOGHOST}:${LOGPORT}:"
 #    cat $messagefile
 
     curl -s -XPOST "${LOGHOST}:${LOGPORT}/" -H 'Content-Type: application/json' -T $messagefile 1>/dev/null 2>&1
     if [ $? -eq 0 ]; then
-        echo `date`": TIER beacon sent"
+        echo "TIER beacon sent"
     else
-        echo `date`": Failed to send TIER beacon"
+        echo "Failed to send TIER beacon"
     fi
 
     rm -f $messagefile 1>/dev/null 2>&1
