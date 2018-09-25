@@ -98,8 +98,10 @@ ENV TIER_MAINTAINER=tier
 
 # requires MP_VERSION and TIER_xyz variables so we have to execute it here
 
-# TODO JUST FOR TESTING -- REMOVE BEFORE RELEASE
-RUN /usr/local/bin/set-timezone.sh
+# JUST FOR TESTING - REMOVE BEFORE RELEASE
+RUN rm /etc/localtime \
+ && ln -s /usr/share/zoneinfo/US/Central /etc/localtime \
+ && date
 
 RUN /opt/tier/setenv.sh
 

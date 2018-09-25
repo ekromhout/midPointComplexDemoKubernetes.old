@@ -37,4 +37,9 @@ RUN (mysqld_safe & ) \
 
 EXPOSE 3306
 
+# JUST FOR TESTING - REMOVE BEFORE RELEASE
+RUN rm /etc/localtime \
+ && ln -s /usr/share/zoneinfo/US/Central /etc/localtime \
+ && date
+
 CMD mysqld_safe
