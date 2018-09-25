@@ -26,7 +26,7 @@ echo ""
 echo "(for standalone execution)"
 echo ""
 echo "$ cd" `pwd`
-echo "$ docker-compose up"
+echo "$ docker-compose up --build"
 echo ""
 echo "(for complex demo)"
 echo ""
