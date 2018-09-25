@@ -31,7 +31,8 @@ RUN chmod 755 /opt/tier/setenv.sh \
     && chmod 755 /usr/local/bin/setup-cron.sh \
     && chmod 755 /usr/local/bin/start-midpoint.sh \
     && chmod 755 /usr/local/bin/start-httpd.sh \
-    && chmod 755 /usr/local/bin/startup.sh
+    && chmod 755 /usr/local/bin/startup.sh \
+    && chmod 755 /usr/local/bin/healthcheck.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
@@ -104,5 +105,7 @@ RUN rm /etc/localtime \
  && date
 
 RUN /opt/tier/setenv.sh
+
+HEALTHCHECK --interval=1m --timeout=30s --start-period=2m CMD /usr/local/bin/healthcheck.sh
 
 CMD ["/usr/local/bin/startup.sh"]
