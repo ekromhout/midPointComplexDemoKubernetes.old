@@ -14,9 +14,9 @@ These tags apply to both containers:
 # Content
 - `midpoint` directory contains build instructions for both containers (`midpoint` and `midpoint-mariadb`),
 - `demo` directory contains three demonstration scenarios:
--- `shibboleth` to show integration with Shibboleth IdP,
--- `postgresql` to show how to change the repository implementation,
--- `complex` to demonstrate more complex deployment of midPoint in a sample university environment, featuring midPoint along with Grouper, LDAP directory, RabbitMQ, Shibboleth IdP, source and target systems.
+  - `shibboleth` to show integration with Shibboleth IdP,
+  - `postgresql` to show how to change the repository implementation,
+  - `complex` to demonstrate more complex deployment of midPoint in a sample university environment, featuring midPoint along with Grouper, LDAP directory, RabbitMQ, Shibboleth IdP, source and target systems.
 
 # Build instructions
 Please see specific subdirectories: [midpoint](midpoint) and [demo/complex](demo/complex).
