@@ -46,7 +46,6 @@ services:
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
      - USERTOKEN=build-2
     networks:
-     - front
      - back
     ports:
      - "80:80"
@@ -99,7 +98,6 @@ services:
 #     - SUBJECT_SOURCE_LDAP_PASSWORD=password
 #     - USERTOKEN=build-2
 #    networks:
-#     - front
 #     - back
 #    ports:
 #     - "8443:443"
@@ -224,7 +222,6 @@ services:
      - LOGOUT_URL
      - TIER_BEACON_OPT_OUT
     networks:
-     - front
      - back
     secrets:
      - m_database_password.txt
@@ -258,7 +255,6 @@ services:
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
     networks:
-     - front
      - back
     ports:
      - "4443:4443"
@@ -269,14 +265,11 @@ services:
      - RABBITMQ_NODENAME=docker-rabbit
     hostname: rabbitmq
     networks:
-     - front
      - back
     ports:
      - "15672:15672"
 
 networks:
-  front:
-    driver: bridge
   back:    
     driver: bridge
 
