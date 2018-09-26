@@ -48,12 +48,9 @@ pipeline {
             steps {
                 script {
                    sh 'midpoint/download-midpoint'
-                   docker.withRegistry('https://registry.hub.docker.com/',   "dockerhub-$maintainer") {
+                   docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
                       def baseImg = docker.build("$maintainer/$imagename", "--no-cache midpoint/midpoint-server")
-                      // test the environment 
-                      // sh 'cd test-compose && ./compose.sh'
-                      // bring down after testing
-                      // sh 'cd test-compose && docker-compose down'
+                      sh './test.sh'
                       baseImg.push("$tag")
                    }
                }
