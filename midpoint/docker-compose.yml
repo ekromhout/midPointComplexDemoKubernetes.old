@@ -10,8 +10,8 @@ services:
     volumes:
      - midpoint_mysql:/var/lib/mysql
      - midpoint_data:/var/lib/mysqlmounted
-    environment:
-     - CREATE_NEW_DATABASE=if_needed
+#    environment:
+#     - CREATE_NEW_DATABASE=if_needed
 
   midpoint-server:
     build: ./midpoint-server/

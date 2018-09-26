@@ -50,7 +50,11 @@ pipeline {
                    sh 'midpoint/download-midpoint'
                    docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
                       def baseImg = docker.build("$maintainer/$imagename", "--no-cache midpoint/midpoint-server")
-                      sh 'env NOCOLOR=true ./test.sh'
+                      try {
+                         sh 'env NOCOLOR=true ./test.sh'
+                      } finally {
+                         sh './cleanup.sh'
+                      }
                       baseImg.push("$tag")
                    }
                }

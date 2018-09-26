@@ -5,6 +5,11 @@ trap 'exitcode=$? ; error "Exiting midpoint/test.sh because of an error ($exitco
 cd "$(dirname "$0")"
 . ../test/common.sh
 
+heading "Cleaning up containers and volumes if they exist"
+docker-compose down -v || true
+ok "Done"
+echo
+
 heading "Composing midPoint..."
 docker-compose up --no-start
 ok "midPoint composed OK"

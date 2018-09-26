@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USER=test300
-trap 'exitcode=$? ; error "Exiting because of an error ($exitcode) occurred" ; exit $exitcode' ERR
+trap 'exitcode=$? ; error "Exiting $0 because of an error ($exitcode) occurred" ; exit $exitcode' ERR
 . ../test/common.sh
 
 echo "Adding user '${USER}'..."
