@@ -15,11 +15,7 @@ function normalize_path()
 
 cd "$(dirname "$0")"
 ./download-midpoint
-cd midpoint-data
-docker build --tag tier/midpoint-mariadb:latest .
-cd ../midpoint-server
-docker build --tag tier/midpoint:latest .
-cd ..
+docker build --tag tier/midpoint:latest midpoint-server
 echo "---------------------------------------------------------------------------------------"
 echo "The midPoint containers were successfully built. To start them, execute the following:"
 echo ""

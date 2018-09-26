@@ -9,9 +9,7 @@ version: "3.3"
 
 services:
   midpoint-data:
-    build: ./midpoint-data/
-    expose:
-     - 3306
+    image: tier/mariadb:mariadb10
     ports:
      - 3306:3306
     networks:
@@ -21,8 +19,6 @@ services:
 
   midpoint-server:
     build: ./midpoint-server/
-    expose:
-      - 443
     ports:
       - 8443:443
     environment:

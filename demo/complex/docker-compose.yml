@@ -190,7 +190,7 @@ services:
      - target_data:/var/lib/mysql
 
   midpoint-data:
-    image: tier/midpoint-mariadb:latest
+    image: tier/mariadb:mariadb10
     ports:
      - "33306:3306"
     networks:
