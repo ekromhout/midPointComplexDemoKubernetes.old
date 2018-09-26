@@ -99,11 +99,6 @@ ENV TIER_MAINTAINER=tier
 
 # requires MP_VERSION and TIER_xyz variables so we have to execute it here
 
-# JUST FOR TESTING - REMOVE BEFORE RELEASE
-RUN rm /etc/localtime \
- && ln -s /usr/share/zoneinfo/US/Central /etc/localtime \
- && date
-
 RUN /opt/tier/setenv.sh
 
 HEALTHCHECK --interval=1m --timeout=30s --start-period=2m CMD /usr/local/bin/healthcheck.sh
