@@ -86,8 +86,8 @@ ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 
 ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
 ENV MEM 2048m
-ENV TIER_RELEASE=not-released-yet
-ENV TIER_MAINTAINER=tier
+ENV TIER_RELEASE not-released-yet
+ENV TIER_MAINTAINER tier
 
 # TIER Beacon Opt-out
 # Completely uncomment the following ENV line to prevent the containers from sending analytics information to Internet2.

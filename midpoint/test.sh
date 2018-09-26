@@ -35,12 +35,12 @@ test/t120-add-get-user.sh
 ok "OK"
 echo
 
-heading "Test 200: Stop/start cycle..."
-test/t200-stop-start.sh
-ok "OK"
-echo
-
-#heading "Test 300: Checking repository preservation across compose down/up..."
-#test/t300-repository-preservation.sh
+#heading "Test 200: Stop/start cycle..."
+#test/t200-stop-start.sh
 #ok "OK"
 #echo
+
+heading "Test 300: Checking repository preservation across compose down/up..."
+test/t300-repository-preservation.sh
+ok "OK"
+echo

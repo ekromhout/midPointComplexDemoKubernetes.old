@@ -1,10 +1,3 @@
-#
-# Building:
-#  - docker-compose up --build
-#
-# It assumes that midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the 'midpoint-server' directory. (TODO: eliminate this!)
-#
-
 version: "3.3"
 
 services:
@@ -15,7 +8,10 @@ services:
     networks:
      - back
     volumes:
-     - midpoint_data:/var/lib/mysql
+     - midpoint_mysql:/var/lib/mysql
+     - midpoint_data:/var/lib/mysqlmounted
+    environment:
+     - CREATE_NEW_DATABASE=if_needed
 
   midpoint-server:
     build: ./midpoint-server/
@@ -77,5 +73,6 @@ secrets:
     file: ./configs-and-secrets/midpoint/application/keystore_password.txt
     
 volumes:
+  midpoint_mysql:
   midpoint_data:
   midpoint_home:
