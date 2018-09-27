@@ -11,7 +11,7 @@ pipeline {
                 script {
                     maintainer = maintain()
                     imagename = imagename()
-                    if(env.BRANCH_NAME == "master") {
+                    if(env.BRANCH_NAME == "master" || env.BRANCH_NAME == "bats") {		// temporary
                        tag = "latest"
                     } else {
                        tag = env.BRANCH_NAME
@@ -22,7 +22,7 @@ pipeline {
                      }
                     sh 'mkdir -p bin'
                     sh 'mkdir -p tmp'
-                    dir('tmp'){
+                    dir('tmp') {
                       git([ url: "https://github.internet2.edu/docker/util.git", credentialsId: "jenkins-github-access-token" ])
                       sh 'ls'
                       sh 'mv bin/* ../bin/.'
@@ -30,38 +30,78 @@ pipeline {
                 }  
              }
         }    
-        stage('Clean') {
+        stage ('Clean') {
             steps {
                 script {
-                   try{
-                     sh 'bin/destroy.sh >> debug'
-                   } catch(error) {
-                     def error_details = readFile('./debug');
-                     def message = "BUILD ERROR: There was a problem building the Base Image. \n\n ${error_details}"
-                     sh "rm -f ./debug"
-                     handleError(message)
-                   }
+                    try {
+                        sh 'bin/destroy.sh >> debug'
+                    } catch (error) {
+                        def error_details = readFile('./debug');
+                        def message = "BUILD ERROR: There was a problem building the Base Image. \n\n ${error_details}"
+                        sh "rm -f ./debug"
+                        handleError(message)
+                    }
                 }
             }
         } 
-        stage('Build') {
+        stage ('Build') {
             steps {
                 script {
-                   sh 'midpoint/download-midpoint'
-                   docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
-                      def baseImg = docker.build("$maintainer/$imagename", "--no-cache midpoint/midpoint-server")
+                    try {
+                        sh '(set -e ; cd midpoint ; ./download-midpoint ; ../bin/build.sh) &> debug'
+                    } catch (error) {
+                        def error_details = readFile('./debug')
+                        def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
+                        sh "rm -f ./debug"
+                        handleError(message)
+                    }
+                }
+            }
+        }
+        stage ('Test') {
+            steps {
+                script {
+                    try {
+                        sh 'bats midpoint/tests &> debug'
+                    } catch (error) {
+                        def error_details = readFile('./debug')
+                        def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
+                        sh "rm -f ./debug"
+                        handleError(message)
+                    }
+                }
+            }
+        }
+        stage ('Test2') {
+            steps {
+                script {
+                    try {
                       try {
                          sh 'docker pull tier/mariadb:mariadb10'		// temporary
                          sh 'env NOCOLOR=true ./test.sh'
                       } finally {
                          sh './cleanup.sh'
                       }
-                      baseImg.push("$tag")
-                   }
-               }
+                    } catch (error) {
+                        def error_details = readFile('./debug')
+                        def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
+                        sh "rm -f ./debug"
+                        handleError(message)
+                    }
+                }
             }
         }
-        stage('Notify') {
+        stage ('Push') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com/',   "dockerhub-$maintainer") {
+                        def baseImg = docker.build("$maintainer/$imagename")
+                        baseImg.push("$tag")
+                    }
+                }
+            }
+        }
+        stage ('Notify') {
             steps {
                 echo "$maintainer"
                 slackSend color: 'good', message: "$maintainer/$imagename:$tag pushed to DockerHub"
@@ -81,19 +121,18 @@ pipeline {
 
 
 def maintain() {
-  def matcher = readFile('common.bash') =~ 'maintainer="(.+)"'
-  matcher ? matcher[0][1] : 'tier'
+    def matcher = readFile('common.bash') =~ 'maintainer="(.+)"'
+    matcher ? matcher[0][1] : 'tier'
 }
 
 def imagename() {
-  def matcher = readFile('common.bash') =~ 'imagename="(.+)"'
-  matcher ? matcher[0][1] : null
+    def matcher = readFile('common.bash') =~ 'imagename="(.+)"'
+    matcher ? matcher[0][1] : null
 }
 
-def handleError(String message){
-  echo "${message}"
-  currentBuild.setResult("FAILED")
-  slackSend color: 'danger', message: "${message}"
-  //step([$class: 'Mailer', notifyEveryUnstableBuild: true, recipients: 'chubing@internet2.edu', sendToIndividuals: true])
-  sh 'exit 1'
+def handleError(String message) {
+    echo "${message}"
+    currentBuild.setResult("FAILED")
+    slackSend color: 'danger', message: "${message}"
+    sh 'exit 1'
 }
