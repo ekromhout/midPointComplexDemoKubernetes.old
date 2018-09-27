@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load ../../common
+load ../common
 
 @test "Dummy test 1" {
     [ "a" = "a" ]
