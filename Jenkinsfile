@@ -50,6 +50,7 @@ pipeline {
                 script {
                     try {
                         sh 'bin/test.sh &> debug'
+                        sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem testing ${imagename}:${tag}. \n\n ${error_details}"
