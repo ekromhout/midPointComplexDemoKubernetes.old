@@ -36,6 +36,7 @@ pipeline {
                     try {
                         sh './download-midpoint &> debug'
                         sh 'bin/rebuild.sh &>> debug'
+                        sh 'echo Build output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
@@ -50,6 +51,7 @@ pipeline {
                 script {
                     try {
                         sh 'bin/test.sh &> debug'
+                        sh '(cd demo/simple ; bats tests ) &>> debug'
                         sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
