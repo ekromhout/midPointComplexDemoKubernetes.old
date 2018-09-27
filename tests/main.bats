@@ -2,16 +2,18 @@
 
 load ../common
 
-@test "Dummy test 1" {
-    [ "a" = "a" ]
+@test "010 Image is present" {
+    docker image inspect tier/midpoint:latest
 }
 
-#@test "MariaDB service available" {
-#  docker run -i $maintainer/$imagename find /usr/lib/systemd/system/mariadb.service
-#}
-#
-#@test "MariaDB first run consumes tmpfile" {
-##2  result="$(docker run -i $maintainer/$imagename find /tmp/firsttimerunning)"
-#  [ "$result" != '' ]
-#}
+@test "020 Check basic components" {
+    docker run -i $maintainer/$imagename \
+	find \
+		/usr/local/bin/startup.sh \
+		/opt/midpoint/var/ \
+		/etc/shibboleth/ \
+		/etc/httpd/
+}
 
+# not much more to check here, as we cannot start midpoint container without having a repository
+# so continuing with tests in demo/plain directory
