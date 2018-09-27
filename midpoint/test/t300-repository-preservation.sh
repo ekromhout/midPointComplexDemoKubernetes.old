@@ -4,6 +4,11 @@ USER=test300
 trap 'exitcode=$? ; error "Exiting $0 because of an error ($exitcode) occurred" ; exit $exitcode' ERR
 . ../test/common.sh
 
+docker ps
+echo Checking health before action
+test/t100-check-health.sh
+docker ps
+
 echo "Adding user '${USER}'..."
 curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/users" -d @- << EOF
 <user>
