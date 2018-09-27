@@ -3,10 +3,10 @@
 dir=`dirname "$0"`
 echo "Downloading midPoint 3.9-SNAPSHOT"
 echo "-----------------------------------------"
-curl --output $dir/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-3.9-SNAPSHOT-dist.tar.gz"
+curl --output $dir/midpoint-3.9-SNAPSHOT-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-3.9-SNAPSHOT-dist.tar.gz"
 echo "-----------------------------------------"
 echo "Checking the download..."
-if tar -tf $dir/midpoint-server/midpoint-3.9-SNAPSHOT-dist.tar.gz >/dev/null; then
+if tar -tf $dir/midpoint-3.9-SNAPSHOT-dist.tar.gz >/dev/null; then
   echo "OK"
 else
   echo "The file was not downloaded correctly"

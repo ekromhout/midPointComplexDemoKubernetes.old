@@ -14,7 +14,7 @@ services:
      - CREATE_NEW_DATABASE=if_needed
 
   midpoint-server:
-    build: ./midpoint-server/
+    image: tier/midpoint:latest
     ports:
       - 8443:443
     environment:

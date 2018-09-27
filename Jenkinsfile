@@ -6,49 +6,36 @@ pipeline {
         tag = 'l'
     }
     stages {
-        stage('Setting build context') {
+        stage ('Setting build context') {
             steps {
                 script {
                     maintainer = maintain()
                     imagename = imagename()
-                    if(env.BRANCH_NAME == "master" || env.BRANCH_NAME == "bats") {		// temporary
+                    if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "bats") {		// temporary
                        tag = "latest"
                     } else {
                        tag = env.BRANCH_NAME
                     }
-                    if(!imagename){
+                    if (!imagename) {
                         echo "You must define imagename in common.bash"
                         currentBuild.result = 'FAILURE'
-                     }
+                    }
                     sh 'mkdir -p bin'
                     sh 'mkdir -p tmp'
-                    dir('tmp') {
-                      git([ url: "https://github.internet2.edu/docker/util.git", credentialsId: "jenkins-github-access-token" ])
-                      sh 'ls'
-                      sh 'mv bin/* ../bin/.'
+                    dir ('tmp') {
+                        git([ url: "https://github.internet2.edu/docker/util.git", credentialsId: "jenkins-github-access-token" ])
+                        sh 'ls'
+                        sh 'mv bin/* ../bin/.'
                     }
                 }  
-             }
-        }    
-        stage ('Clean') {
-            steps {
-                script {
-                    try {
-                        sh 'bin/destroy.sh >> debug'
-                    } catch (error) {
-                        def error_details = readFile('./debug');
-                        def message = "BUILD ERROR: There was a problem building the Base Image. \n\n ${error_details}"
-                        sh "rm -f ./debug"
-                        handleError(message)
-                    }
-                }
             }
-        } 
+        }    
         stage ('Build') {
             steps {
                 script {
                     try {
-                        sh '(set -e ; cd midpoint ; ./download-midpoint ; ../bin/build.sh) &> debug'
+                        sh './download-midpoint &> debug'
+                        sh 'bin/rebuild.sh &>> debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
@@ -62,16 +49,17 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'bats midpoint/tests &> debug'
+                        sh 'bin/test.sh &> debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
-                        def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
+                        def message = "BUILD ERROR: There was a problem testing ${imagename}:${tag}. \n\n ${error_details}"
                         sh "rm -f ./debug"
                         handleError(message)
                     }
                 }
             }
         }
+/*
         stage ('Test2') {
             steps {
                 script {
@@ -91,10 +79,11 @@ pipeline {
                 }
             }
         }
+*/
         stage ('Push') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com/',   "dockerhub-$maintainer") {
+                    docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
                         def baseImg = docker.build("$maintainer/$imagename")
                         baseImg.push("$tag")
                     }
