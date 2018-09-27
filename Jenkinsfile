@@ -51,6 +51,7 @@ pipeline {
                    docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
                       def baseImg = docker.build("$maintainer/$imagename", "--no-cache midpoint/midpoint-server")
                       try {
+                         sh 'docker pull tier/mariadb:mariadb10'		// temporary
                          sh 'env NOCOLOR=true ./test.sh'
                       } finally {
                          sh './cleanup.sh'

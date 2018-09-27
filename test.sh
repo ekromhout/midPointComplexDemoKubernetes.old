@@ -8,6 +8,7 @@ yellow "***                            Testing midPoint image                   
 yellow "**************************************************************************************"
 echo
 midpoint/test.sh
+demo/shibboleth/test.sh
 echo
 lgreen "**************************************************************************************"
 lgreen "***                               All tests passed                                 ***"
