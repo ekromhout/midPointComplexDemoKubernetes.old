@@ -9,7 +9,7 @@ load ../../../library
 }
 
 @test "010 Initialize and start midPoint" {
-    cd ../simple ; docker-compose up -d
+    cd ../simple ; env AUTHENTICATION=shibboleth docker-compose up -d
     wait_for_midpoint_start simple_midpoint-server_1
 }
 
@@ -24,23 +24,19 @@ load ../../../library
 }
 
 @test "040 Check Shibboleth redirection (/midpoint)" {
-    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint)"
-    [ "$status" -eq 302 ]
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "041 Check Shibboleth redirection (/midpoint/)" {
-    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/)"
-    [ "$status" -eq 302 ]
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/ | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "042 Check Shibboleth redirection (/midpoint/login)" {
-    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/login)"
-    [ "$status" -eq 302 ]
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/login | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "043 Check Shibboleth redirection (/midpoint/something)" {
-    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/something)"
-    [ "$status" -eq 302 ]
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/something | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "044 Check SOAP without Shibboleth redirection (/midpoint/ws/)" {
