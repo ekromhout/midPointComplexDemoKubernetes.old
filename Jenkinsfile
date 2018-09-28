@@ -34,7 +34,7 @@ pipeline {
             steps {
                 script {
                     try {
-			sh '(docker image ls ; echo Destroying ; bin/destroy.sh ; docker image ls) 2>&1 | tee debug'	// temporary
+			sh '(ls -l ; docker ps -a ; docker image ls ; echo Destroying ; bin/destroy.sh ; docker image ls) 2>&1 | tee debug'	// temporary
                         sh './download-midpoint 2>&1 | tee -a debug'
                         sh 'bin/rebuild.sh 2>&1 | tee -a debug'
                         //sh 'echo Build output ; cat debug'
@@ -54,6 +54,8 @@ pipeline {
                         sh 'bin/test.sh 2>&1 | tee debug'
                         sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug'
                         sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug'
+                        sh '(echo Checking if xpath is present ; xpath || true ) 2>&1 | tee -a debug'
+                        sh '(cd demo/complex ; bats tests ) 2>&1 | tee -a debug'
                         // sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')

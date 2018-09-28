@@ -62,8 +62,8 @@ function get_and_check_object () {
 # TODO Returns the OID in OID variable
 # it can be found in the following HTTP reader returned: Location: "https://localhost:8443/midpoint/ws/rest/users/85e62669-d36b-41ce-b4f1-1ffdd9f66262"
 function add_object () {
-    TYPE=$1
-    FILE=$2
+    local TYPE=$1
+    local FILE=$2
     echo "Adding to $TYPE from $FILE..."
     curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE || return 1
     #TODO check the returned XML
@@ -95,8 +95,8 @@ EOF
 
 # Searches for object with a given name and verifies it was found
 function search_and_check_object () {
-    TYPE=$1
-    NAME=$2
+    local TYPE=$1
+    local NAME=$2
     search_objects_by_name $TYPE $NAME || return 1
     if (grep -q "<name>$NAME</name>" <$SEARCH_RESULT_FILE); then
         echo "Object $TYPE/'$NAME' is OK"
@@ -106,6 +106,25 @@ function search_and_check_object () {
         echo "Object $TYPE/'$NAME' was not found or not retrieved correctly:"
         cat $SEARCH_RESULT_FILE
         rm $SEARCH_RESULT_FILE
+        return 1
+    fi
+}
+
+# Tests a resource
+function test_resource () {
+    local OID=$1
+    local TMPFILE=$(mktemp /tmp/test.resource.XXXXXX)
+    local TMPFILE_ERR=$(mktemp /tmp/test.resource.err.XXXXXX)
+
+    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE $TMPFILE_ERR ; return 1)
+    if [[ $(xpath -q -e "*/status/text()" < $TMPFILE) == "success" ]]; then
+        echo "Resource $OID test succeeded"
+        rm $TMPFILE
+        return 0
+    else
+        echo "Resource $OID test failed"
+        cat $TMPFILE
+        rm $TMPFILE
         return 1
     fi
 }
