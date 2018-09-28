@@ -23,6 +23,37 @@ load ../../../library
     check_health
 }
 
+@test "040 Check Shibboleth redirection (/midpoint)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint)"
+    [ "$status" -eq 302 ]
+}
+
+@test "041 Check Shibboleth redirection  (/midpoint/)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/)"
+    [ "$status" -eq 302 ]
+}
+
+@test "042 Check Shibboleth redirection  (/midpoint/login)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/login)"
+    [ "$status" -eq 302 ]
+}
+
+@test "043 Check Shibboleth redirection  (/midpoint/something)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/something)"
+    [ "$status" -eq 302 ]
+}
+
+@test "044 Check SOAP without Shibboleth redirection  (/midpoint/ws/)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/ws/)"
+    [ "$status" -eq 200 ]
+}
+
+@test "045 Check SOAP without Shibboleth redirection  (/midpoint/model/)" {
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/model/)"
+    [ "$status" -eq 200 ]
+}
+
+
 # TODO check that e.g. accessing some URLs results in shibboleth redirection (check login page, some REST calls etc)
 
 @test "999 Clean up" {
