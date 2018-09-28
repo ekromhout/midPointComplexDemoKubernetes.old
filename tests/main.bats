@@ -15,5 +15,20 @@ load ../common
 		/etc/httpd/
 }
 
+@test "100 Cleanup before further tests - demo/simple" {
+    docker ps -a
+    cd demo/simple ; docker-compose down -v ; true
+}
+
+@test "110 Cleanup before further tests - demo/shibboleth" {
+    docker ps -a
+    cd demo/shibboleth ; docker-compose down -v ; true
+}
+
+@test "120 Cleanup before further tests - demo/complex" {
+    docker ps -a
+    cd demo/complex ; docker-compose down -v ; true
+}
+
 # not much more to check here, as we cannot start midpoint container without having a repository
 # so continuing with tests in demo/plain directory

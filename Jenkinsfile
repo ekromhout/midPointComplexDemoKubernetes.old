@@ -35,8 +35,8 @@ pipeline {
                 script {
                     try {
 			sh '(ls -l ; docker ps -a ; docker image ls ; echo Destroying ; bin/destroy.sh ; docker image ls) 2>&1 | tee debug'	// temporary
-                        sh './download-midpoint 2>&1 | tee -a debug'
-                        sh 'bin/rebuild.sh 2>&1 | tee -a debug'
+                        sh './download-midpoint 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        sh 'bin/rebuild.sh 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
                         //sh 'echo Build output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
@@ -51,11 +51,14 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'bin/test.sh 2>&1 | tee debug'
-                        sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug'
-                        sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug'
-                        sh '(echo Checking if xpath is present ; xpath || true ) 2>&1 | tee -a debug'
-                        sh '(cd demo/complex ; bats tests ) 2>&1 | tee -a debug'
+                        sh 'echo Docker containers before root tests ; docker ps -a'		// temporary
+                        sh 'bin/test.sh 2>&1 | tee debug ; test ${PIPESTATUS[0]} -eq 0'
+                        sh 'echo Docker containers before compositions tests ; docker ps -a'		// temporary
+
+                        sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        sh '(cd demo/complex ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+
                         // sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
