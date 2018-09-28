@@ -4,8 +4,12 @@ load ../../../common
 load ../../../library
 
 @test "000 Cleanup before running the tests" {
-    cd ../shibboleth ; docker-compose down -v ; true
-    run docker-compose down -v
+    pwd > /tmp/log
+    echo a1 >> /tmp/log
+    (cd ../shibboleth ; docker-compose down -v ; sleep 60) || true
+    echo a2 >> /tmp/log
+    (docker-compose down -v ; sleep 60) || true
+    echo a3 >> /tmp/log
 }
 
 @test "010 Initialize and start the composition" {
@@ -67,5 +71,5 @@ load ../../../library
 }
 
 @test "999 Clean up" {
-    docker-compose down -v
+#    docker-compose down -v
 }

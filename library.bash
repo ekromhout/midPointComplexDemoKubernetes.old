@@ -120,14 +120,14 @@ function test_resource () {
     local TMPFILE_ERR=$(mktemp /tmp/test.resource.err.XXXXXX)
 
     curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE $TMPFILE_ERR ; return 1)
-    if [[ $(xmllint --xpath "*/status/text()" $TMPFILE) == "success" ]]; then
+    if [[ $(xmllint --xpath "/*/*[local-name()='status']/text()" $TMPFILE) == "success" ]]; then
         echo "Resource $OID test succeeded"
         rm $TMPFILE
         return 0
     else
         echo "Resource $OID test failed"
         cat $TMPFILE
-#        rm $TMPFILE
+        rm $TMPFILE
         return 1
     fi
 }
