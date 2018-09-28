@@ -9,7 +9,7 @@ function wait_for_midpoint_start () {
     CONTAINER_NAME=$1
     DATABASE_CONTAINER_NAME=$2
     ATTEMPT=0
-    MAX_ATTEMPTS=30
+    MAX_ATTEMPTS=20
     DELAY=10
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
