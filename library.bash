@@ -84,7 +84,7 @@ function add_object () {
 # TODO check if the result is valid (i.e. not an error) - return 1 if invalid, otherwise return 0 ("no objects" is considered OK here)
 function search_objects_by_name () {
     TYPE=$1
-    NAME=$2
+    NAME="$2"
     TMPFILE=$(mktemp /tmp/search.XXXXXX)
 
     curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE/search" -d @- << EOF >$TMPFILE || (rm $TMPFILE ; return 1)
@@ -105,8 +105,8 @@ EOF
 # Searches for object with a given name and verifies it was found
 function search_and_check_object () {
     local TYPE=$1
-    local NAME=$2
-    search_objects_by_name $TYPE $NAME || return 1
+    local NAME="$2"
+    search_objects_by_name $TYPE "$NAME" || return 1
     if (grep -q "<name>$NAME</name>" <$SEARCH_RESULT_FILE); then
         echo "Object $TYPE/'$NAME' is OK"
         rm $SEARCH_RESULT_FILE
@@ -123,9 +123,8 @@ function search_and_check_object () {
 function test_resource () {
     local OID=$1
     local TMPFILE=$(mktemp /tmp/test.resource.XXXXXX)
-    local TMPFILE_ERR=$(mktemp /tmp/test.resource.err.XXXXXX)
 
-    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE $TMPFILE_ERR ; return 1)
+    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE ; return 1)
     if [[ $(xmllint --xpath "/*/*[local-name()='status']/text()" $TMPFILE) == "success" ]]; then
         echo "Resource $OID test succeeded"
         rm $TMPFILE
@@ -138,6 +137,14 @@ function test_resource () {
     fi
 }
 
-function get_xpath () {
-    echo ok
+function assert_task_success () {
+    local OID=$1
+    # TODO
+    return 0
+}
+
+function wait_for_task_completion () {
+    local OID=$1
+    sleep 60		# TODO
+    return 0
 }

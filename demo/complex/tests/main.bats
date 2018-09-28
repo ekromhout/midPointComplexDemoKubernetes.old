@@ -4,18 +4,16 @@ load ../../../common
 load ../../../library
 
 @test "000 Cleanup before running the tests" {
-    pwd > /tmp/log
-    echo a1 >> /tmp/log
-    (cd ../shibboleth ; docker-compose down -v ; sleep 1) || true
-    echo a2 >> /tmp/log
-    (docker-compose down -v ; sleep 1) || true
-    echo a3 >> /tmp/log
+    (cd ../simple ; docker-compose down -v)
+    (cd ../shibboleth ; docker-compose down -v)
+    docker-compose down -v
 }
 
 @test "010 Initialize and start the composition" {
     docker ps -a >> /tmp/log
     docker ps
-    ! (docker ps | grep complex_midpoint-server_1)
+    ! (docker ps | grep -E "shibboleth_(idp|directory)_1|complex_(midpoint-server|midpoint-data)_1|simple_(midpoint-server|midpoint-data)_1")
+    cp tests/resources/sql/* sources/container_files/seed-data/
     docker-compose up -d --build
 }
 
@@ -72,6 +70,28 @@ load ../../../library
     test_resource 4d70a0da-02dd-41cf-b0a1-00e75d3eaa15
 }
 
+@test "220 Import SIS_PERSONS" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    add_object tasks midpoint-objects-manual/tasks/task-import-sis-persons.xml
+    search_and_check_object tasks "Import from SIS persons"
+    wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a79aeaaa
+    assert_task_success 22c2a3d0-0961-4255-9eec-c550a79aeaaa
+
+    search_and_check_object users jsmith
+    search_and_check_object users banderson
+    search_and_check_object users kwhite
+    search_and_check_object users whenderson
+    search_and_check_object users ddavis
+    search_and_check_object users cmorrison
+    search_and_check_object users danderson
+    search_and_check_object users amorrison
+    search_and_check_object users wprice
+    search_and_check_object users mroberts
+    # TODO check in LDAP, check assignments etc
+}
+
 @test "999 Clean up" {
+#	skip TEMP
     docker-compose down -v
 }
