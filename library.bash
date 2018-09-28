@@ -20,6 +20,9 @@ function wait_for_midpoint_start () {
     done
 
     echo midPoint did not start in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
+    echo "========== Container log =========="
+    docker logs $CONTAINER_NAME 2>&1
+    echo "========== End of the container log =========="
     return 1
 }
 
@@ -124,7 +127,7 @@ function test_resource () {
     else
         echo "Resource $OID test failed"
         cat $TMPFILE
-        rm $TMPFILE
+#        rm $TMPFILE
         return 1
     fi
 }

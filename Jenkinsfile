@@ -55,9 +55,9 @@ pipeline {
                         sh 'bin/test.sh 2>&1 | tee debug ; test ${PIPESTATUS[0]} -eq 0'
                         sh 'echo Docker containers before compositions tests ; docker ps -a'		// temporary
 
-                        sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
-                        sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
-                        sh '(cd demo/complex ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        //sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        //sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        //sh '(cd demo/complex ; bats tests ) 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
 
                         // sh 'echo Test output ; cat debug'
                     } catch (error) {

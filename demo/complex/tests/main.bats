@@ -4,33 +4,40 @@ load ../../../common
 load ../../../library
 
 @test "000 Cleanup before running the tests" {
-#    skip
     cd ../shibboleth ; docker-compose down -v ; true
     run docker-compose down -v
 }
 
 @test "010 Initialize and start the composition" {
-#    skip
     docker ps -a
     docker-compose up -d
+}
+
+@test "020 Wait until components are started" {
+    touch $BATS_TMPDIR/not-started
     wait_for_midpoint_start complex_midpoint-server_1
+    rm $BATS_TMPDIR/not-started
 # TODO wait for shibboleth, grouper-ui, (also something other?)
 }
 
-@test "010 Check midPoint health" {
+@test "050 Check midPoint health" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
 }
 
-@test "020 Check Grouper health" {
+@test "060 Check Grouper health" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     skip TODO
 }
 
 @test "100 Get 'administrator'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
     get_and_check_object users 00000000-0000-0000-0000-000000000002 administrator
 }
 
 @test "110 And and get 'test110'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
     echo "<user><name>test110</name></user>" >/tmp/test110.xml
     add_object users /tmp/test110.xml
@@ -40,6 +47,7 @@ load ../../../library
 }
 
 @test "200 Upload objects" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
     pwd >&2
     ./upload-objects
@@ -51,6 +59,7 @@ load ../../../library
 }
 
 @test "210 Test resource" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     test_resource 0a37121f-d515-4a23-9b6d-554c5ef61272
     test_resource 6dcb84f5-bf82-4931-9072-fbdf87f96442
     test_resource 13660d60-071b-4596-9aa1-5efcd1256c04
