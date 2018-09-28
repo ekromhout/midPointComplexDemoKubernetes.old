@@ -16,7 +16,7 @@ load ../../../library
 @test "020 Initialize and start Shibboleth" {
     docker-compose up -d
     # TODO implement wait_for_shibboleth_start
-    sleep 20
+    sleep 60
 }
 
 @test "030 Check health" {
@@ -27,5 +27,5 @@ load ../../../library
 
 @test "999 Clean up" {
     cd ../simple ; docker-compose down -v ; true
-    run docker-compose down -v
+    docker-compose down -v
 }

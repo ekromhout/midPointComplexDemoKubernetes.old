@@ -5,11 +5,13 @@ load ../../../library
 
 @test "000 Cleanup before running the tests" {
 #    skip
+    cd ../shibboleth ; docker-compose down -v ; true
     run docker-compose down -v
 }
 
 @test "010 Initialize and start the composition" {
 #    skip
+    docker ps -a
     docker-compose up -d
     wait_for_midpoint_start complex_midpoint-server_1
 # TODO wait for shibboleth, grouper-ui, (also something other?)
