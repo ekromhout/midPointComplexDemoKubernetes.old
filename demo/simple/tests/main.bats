@@ -3,8 +3,11 @@
 load ../../../common
 load ../../../library
 
-@test "000 Initialize and start midPoint" {
+@test "000 Cleanup before running the tests" {
     run docker-compose down -v
+}
+
+@test "010 Initialize and start midPoint" {
     docker-compose up -d
     wait_for_midpoint_start simple_midpoint-server_1
 }

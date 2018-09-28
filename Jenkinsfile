@@ -53,6 +53,7 @@ pipeline {
                     try {
                         sh 'bin/test.sh 2>&1 | tee debug'
                         sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug'
+                        sh '(cd demo/shibboleth ; bats tests ) 2>&1 | tee -a debug'
                         // sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
