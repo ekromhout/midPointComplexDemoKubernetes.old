@@ -4,11 +4,15 @@ services:
   postgresql:
     image: postgres:9.5
     environment:
-     - POSTGRES_PASSWORD=password
+     - POSTGRES_PASSWORD_FILE=/run/secrets/m_database_password.txt
+     - POSTGRES_USER=midpoint
+     - POSTGRES_INITDB_ARGS=--lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
     ports:
      - 5432:5432
     networks:
      - back
+    secrets:
+     - m_database_password.txt
     volumes:
      - midpoint_data:/var/lib/postgresql/data
 
