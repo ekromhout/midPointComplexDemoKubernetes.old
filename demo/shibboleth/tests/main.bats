@@ -49,9 +49,6 @@ load ../../../library
     [ "$status" -eq 200 ]
 }
 
-
-# TODO check that e.g. accessing some URLs results in shibboleth redirection (check login page, some REST calls etc)
-
 @test "999 Clean up" {
     cd ../simple ; docker-compose down -v ; true
     docker-compose down -v
