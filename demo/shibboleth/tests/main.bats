@@ -27,24 +27,24 @@ load ../../../library
     curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
-@test "041 Check Shibboleth redirection  (/midpoint/)" {
+@test "041 Check Shibboleth redirection (/midpoint/)" {
     curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/ | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
-@test "042 Check Shibboleth redirection  (/midpoint/login)" {
+@test "042 Check Shibboleth redirection (/midpoint/login)" {
     curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/login | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
-@test "043 Check Shibboleth redirection  (/midpoint/something)" {
+@test "043 Check Shibboleth redirection (/midpoint/something)" {
     curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/something | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
 }
 
-@test "044 Check SOAP without Shibboleth redirection  (/midpoint/ws/)" {
+@test "044 Check SOAP without Shibboleth redirection (/midpoint/ws/)" {
     status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/ws/)"
     [ "$status" -eq 200 ]
 }
 
-@test "045 Check SOAP without Shibboleth redirection  (/midpoint/model/)" {
+@test "045 Check SOAP without Shibboleth redirection (/midpoint/model/)" {
     status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/model/)"
     [ "$status" -eq 200 ]
 }
