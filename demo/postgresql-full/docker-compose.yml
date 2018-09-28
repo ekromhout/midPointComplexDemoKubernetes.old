@@ -1,0 +1,70 @@
+version: "3.3"
+
+services:
+  postgresql:
+    image: postgres:9.5
+    environment:
+     - POSTGRES_PASSWORD=password
+    ports:
+     - 5432:5432
+    networks:
+     - back
+    volumes:
+     - midpoint_data:/var/lib/postgresql/data
+
+  midpoint-server:
+    image: tier/midpoint:latest
+    ports:
+      - 8443:443
+    environment:
+     - AUTHENTICATION
+     - ENV
+     - USERTOKEN
+     - REPO_DATABASE_TYPE=postgresql
+     - REPO_HOST=postgresql
+     - REPO_DATABASE=midpoint
+     - REPO_USER=midpoint
+     - MEM
+     - TIER_BEACON_OPT_OUT
+    networks:
+     - back
+    secrets:
+     - m_database_password.txt
+     - m_keystore_password.txt
+     - m_sp-key.pem
+     - m_host-key.pem
+    volumes:
+     - midpoint_home:/opt/midpoint/var
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/shibboleth2.xml
+       target: /etc/shibboleth/shibboleth2.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/idp-metadata.xml
+       target: /etc/shibboleth/idp-metadata.xml
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
+       target: /etc/shibboleth/sp-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
+
+networks:
+  back:    
+    driver: bridge
+
+secrets:
+  m_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
+  m_sp-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
+  m_database_password.txt:
+    file: ./configs-and-secrets/midpoint/application/database_password.txt
+  m_keystore_password.txt:
+    file: ./configs-and-secrets/midpoint/application/keystore_password.txt
+    
+volumes:
+  midpoint_data:
+  midpoint_home:
