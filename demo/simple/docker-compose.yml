@@ -27,11 +27,7 @@ services:
      - REPO_PORT
      - REPO_DATABASE
      - REPO_USER
-     - REPO_PASSWORD_FILE
-     - KEYSTORE_PASSWORD_FILE
      - MEM
-     - SSO_HEADER
-     - LOGOUT_URL
      - TIER_BEACON_OPT_OUT
     networks:
      - back

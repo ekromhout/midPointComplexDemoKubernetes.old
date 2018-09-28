@@ -34,9 +34,10 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh './download-midpoint &> debug'
-                        sh 'bin/rebuild.sh &>> debug'
-                        sh 'echo Build output ; cat debug'
+			sh '(docker image ls ; echo Destroying ; bin/destroy.sh ; docker image ls) 2>&1 | tee debug'	// temporary
+                        sh './download-midpoint 2>&1 | tee -a debug'
+                        sh 'bin/rebuild.sh 2>&1 | tee -a debug'
+                        //sh 'echo Build output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
@@ -50,9 +51,9 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'bin/test.sh &> debug'
-                        sh '(cd demo/simple ; bats tests ) &>> debug'
-                        sh 'echo Test output ; cat debug'
+                        sh 'bin/test.sh 2>&1 | tee debug'
+                        sh '(cd demo/simple ; bats tests ) 2>&1 | tee -a debug'
+                        // sh 'echo Test output ; cat debug'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem testing ${imagename}:${tag}. \n\n ${error_details}"
@@ -62,27 +63,6 @@ pipeline {
                 }
             }
         }
-/*
-        stage ('Test2') {
-            steps {
-                script {
-                    try {
-                      try {
-                         sh 'docker pull tier/mariadb:mariadb10'		// temporary
-                         sh 'env NOCOLOR=true ./test.sh'
-                      } finally {
-                         sh './cleanup.sh'
-                      }
-                    } catch (error) {
-                        def error_details = readFile('./debug')
-                        def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
-                        sh "rm -f ./debug"
-                        handleError(message)
-                    }
-                }
-            }
-        }
-*/
         stage ('Push') {
             steps {
                 script {
