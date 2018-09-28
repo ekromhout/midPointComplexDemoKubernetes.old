@@ -73,5 +73,5 @@ load ../../../library
 }
 
 @test "999 Clean up" {
-#    docker-compose down -v
+    docker-compose down -v
 }
