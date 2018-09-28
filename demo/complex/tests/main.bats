@@ -6,20 +6,22 @@ load ../../../library
 @test "000 Cleanup before running the tests" {
     pwd > /tmp/log
     echo a1 >> /tmp/log
-    (cd ../shibboleth ; docker-compose down -v ; sleep 60) || true
+    (cd ../shibboleth ; docker-compose down -v ; sleep 1) || true
     echo a2 >> /tmp/log
-    (docker-compose down -v ; sleep 60) || true
+    (docker-compose down -v ; sleep 1) || true
     echo a3 >> /tmp/log
 }
 
 @test "010 Initialize and start the composition" {
-    docker ps -a
-    docker-compose up -d
+    docker ps -a >> /tmp/log
+    docker ps
+    ! (docker ps | grep complex_midpoint-server_1)
+    docker-compose up -d --build
 }
 
 @test "020 Wait until components are started" {
     touch $BATS_TMPDIR/not-started
-    wait_for_midpoint_start complex_midpoint-server_1
+    wait_for_midpoint_start complex_midpoint-server_1 complex_midpoint-data_1
     rm $BATS_TMPDIR/not-started
 # TODO wait for shibboleth, grouper-ui, (also something other?)
 }

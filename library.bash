@@ -7,6 +7,7 @@
 # Waits until midPoint starts
 function wait_for_midpoint_start () {
     CONTAINER_NAME=$1
+    DATABASE_CONTAINER_NAME=$2
     ATTEMPT=0
     MAX_ATTEMPTS=20
     DELAY=10
@@ -23,6 +24,11 @@ function wait_for_midpoint_start () {
     echo "========== Container log =========="
     docker logs $CONTAINER_NAME 2>&1
     echo "========== End of the container log =========="
+    if [ -n "$DATABASE_CONTAINER_NAME" ]; then
+        echo "========== Container log ($DATABASE_CONTAINER_NAME) =========="
+        docker logs $DATABASE_CONTAINER_NAME 2>&1
+        echo "========== End of the container log ($DATABASE_CONTAINER_NAME) =========="
+    fi
     return 1
 }
 
