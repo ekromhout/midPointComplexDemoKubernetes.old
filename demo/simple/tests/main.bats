@@ -52,7 +52,7 @@ load ../../../library
 
 @test "350 Test DB schema version check" {
     echo "Removing version information from m_global_metadata"
-    docker exec simple_midpoint-data_1 mysql -p123321 registry -e "delete from m_global_metadata"
+    docker exec simple_midpoint-data_1 mysql -p123321 registry -e "drop table m_global_metadata"
 
     echo "Bringing the containers down"
     docker-compose down
@@ -60,7 +60,7 @@ load ../../../library
     echo "Re-creating the containers"
     docker-compose up -d
 
-    wait_for_log_message simple_midpoint-server_1 "com.evolveum.midpoint.util.exception.SystemException: Existing database schema version could not be determined"
+    wait_for_log_message simple_midpoint-server_1 "Database schema is not compatible with the executing code; however, an upgrade path is available."
 }
 
 @test "999 Clean up" {
