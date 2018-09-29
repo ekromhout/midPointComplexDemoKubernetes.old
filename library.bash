@@ -4,32 +4,44 @@
 # Contains common functions usable for midPoint system tests
 #
 
-# Waits until midPoint starts
-function wait_for_midpoint_start () {
+# do not use from outside (ugly signature)
+function generic_wait_for_log () {
     CONTAINER_NAME=$1
-    DATABASE_CONTAINER_NAME=$2
+    MESSAGE="$2"
+    WAITING_FOR="$3"
+    FAILURE="$4"
+    ADDITIONAL_CONTAINER_NAME=$5
     ATTEMPT=0
     MAX_ATTEMPTS=20
     DELAY=10
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
         ATTEMPT=$((ATTEMPT+1))
-        echo "Waiting $DELAY seconds for midPoint to start (attempt $ATTEMPT) ..."
+        echo "Waiting $DELAY seconds for $WAITING_FOR (attempt $ATTEMPT) ..."
         sleep $DELAY
         docker ps
-        ( docker logs $CONTAINER_NAME 2>&1 | grep "INFO (com.evolveum.midpoint.web.boot.MidPointSpringApplication): Started MidPointSpringApplication in" ) && return 0
+        ( docker logs $CONTAINER_NAME 2>&1 | grep "$MESSAGE" ) && return 0
     done
 
-    echo midPoint did not start in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
+    echo "$FAILURE" in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
     echo "========== Container log =========="
     docker logs $CONTAINER_NAME 2>&1
     echo "========== End of the container log =========="
-    if [ -n "$DATABASE_CONTAINER_NAME" ]; then
-        echo "========== Container log ($DATABASE_CONTAINER_NAME) =========="
-        docker logs $DATABASE_CONTAINER_NAME 2>&1
+    if [ -n "ADDITIONAL_CONTAINER_NAME" ]; then
+        echo "========== Container log ($ADDITIONAL_CONTAINER_NAME) =========="
+        docker logs $ADDITIONAL_CONTAINER_NAME 2>&1
         echo "========== End of the container log ($DATABASE_CONTAINER_NAME) =========="
     fi
     return 1
+}
+
+function wait_for_log_message () {
+    generic_wait_for_log $1 "$2" "log message" "log message has not appeared"
+}
+
+# Waits until midPoint starts
+function wait_for_midpoint_start () {
+    generic_wait_for_log $1 "INFO (com.evolveum.midpoint.web.boot.MidPointSpringApplication): Started MidPointSpringApplication in" "midPoint to start" "midPoint did not start" $2
 }
 
 # Checks the health of midPoint server

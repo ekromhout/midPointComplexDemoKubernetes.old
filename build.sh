@@ -30,7 +30,7 @@ echo ""
 echo "(for simple demo)"
 echo ""
 echo "$ cd" $(normalize_path `pwd`/../demo/simple)
-echo "$ docker-compose up --build"
+echo "$ docker-compose up"
 echo ""
 echo "(for complex demo)"
 echo ""
