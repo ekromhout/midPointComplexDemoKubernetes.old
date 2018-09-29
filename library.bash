@@ -35,6 +35,7 @@ function generic_wait_for_log () {
     return 1
 }
 
+
 function wait_for_log_message () {
     generic_wait_for_log $1 "$2" "log message" "log message has not appeared"
 }
@@ -43,6 +44,29 @@ function wait_for_log_message () {
 function wait_for_midpoint_start () {
     generic_wait_for_log $1 "INFO (com.evolveum.midpoint.web.boot.MidPointSpringApplication): Started MidPointSpringApplication in" "midPoint to start" "midPoint did not start" $2
 }
+
+# Waits until Shibboleth IDP starts ... TODO refactor using generic waiting function
+function wait_for_shibboleth_idp_start () {
+    CONTAINER_NAME=$1
+    ATTEMPT=0
+    MAX_ATTEMPTS=20
+    DELAY=10
+
+    until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
+        ATTEMPT=$((ATTEMPT+1))
+        echo "Waiting $DELAY seconds for Shibboleth IDP to start (attempt $ATTEMPT) ..."
+        sleep $DELAY
+        docker ps
+        ( docker logs $CONTAINER_NAME 2>&1 | grep "INFO:oejs.Server:main: Started" ) && return 0
+    done
+
+    echo Shibboleth IDP did not start in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
+    echo "========== Container log =========="
+    docker logs $CONTAINER_NAME 2>&1
+    echo "========== End of the container log =========="
+    return 1
+}
+
 
 # Checks the health of midPoint server
 function check_health () {
@@ -58,6 +82,21 @@ function check_health () {
         return 0
     fi
 }
+
+# Checks the health of Shibboleth IDP server
+function check_health_shibboleth_idp () {
+    echo Checking health of shibboleth idp...
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:4443/idp/)"
+    if [ $status -ne 200 ]; then
+        echo Error: Http code of response is $status
+        docker ps
+        return 1
+    else
+        echo OK
+        return 0
+    fi
+}
+
 
 # Retrieves XML object and checks if the name matches
 function get_and_check_object () {
