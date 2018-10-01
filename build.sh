@@ -1,18 +1,5 @@
 #!/bin/bash
 
-function normalize_path()
-{
-    # Remove all /./ sequences.
-    local path=${1//\/.\//\/}
-
-    # Remove dir/.. sequences.
-    while [[ $path =~ ([^/][^/]*/\.\./) ]]
-    do
-        path=${path/${BASH_REMATCH[0]}/}
-    done
-    echo $path
-}
-
 cd "$(dirname "$0")"
 SKIP_DOWNLOAD=0
 while getopts "nh?" opt; do
@@ -29,10 +16,10 @@ echo "The midPoint containers were successfully built. To start them, execute th
 echo ""
 echo "(for simple demo)"
 echo ""
-echo "$ cd" $(normalize_path `pwd`/../demo/simple)
+echo "$ cd" $(pwd)/demo/simple
 echo "$ docker-compose up"
 echo ""
 echo "(for complex demo)"
 echo ""
-echo "$ cd" $(normalize_path `pwd`/../demo/complex)
+echo "$ cd" $(pwd)/demo/complex
 echo "$ docker-compose up --build"
