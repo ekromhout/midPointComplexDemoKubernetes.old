@@ -1,19 +1,19 @@
 version: "3.3"
 
 services:
-  midpoint-data:
+  midpoint_data:
     image: tier/mariadb:mariadb10
     ports:
      - 3306:3306
     networks:
-     - back
+     - net
     volumes:
      - midpoint_mysql:/var/lib/mysql
      - midpoint_data:/var/lib/mysqlmounted
     environment:
      - CREATE_NEW_DATABASE=if_needed
 
-  midpoint-server:
+  midpoint_server:
     image: tier/midpoint:latest
     ports:
       - 8443:443
@@ -31,15 +31,15 @@ services:
      - REPO_UPGRADEABLE_SCHEMA_ACTION
      - REPO_SCHEMA_VERSION_IF_MISSING
      - REPO_SCHEMA_VARIANT
-     - MEM
+     - MP_MEM
      - TIER_BEACON_OPT_OUT
     networks:
-     - back
+     - net
     secrets:
-     - m_database_password.txt
-     - m_keystore_password.txt
-     - m_sp-key.pem
-     - m_host-key.pem
+     - mp_database_password.txt
+     - mp_keystore_password.txt
+     - mp_sp-key.pem
+     - mp_host-key.pem
     volumes:
      - midpoint_home:/opt/midpoint/var
      - type: bind
@@ -59,17 +59,17 @@ services:
        target: /etc/pki/tls/certs/cachain.pem
 
 networks:
-  back:    
+  net:
     driver: bridge
 
 secrets:
-  m_host-key.pem:
+  mp_host-key.pem:
     file: ./configs-and-secrets/midpoint/httpd/host-key.pem
-  m_sp-key.pem:
+  mp_sp-key.pem:
     file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
-  m_database_password.txt:
+  mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
-  m_keystore_password.txt:
+  mp_keystore_password.txt:
     file: ./configs-and-secrets/midpoint/application/keystore_password.txt
     
 volumes:

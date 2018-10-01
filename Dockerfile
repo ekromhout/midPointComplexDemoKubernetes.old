@@ -61,13 +61,13 @@ VOLUME ${MP_DIR}/var
 
 # Repository parameters
 
-ENV REPO_HOST midpoint-data
-ENV REPO_PORT default
-ENV REPO_USER root
-ENV REPO_DATABASE midpoint
-ENV REPO_JDBC_URL default
-ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
 ENV REPO_DATABASE_TYPE mariadb
+ENV REPO_JDBC_URL default
+ENV REPO_HOST midpoint_data
+ENV REPO_PORT default
+ENV REPO_DATABASE registry
+ENV REPO_USER registry_user
+ENV REPO_PASSWORD_FILE /run/secrets/mp_database_password.txt
 ENV REPO_MISSING_SCHEMA_ACTION create
 ENV REPO_UPGRADEABLE_SCHEMA_ACTION stop
 
@@ -82,12 +82,12 @@ ENV AUTHENTICATION internal
 ENV SSO_HEADER uid
 ENV AJP_ENABLED true
 ENV AJP_PORT 9090
-ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
+ENV MP_LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 
 # Other parameters
 
-ENV KEYSTORE_PASSWORD_FILE /run/secrets/m_keystore_password.txt
-ENV MEM 2048m
+ENV MP_KEYSTORE_PASSWORD_FILE /run/secrets/mp_keystore_password.txt
+ENV MP_MEM 2048m
 ENV TIER_RELEASE not-released-yet
 ENV TIER_MAINTAINER tier
 
