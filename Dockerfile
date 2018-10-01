@@ -68,6 +68,8 @@ ENV REPO_DATABASE midpoint
 ENV REPO_JDBC_URL default
 ENV REPO_PASSWORD_FILE /run/secrets/m_database_password.txt
 ENV REPO_DATABASE_TYPE mariadb
+ENV REPO_MISSING_SCHEMA_ACTION create
+ENV REPO_UPGRADEABLE_SCHEMA_ACTION stop
 
 # Logging parameters
 

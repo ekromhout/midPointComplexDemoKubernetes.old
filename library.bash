@@ -67,7 +67,6 @@ function wait_for_shibboleth_idp_start () {
     return 1
 }
 
-
 # Checks the health of midPoint server
 function check_health () {
     echo Checking health...
@@ -97,6 +96,15 @@ function check_health_shibboleth_idp () {
     fi
 }
 
+
+function get_object () {
+    local TYPE=$1
+    local OID=$2
+    TMPFILE=$(mktemp /tmp/get.XXXXXX)
+    echo tmp file is $TMPFILE
+    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X GET "https://localhost:8443/midpoint/ws/rest/$TYPE/$OID" >$TMPFILE || (rm $TMPFILE ; return 1)
+    return 0
+}
 
 # Retrieves XML object and checks if the name matches
 function get_and_check_object () {
@@ -220,8 +228,18 @@ function test_resource () {
 
 function assert_task_success () {
     local OID=$1
-    # TODO
-    return 0
+    get_object tasks $OID
+    TASK_STATUS=$(xmllint --xpath "/*/*[local-name()='resultStatus']/text()" $TMPFILE) || (echo "Couldn't extract task status from task $OID" ; cat $TMPFILE ; rm $TMPFILE ; return 1)
+    if [[ $TASK_STATUS = "success" ]]; then
+        echo "Task $OID status is OK"
+        rm $TMPFILE
+        return 0
+    else
+        echo "Task $OID status is not OK: $TASK_STATUS"
+        cat $TMPFILE
+        rm $TMPFILE
+        return 1
+    fi
 }
 
 function wait_for_task_completion () {
