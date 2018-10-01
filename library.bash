@@ -138,11 +138,10 @@ function add_object () {
     http_code=$(sed '$!d' <<<"$response")
     
     if [ "$http_code" -eq 201 ] || [ "$http_code" -eq 202 ]; then
-	headers=$(sed -n '1,/^\r$/p' <<<"$response")	
-
+        
 	# get the real Location
-    	location=$(grep -oP 'Location: \K.*' <<<"$headers")
-    	oid=$(sed 's/.*\///' <<<"$location")
+    	location=$(grep -oP "Location: \K.*" <<<"$response")
+	oid=$(sed 's/.*\///' <<<"$location")
 
         echo "Oid created object: $oid"
         return 0
