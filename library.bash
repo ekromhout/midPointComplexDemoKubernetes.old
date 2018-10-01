@@ -137,7 +137,7 @@ function add_object () {
     response=$(curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE)
     http_code=$(sed '$!d' <<<"$response")
     
-    if [ "$http_code" -eq 201 ]; then
+    if [ "$http_code" -eq 201 ] || [ "$http_code" -eq 202 ]; then
 	headers=$(sed -n '1,/^\r$/p' <<<"$response")	
 
 	# get the real Location
