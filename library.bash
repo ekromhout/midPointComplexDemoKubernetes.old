@@ -125,9 +125,31 @@ function add_object () {
     local TYPE=$1
     local FILE=$2
     echo "Adding to $TYPE from $FILE..."
-    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE || return 1
+    
+    response=$(curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE)
+    http_code=$(sed '$!d' <<<"$response")
+    
+    if [ "$http_code" -eq 201 ]; then
+	headers=$(sed -n '1,/^\r$/p' <<<"$response")	
+
+	# get the real Location
+    	location=$(grep -oP 'Location: \K.*' <<<"$headers")
+    	oid=$(sed 's/.*\///' <<<"$location")
+
+        echo "Oid created object: $oid"
+        return 0
+    else
+    	echo "Error code: $http_code"
+    	if [ "$http_code" -eq 500 ]; then
+            echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
+    	else
+            error_message=$(grep 'message' <<<"$response" | head -1 | awk -F">" '{print $2}' | awk -F"<" '{print $1}')
+            echo "Error message: $error_message"
+    	fi
+        return 1
+    fi
+    #curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE || return 1
     #TODO check the returned XML
-    return 0
 }
 
 # Tries to find an object with a given name
@@ -138,7 +160,7 @@ function search_objects_by_name () {
     NAME="$2"
     TMPFILE=$(mktemp /tmp/search.XXXXXX)
 
-    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE/search" -d @- << EOF >$TMPFILE || (rm $TMPFILE ; return 1)
+    curl -k --write-out %{http_code}  --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE/search" -d @- << EOF >$TMPFILE || (rm $TMPFILE ; return 1)
 <q:query xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3">
     <q:filter>
         <q:equal>
@@ -149,8 +171,16 @@ function search_objects_by_name () {
 </q:query>
 EOF
     SEARCH_RESULT_FILE=$TMPFILE
-    # TODO check validity of the file
-    return 0
+    
+    http_code=$(sed '$!d' <<<"$(cat $SEARCH_RESULT_FILE)")
+
+    sed -i '$ d' $SEARCH_RESULT_FILE
+    cat $SEARCH_RESULT_FILE
+    if [ "$http_code" -eq 200 ]; then
+        return 0
+    else
+    	return 1
+    fi
 }
 
 # Searches for object with a given name and verifies it was found
