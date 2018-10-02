@@ -134,23 +134,23 @@ function add_object () {
     local FILE=$2
     echo "Adding to $TYPE from $FILE..."
     
-    response=$(curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE)
-    http_code=$(sed '$!d' <<<"$response")
+    local response=$(curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE)
+    local http_code=$(sed '$!d' <<<"$response")
     
     if [ "$http_code" -eq 201 ] || [ "$http_code" -eq 202 ]; then
         
 	# get the real Location
-    	location=$(grep -oP "Location: \K.*" <<<"$response")
-	oid=$(sed 's/.*\///' <<<"$location")
+    	local location=$(grep -oP "Location: \K.*" <<<"$response")
+	OID=$(sed 's/.*\///' <<<"$location")
 
-        echo "Oid created object: $oid"
+        echo "Oid created object: $OID"
         return 0
     else
     	echo "Error code: $http_code"
     	if [ "$http_code" -eq 500 ]; then
             echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
     	else
-            error_message=$(grep 'message' <<<"$response" | head -1 | awk -F">" '{print $2}' | awk -F"<" '{print $1}')
+            local error_message=$(grep 'message' <<<"$response" | head -1 | awk -F">" '{print $2}' | awk -F"<" '{print $1}')
             echo "Error message: $error_message"
     	fi
         return 1
@@ -186,6 +186,7 @@ EOF
     if [ "$http_code" -eq 200 ]; then
         return 0
     else
+        rm $SEARCH_RESULT_FILE
     	return 1
     fi
 }
@@ -243,6 +244,81 @@ function assert_task_success () {
 
 function wait_for_task_completion () {
     local OID=$1
-    sleep 60		# TODO
+    local ATTEMPT=0
+    local MAX_ATTEMPTS=$2
+    local DELAY=$3
+
+    until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
+        ATTEMPT=$((ATTEMPT+1))
+        echo "Waiting $DELAY seconds for task with oid $OID to finish (attempt $ATTEMPT) ..."
+        sleep $DELAY
+	get_object tasks $OID
+        TASK_EXECUTION_STATUS=$(xmllint --xpath "/*/*[local-name()='executionStatus']/text()" $TMPFILE) || (echo "Couldn't extract task status from task $OID" ; cat $TMPFILE ; rm $TMPFILE ; return 1)
+        if [[ $TASK_EXECUTION_STATUS = "suspended" ]] || [[ $TASK_EXECUTION_STATUS = "closed" ]]; then
+    	    echo "Task $OID is finished"
+        	rm $TMPFILE
+        	return 0
+        fi
+    done
+    rm $TMPFILE
+    echo Task with $OID did not finish in $(( $MAX_ATTEMPTS * $DELAY )) seconds
+    return 1
+}
+
+
+#search LDAP accout by uid
+function search_ldap_object_by_filter () {
+    local BASE_CONTEXT_FOR_SEARCH=$1
+    local FILTER="$2"
+    TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
+
+    ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (rm $TMPFILE ; return 1)
+    LDAPSEARCH_RESULT_FILE=$TMPFILE  
     return 0
 }
+
+function check_ldap_account_by_user_name () {
+    local NAME=$1
+    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME"
+    search_objects_by_name users $NAME
+    
+    local MP_FULL_NAME=$(xmllint --xpath "/*/*/*[local-name()='fullName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user fullName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+    local MP_GIVEN_NAME=$(xmllint --xpath "/*/*/*[local-name()='givenName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user givenName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+    local MP_FAMILY_NAME=$(xmllint --xpath "/*/*/*[local-name()='familyName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user familyName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)    
+
+    local LDAP_CN=$(grep -oP "cn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user cn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+    local LDAP_GIVEN_NAME=$(grep -oP "givenName: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user givenName from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+    local LDAP_SN=$(grep -oP "sn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user sn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+
+    rm $SEARCH_RESULT_FILE
+    rm $LDAPSEARCH_RESULT_FILE
+
+    if [[ $MP_FULL_NAME = $LDAP_CN ]] && [[ $MP_GIVEN_NAME = $LDAP_GIVEN_NAME ]] && [[ $MP_FAMILY_NAME = $LDAP_SN ]]; then
+	return 0
+    fi
+    
+    echo "User in Midpoint and LDAP Account with uid $NAME are not same"
+    return 1
+}
+
+function check_of_ldap_membership () {
+    local NAME_OF_USER=$1
+    local NAME_OF_GROUP=$2
+    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER"
+
+    local LDAP_ACCOUNT_DN=$(grep -oP "dn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user dn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+    
+    search_ldap_object_by_filter "ou=groups,dc=internet2,dc=edu" "cn=$NAME_OF_GROUP"
+
+    local LDAP_MEMBERS_DNS=$(grep -oP "uniqueMember: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user uniqueMember from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+
+    rm $LDAPSEARCH_RESULT_FILE
+
+    if [[ $LDAP_MEMBERS_DNS =~ $LDAP_ACCOUNT_DN ]]; then
+        return 0
+    fi
+
+    echo "LDAP Account with uid $NAME_OF_USER is not member of LDAP Group $NAME_OF_GROUP"
+    return 1
+}
+

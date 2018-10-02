@@ -81,7 +81,7 @@ load ../../../library
 
     add_object tasks midpoint-objects-manual/tasks/task-import-sis-persons.xml
     search_and_check_object tasks "Import from SIS persons"
-    wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a79aeaaa
+    wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a79aeaaa 6 10
     assert_task_success 22c2a3d0-0961-4255-9eec-c550a79aeaaa
 
     search_and_check_object users jsmith
@@ -97,7 +97,30 @@ load ../../../library
     # TODO check in LDAP, check assignments etc
 }
 
+@test "230 Check 'TestUser230' in Midpoint and LDAP" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+    check_health
+    echo "<user><name>TestUser230</name><fullName>Test User230</fullName><givenName>Test</givenName><familyName>User230</familyName><credentials><password><value><clearValue>password</clearValue></value></password></credentials></user>" >/tmp/testuser230.xml
+    add_object users /tmp/testuser230.xml
+    rm /tmp/testuser230.xml
+    search_and_check_object users TestUser230
+
+    add_object tasks tests/resources/task/recom-role-grouper-sysadmin.xml
+    search_and_check_object tasks "Recompute role-grouper-sysadmin"
+    wait_for_task_completion 22c2a3d0-0961-4255-9eec-caasa79aeaaa 6 10
+    assert_task_success 22c2a3d0-0961-4255-9eec-caasa79aeaaa
+
+    add_object tasks tests/resources/task/assign-role-grouper-sysadmin-to-test-user.xml
+    search_and_check_object tasks "Assign role-grouper-sysadmin to TestUser230"
+    wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a791237s 6 10
+    assert_task_success 22c2a3d0-0961-4255-9eec-c550a791237s
+
+    check_ldap_account_by_user_name TestUser230
+    check_of_ldap_membership TestUser230 sysadmingroup
+}
+
+
 @test "999 Clean up" {
-#	skip TEMP
+	skip TEMP
     docker-compose down -v
 }
