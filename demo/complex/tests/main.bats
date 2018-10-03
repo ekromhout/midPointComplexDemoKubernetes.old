@@ -105,15 +105,9 @@ load ../../../library
     rm /tmp/testuser230.xml
     search_and_check_object users TestUser230
 
-    add_object tasks tests/resources/task/recom-role-grouper-sysadmin.xml
-    search_and_check_object tasks "Recompute role-grouper-sysadmin"
-    wait_for_task_completion 22c2a3d0-0961-4255-9eec-caasa79aeaaa 6 10
-    assert_task_success 22c2a3d0-0961-4255-9eec-caasa79aeaaa
+     execute_bulk_action tests/resources/bulk-action/recom-role-grouper-sysadmin.xml
 
-    add_object tasks tests/resources/task/assign-role-grouper-sysadmin-to-test-user.xml
-    search_and_check_object tasks "Assign role-grouper-sysadmin to TestUser230"
-    wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a791237s 6 10
-    assert_task_success 22c2a3d0-0961-4255-9eec-c550a791237s
+    execute_bulk_action tests/resources/bulk-action/assign-role-grouper-sysadmin-to-test-user.xml
 
     check_ldap_account_by_user_name TestUser230 complex_directory_1
     check_of_ldap_membership TestUser230 sysadmingroup complex_directory_1
