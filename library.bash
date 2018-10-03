@@ -110,8 +110,6 @@ function get_and_check_object () {
 }
 
 # Adds object from a given file
-# TODO Returns the OID in OID variable
-# it can be found in the following HTTP reader returned: Location: "https://localhost:8443/midpoint/ws/rest/users/85e62669-d36b-41ce-b4f1-1ffdd9f66262"
 function add_object () {
     local TYPE=$1
     local FILE=$2
@@ -123,7 +121,6 @@ function add_object () {
     
     if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 202 ]; then
         
-	# get the real Location
 	OID=$(grep -oP "Location: \K.*" $TMPFILE | awk -F "$TYPE/" '{print $2}') || (echo "Couldn't extract oid from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
 
         echo "Oid created object: $OID"
@@ -147,7 +144,7 @@ function execute_bulk_action () {
     echo "Executing bulk action from $FILE..."
     TMPFILE=$(mktemp /tmp/execbulkaction.XXXXXX)    
 
-    curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/rpc/executeScript" -d @$FILE >$TMPFILE
+    (curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/rpc/executeScript" -d @$FILE >$TMPFILE)  || (echo "Midpoint logs: " ; docker logs "complex_midpoint-server_1" ; return 1)
     local HTTP_CODE=$(sed '$!d' $TMPFILE)
     sed -i '$ d' $TMPFILE
 
