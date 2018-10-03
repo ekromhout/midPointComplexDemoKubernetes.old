@@ -35,9 +35,9 @@ RUN chmod 755 /opt/tier/setenv.sh \
     && chmod 755 /usr/local/bin/healthcheck.sh
 
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
-    && mv /etc/httpd/conf.d/shib.conf shib.conf.auth.shibboleth \
+    && mv /etc/httpd/conf.d/shib.conf /etc/httpd/conf.d/shib.conf.auth.shibboleth \
     && touch /etc/httpd/conf.d/shib.conf.auth.internal \
-    && mv /etc/httpd/conf.modules.d/00-shib.conf 00-shib.conf.auth.shibboleth \
+    && mv /etc/httpd/conf.modules.d/00-shib.conf /etc/httpd/conf.modules.d/00-shib.conf.auth.shibboleth \
     && touch /etc/httpd/conf.modules.d/00-shib.conf.auth.internal \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
