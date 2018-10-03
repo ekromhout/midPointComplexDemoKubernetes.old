@@ -21,8 +21,8 @@ load ../../../library
     touch $BATS_TMPDIR/not-started
     wait_for_midpoint_start complex_midpoint-server_1 complex_midpoint-data_1
     wait_for_shibboleth_idp_start complex_idp_1
+    wait_for_grouper_ui_start complex_grouper-ui_1
     rm $BATS_TMPDIR/not-started
-# TODO wait for shibboleth, grouper-ui, (also something other?)
 }
 
 @test "040 Check midPoint health" {
@@ -61,11 +61,26 @@ load ../../../library
     check_health
     pwd >&2
     ./upload-objects
+
     search_and_check_object objectTemplates template-org-course
     search_and_check_object objectTemplates template-org-department
     search_and_check_object objectTemplates template-role-affiliation
     search_and_check_object objectTemplates template-role-generic-group
-# TODO check other objects that were uploaded
+    
+    search_and_check_object orgs courses
+    search_and_check_object orgs departments
+
+    search_and_check_object resources "OpenLDAP (directory)"
+    search_and_check_object resources "Grouper SQL/MQ"
+    search_and_check_object resources "SQL SIS courses (sources)"
+    search_and_check_object resources "SQL SIS persons (sources)"
+
+    search_and_check_object roles metarole-affiliation
+    search_and_check_object roles metarole-course
+    search_and_check_object roles metarole-department 
+    search_and_check_object roles metarole-generic-group
+    search_and_check_object roles role-grouper-sysadmin
+    search_and_check_object roles role-ldap-basic
 }
 
 @test "210 Test resource" {
@@ -94,7 +109,18 @@ load ../../../library
     search_and_check_object users amorrison
     search_and_check_object users wprice
     search_and_check_object users mroberts
-    # TODO check in LDAP, check assignments etc
+
+    check_ldap_account_by_user_name jsmith complex_directory_1
+    check_ldap_account_by_user_name banderson complex_directory_1
+    check_ldap_account_by_user_name kwhite complex_directory_1
+    check_ldap_account_by_user_name whenderson complex_directory_1
+    check_ldap_account_by_user_name ddavis complex_directory_1
+    check_ldap_account_by_user_name cmorrison complex_directory_1
+    check_ldap_account_by_user_name danderson complex_directory_1
+    check_ldap_account_by_user_name amorrison complex_directory_1
+    check_ldap_account_by_user_name wprice complex_directory_1
+    check_ldap_account_by_user_name mroberts complex_directory_1
+    # TODO check assignments etc
 }
 
 @test "230 Check 'TestUser230' in Midpoint and LDAP" {

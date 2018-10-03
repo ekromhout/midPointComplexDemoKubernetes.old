@@ -45,10 +45,16 @@ function wait_for_midpoint_start () {
     generic_wait_for_log $1 "INFO (com.evolveum.midpoint.web.boot.MidPointSpringApplication): Started MidPointSpringApplication in" "midPoint to start" "midPoint did not start" $2
 }
 
-# Waits until Shibboleth IDP starts ... TODO refactor using generic waiting function
+# Waits until Shibboleth IDP starts
 function wait_for_shibboleth_idp_start () {
     generic_wait_for_log $1 "INFO:oejs.Server:main: Started" "shibboleth idp to start" "shibboleth idp did not start" $2
 }
+
+# Waits until Grouper UI starts
+function wait_for_grouper_ui_start () {
+    generic_wait_for_log $1 "INFO  org.apache.catalina.startup.Catalina- Server startup in" "grouper ui to start" "grouper ui did not start" $2
+}
+
 
 # Checks the health of midPoint server
 function check_health () {
@@ -219,8 +225,8 @@ function delete_object () {
 # Results of the search are in the $SEARCH_RESULT_FILE
 # TODO check if the result is valid (i.e. not an error) - return 1 if invalid, otherwise return 0 ("no objects" is considered OK here)
 function search_objects_by_name () {
-    TYPE=$1
-    NAME="$2"
+    local TYPE=$1
+    local NAME="$2"
     TMPFILE=$(mktemp /tmp/search.XXXXXX)
 
     curl -k --write-out %{http_code}  --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE/search" -d @- << EOF >$TMPFILE || (rm $TMPFILE ; return 1)
@@ -233,15 +239,21 @@ function search_objects_by_name () {
     </q:filter>
 </q:query>
 EOF
-    SEARCH_RESULT_FILE=$TMPFILE
-    
-    http_code=$(sed '$!d' <<<"$(cat $SEARCH_RESULT_FILE)")
+    local HTTP_CODE=$(sed '$!d' <<<"$(cat $TMPFILE)")
+    sed -i '$ d' $TMPFILE
+    cat $TMPFILE  
 
-    sed -i '$ d' $SEARCH_RESULT_FILE
-    cat $SEARCH_RESULT_FILE
-    if [ "$http_code" -eq 200 ]; then
+    if [ "$HTTP_CODE" -eq 200 ]; then
+        SEARCH_RESULT_FILE=$TMPFILE
         return 0
     else
+        echo "Error code: $HTTP_CODE"
+        if [ "$HTTP_CODE" -ge 500 ]; then
+            echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
+        else
+            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='error']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+            echo "Error message: $ERROR_MESSAGE"
+        fi
         rm $SEARCH_RESULT_FILE
     	return 1
     fi
@@ -335,7 +347,7 @@ function search_ldap_object_by_filter () {
 }
 
 function check_ldap_account_by_user_name () {
-    local NAME=$1
+    local NAME="$1"
     local LDAP_CONTAINER=$2
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME" $LDAP_CONTAINER
     search_objects_by_name users $NAME
@@ -360,8 +372,8 @@ function check_ldap_account_by_user_name () {
 }
 
 function check_of_ldap_membership () {
-    local NAME_OF_USER=$1
-    local NAME_OF_GROUP=$2
+    local NAME_OF_USER="$1"
+    local NAME_OF_GROUP="$2"
     local LDAP_CONTAINER=$3
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER" $LDAP_CONTAINER
 
