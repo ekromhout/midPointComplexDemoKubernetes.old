@@ -47,24 +47,7 @@ function wait_for_midpoint_start () {
 
 # Waits until Shibboleth IDP starts ... TODO refactor using generic waiting function
 function wait_for_shibboleth_idp_start () {
-    CONTAINER_NAME=$1
-    ATTEMPT=0
-    MAX_ATTEMPTS=20
-    DELAY=10
-
-    until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
-        ATTEMPT=$((ATTEMPT+1))
-        echo "Waiting $DELAY seconds for Shibboleth IDP to start (attempt $ATTEMPT) ..."
-        sleep $DELAY
-        docker ps
-        ( docker logs $CONTAINER_NAME 2>&1 | grep "INFO:oejs.Server:main: Started" ) && return 0
-    done
-
-    echo Shibboleth IDP did not start in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
-    echo "========== Container log =========="
-    docker logs $CONTAINER_NAME 2>&1
-    echo "========== End of the container log =========="
-    return 1
+    generic_wait_for_log $1 "INFO:oejs.Server:main: Started" "shibboleth idp to start" "shibboleth idp did not start" $2
 }
 
 # Checks the health of midPoint server
@@ -155,9 +138,40 @@ function add_object () {
     	fi
         return 1
     fi
-    #curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE || return 1
-    #TODO check the returned XML
 }
+
+function execute_bulk_action () {
+    local FILE=$1
+    echo "Executing bulk action from $FILE..."
+    TMPFILE=$(mktemp /tmp/execbulkaction.XXXXXX)    
+
+    curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/rpc/executeScript" -d @$FILE >$TMPFILE
+    local HTTP_CODE=$(sed '$!d' $TMPFILE)
+    sed -i '$ d' $TMPFILE
+
+    if [ "$HTTP_CODE" -eq 200 ]; then
+        
+        local STATUS=$(xmllint --xpath "/*/*/*[local-name()='status']/text()" $TMPFILE) || (echo "Couldn't extract status from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)        
+        if [ $STATUS = "success" ]; then
+            rm $TMPFILE
+            return 0
+	else
+            echo "Bulk action status is not OK: $STATUS"
+            local CONSOLE_OUTPUT=$(xmllint --xpath "/*/*/*[local-name()='consoleOutput']/text()" $TMPFILE) || (echo "Couldn't extract console output from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+ 	    echo "Console output: $CONSOLE_OUTPUT"
+	    rm $TMPFILE
+            return 1
+        fi
+
+    else
+        echo "Error code: $HTTP_CODE"
+        if [ "$http_code" -eq 500 ]; then
+            echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
+        fi
+        return 1
+    fi
+}
+
 
 # Tries to find an object with a given name
 # Results of the search are in the $SEARCH_RESULT_FILE
