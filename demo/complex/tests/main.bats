@@ -115,8 +115,8 @@ load ../../../library
     wait_for_task_completion 22c2a3d0-0961-4255-9eec-c550a791237s 6 10
     assert_task_success 22c2a3d0-0961-4255-9eec-c550a791237s
 
-    check_ldap_account_by_user_name TestUser230
-    check_of_ldap_membership TestUser230 sysadmingroup
+    check_ldap_account_by_user_name TestUser230 complex_directory_1
+    check_of_ldap_membership TestUser230 sysadmingroup complex_directory_1
 }
 
 

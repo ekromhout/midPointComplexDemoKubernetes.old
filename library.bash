@@ -12,7 +12,7 @@ function generic_wait_for_log () {
     FAILURE="$4"
     ADDITIONAL_CONTAINER_NAME=$5
     ATTEMPT=0
-    MAX_ATTEMPTS=20
+    MAX_ATTEMPTS=40
     DELAY=10
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
@@ -270,16 +270,18 @@ function wait_for_task_completion () {
 function search_ldap_object_by_filter () {
     local BASE_CONTEXT_FOR_SEARCH=$1
     local FILTER="$2"
+    local LDAP_CONTAINER=$3
     TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
 
-    ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (rm $TMPFILE ; return 1)
+    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (rm $TMPFILE ; return 1)
     LDAPSEARCH_RESULT_FILE=$TMPFILE  
     return 0
 }
 
 function check_ldap_account_by_user_name () {
     local NAME=$1
-    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME"
+    local LDAP_CONTAINER=$2
+    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME" $LDAP_CONTAINER
     search_objects_by_name users $NAME
     
     local MP_FULL_NAME=$(xmllint --xpath "/*/*/*[local-name()='fullName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user fullName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
@@ -304,11 +306,12 @@ function check_ldap_account_by_user_name () {
 function check_of_ldap_membership () {
     local NAME_OF_USER=$1
     local NAME_OF_GROUP=$2
-    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER"
+    local LDAP_CONTAINER=$3
+    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER" $LDAP_CONTAINER
 
     local LDAP_ACCOUNT_DN=$(grep -oP "dn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user dn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
     
-    search_ldap_object_by_filter "ou=groups,dc=internet2,dc=edu" "cn=$NAME_OF_GROUP"
+    search_ldap_object_by_filter "ou=groups,dc=internet2,dc=edu" "cn=$NAME_OF_GROUP" $LDAP_CONTAINER
 
     local LDAP_MEMBERS_DNS=$(grep -oP "uniqueMember: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user uniqueMember from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
 
