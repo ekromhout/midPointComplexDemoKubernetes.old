@@ -18,7 +18,6 @@ services:
     ports:
       - 8443:443
     environment:
-     - AUTHENTICATION
      - ENV
      - USERTOKEN
      - REPO_DATABASE_TYPE
@@ -38,19 +37,9 @@ services:
     secrets:
      - mp_database_password.txt
      - mp_keystore_password.txt
-     - mp_sp-key.pem
      - mp_host-key.pem
     volumes:
      - midpoint_home:/opt/midpoint/var
-     - type: bind
-       source: ./configs-and-secrets/midpoint/shibboleth/shibboleth2.xml
-       target: /etc/shibboleth/shibboleth2.xml
-     - type: bind
-       source: ./configs-and-secrets/midpoint/shibboleth/idp-metadata.xml
-       target: /etc/shibboleth/idp-metadata.xml
-     - type: bind
-       source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
-       target: /etc/shibboleth/sp-cert.pem
      - type: bind
        source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
        target: /etc/pki/tls/certs/host-cert.pem
@@ -65,8 +54,6 @@ networks:
 secrets:
   mp_host-key.pem:
     file: ./configs-and-secrets/midpoint/httpd/host-key.pem
-  mp_sp-key.pem:
-    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
   mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
   mp_keystore_password.txt:
