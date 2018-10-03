@@ -143,6 +143,5 @@ load ../../../library
 
 
 @test "999 Clean up" {
-	skip TEMP
     docker-compose down -v
 }
