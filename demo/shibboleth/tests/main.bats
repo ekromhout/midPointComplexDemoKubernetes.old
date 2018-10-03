@@ -15,8 +15,7 @@ load ../../../library
 
 @test "020 Initialize and start Shibboleth" {
     docker-compose up -d
-    # TODO implement wait_for_shibboleth_start
-    sleep 60
+    wait_for_shibboleth_idp_start shibboleth_idp_1
 }
 
 @test "030 Check health" {
