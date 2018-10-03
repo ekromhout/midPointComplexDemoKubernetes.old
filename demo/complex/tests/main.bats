@@ -22,7 +22,7 @@ load ../../../library
     wait_for_midpoint_start complex_midpoint-server_1 complex_midpoint-data_1
     wait_for_shibboleth_idp_start complex_idp_1
     rm $BATS_TMPDIR/not-started
- TODO wait for shibboleth, grouper-ui, (also something other?)
+# TODO wait for shibboleth, grouper-ui, (also something other?)
 }
 
 @test "040 Check midPoint health" {
