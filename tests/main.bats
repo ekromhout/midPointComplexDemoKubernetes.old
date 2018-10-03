@@ -25,7 +25,12 @@ load ../common
     cd demo/shibboleth ; docker-compose down -v ; true
 }
 
-@test "120 Cleanup before further tests - demo/complex" {
+@test "120 Cleanup before further tests - demo/postgresql" {
+    docker ps -a
+    cd demo/postgresql ; docker-compose down -v ; true
+}
+
+@test "130 Cleanup before further tests - demo/complex" {
     docker ps -a
     cd demo/complex ; docker-compose down -v ; true
 }
