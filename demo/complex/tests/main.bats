@@ -53,7 +53,7 @@ load ../../../library
     add_object users /tmp/test110.xml
     rm /tmp/test110.xml
     search_and_check_object users test110
-# TODO delete user after
+    delete_object_by_name users test110
 }
 
 @test "200 Upload objects" {
@@ -105,12 +105,13 @@ load ../../../library
     rm /tmp/testuser230.xml
     search_and_check_object users TestUser230
 
-     execute_bulk_action tests/resources/bulk-action/recom-role-grouper-sysadmin.xml
-
+    execute_bulk_action tests/resources/bulk-action/recom-role-grouper-sysadmin.xml
     execute_bulk_action tests/resources/bulk-action/assign-role-grouper-sysadmin-to-test-user.xml
 
     check_ldap_account_by_user_name TestUser230 complex_directory_1
     check_of_ldap_membership TestUser230 sysadmingroup complex_directory_1
+    
+    delete_object_by_name users TestUser230
 }
 
 
