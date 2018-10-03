@@ -91,7 +91,8 @@ ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 # Other parameters
 
 ENV MP_KEYSTORE_PASSWORD_FILE /run/secrets/mp_keystore_password.txt
-ENV MP_MEM 2048m
+ENV MP_MEM_MAX 2048m
+ENV MP_MEM_INIT 1024m
 ENV TIER_RELEASE not-released-yet
 ENV TIER_MAINTAINER tier
 

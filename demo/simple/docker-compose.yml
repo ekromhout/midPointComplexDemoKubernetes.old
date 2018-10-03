@@ -30,7 +30,9 @@ services:
      - REPO_UPGRADEABLE_SCHEMA_ACTION
      - REPO_SCHEMA_VERSION_IF_MISSING
      - REPO_SCHEMA_VARIANT
-     - MP_MEM
+     - MP_MEM_MAX
+     - MP_MEM_INIT
+     - MP_JAVA_OPTS
      - TIER_BEACON_OPT_OUT
     networks:
      - net
@@ -52,12 +54,12 @@ networks:
     driver: bridge
 
 secrets:
-  mp_host-key.pem:
-    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
   mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
   mp_keystore_password.txt:
     file: ./configs-and-secrets/midpoint/application/keystore_password.txt
+  mp_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
     
 volumes:
   midpoint_mysql:
