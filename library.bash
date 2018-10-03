@@ -55,7 +55,6 @@ function wait_for_grouper_ui_start () {
     generic_wait_for_log $1 "INFO  org.apache.catalina.startup.Catalina- Server startup in" "grouper ui to start" "grouper ui did not start" $2
 }
 
-
 # Checks the health of midPoint server
 function check_health () {
     echo Checking health...
@@ -85,22 +84,23 @@ function check_health_shibboleth_idp () {
     fi
 }
 
-
+# Result is in OUTFILE
 function get_object () {
     local TYPE=$1
     local OID=$2
-    TMPFILE=$(mktemp /tmp/get.XXXXXX)
-    echo tmp file is $TMPFILE
-    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X GET "https://localhost:8443/midpoint/ws/rest/$TYPE/$OID" >$TMPFILE || (rm $TMPFILE ; return 1)
+    OUTFILE=$(mktemp /tmp/get.XXXXXX)
+    echo out file is $OUTFILE
+    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X GET "https://localhost:8443/midpoint/ws/rest/$TYPE/$OID" >$OUTFILE || (rm $OUTFILE ; return 1)
     return 0
 }
 
 # Retrieves XML object and checks if the name matches
+# Object is deleted before return
 function get_and_check_object () {
-    TYPE=$1
-    OID=$2
-    NAME=$3
-    TMPFILE=$(mktemp /tmp/get.XXXXXX)
+    local TYPE=$1
+    local OID=$2
+    local NAME=$3
+    local TMPFILE=$(mktemp /tmp/get.XXXXXX)
     echo tmp file is $TMPFILE
     curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X GET "https://localhost:8443/midpoint/ws/rest/$TYPE/$OID" >$TMPFILE || (rm $TMPFILE ; return 1)
     if (grep -q "<name>$NAME</name>" <$TMPFILE); then
@@ -119,17 +119,17 @@ function get_and_check_object () {
 function add_object () {
     local TYPE=$1
     local FILE=$2
-    TMPFILE=$(mktemp /tmp/execbulkaction.XXXXXX)
+    TMPFILE=$(mktemp /tmp/addobject.XXXXXX)
     echo "Adding to $TYPE from $FILE..."
-    
+
     curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE >$TMPFILE
-     local HTTP_CODE=$(sed '$!d' $TMPFILE)
-    
+    local HTTP_CODE=$(sed '$!d' $TMPFILE)
+
     if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 202 ]; then
-        
+
 	OID=$(grep -oP "Location: \K.*" $TMPFILE | awk -F "$TYPE/" '{print $2}') || (echo "Couldn't extract oid from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
 
-        echo "Oid created object: $OID"
+        echo "OID of created object: $OID"
 	rm $TMPFILE
         return 0
     else
@@ -145,18 +145,20 @@ function add_object () {
     fi
 }
 
+# parameter $2 (CONTAINER) is just for diagnostics: it is the container whose logs we want to dump on error (might be omitted)
 function execute_bulk_action () {
     local FILE=$1
+    local CONTAINER=$2
     echo "Executing bulk action from $FILE..."
-    TMPFILE=$(mktemp /tmp/execbulkaction.XXXXXX)    
+    TMPFILE=$(mktemp /tmp/execbulkaction.XXXXXX)
 
-    (curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/rpc/executeScript" -d @$FILE >$TMPFILE)  || (echo "Midpoint logs: " ; docker logs "complex_midpoint-server_1" ; return 1)
+    (curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/rpc/executeScript" -d @$FILE >$TMPFILE)  || (echo "Midpoint logs: " ; ([[ -n "$CONTAINER" ]] && docker logs $CONTAINER ) ; return 1)
     local HTTP_CODE=$(sed '$!d' $TMPFILE)
     sed -i '$ d' $TMPFILE
 
     if [ "$HTTP_CODE" -eq 200 ]; then
-        
-        local STATUS=$(xmllint --xpath "/*/*/*[local-name()='status']/text()" $TMPFILE) || (echo "Couldn't extract status from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)        
+
+        local STATUS=$(xmllint --xpath "/*/*/*[local-name()='status']/text()" $TMPFILE) || (echo "Couldn't extract status from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
         if [ $STATUS = "success" ]; then
             local CONSOLE_OUTPUT=$(xmllint --xpath "/*/*/*[local-name()='consoleOutput']/text()" $TMPFILE) || (echo "Couldn't extract console output from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
             echo "Console output: $CONSOLE_OUTPUT"
@@ -188,7 +190,7 @@ function delete_object_by_name () {
     local NAME=$2
     search_objects_by_name users $NAME
     local OID=$(xmllint --xpath "/*/*[local-name()='object']/@oid" $SEARCH_RESULT_FILE | awk -F"\"" '{print $2}' ) || (echo "Couldn't extract oid from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE; return 1)
-    delete_object $TYPE $OID   
+    delete_object $TYPE $OID
 }
 
 function delete_object () {
@@ -202,7 +204,6 @@ function delete_object () {
     sed -i '$ d' $TMPFILE
 
     if [ "$HTTP_CODE" -eq 204 ]; then
-	
 	echo "Object with type $TYPE and oid $OID was deleted"
         rm $TMPFILE
         return 0
@@ -218,8 +219,6 @@ function delete_object () {
         return 1
     fi
 }
-
-
 
 # Tries to find an object with a given name
 # Results of the search are in the $SEARCH_RESULT_FILE
@@ -241,7 +240,7 @@ function search_objects_by_name () {
 EOF
     local HTTP_CODE=$(sed '$!d' <<<"$(cat $TMPFILE)")
     sed -i '$ d' $TMPFILE
-    cat $TMPFILE  
+    cat $TMPFILE
 
     if [ "$HTTP_CODE" -eq 200 ]; then
         SEARCH_RESULT_FILE=$TMPFILE
@@ -297,15 +296,15 @@ function test_resource () {
 function assert_task_success () {
     local OID=$1
     get_object tasks $OID
-    TASK_STATUS=$(xmllint --xpath "/*/*[local-name()='resultStatus']/text()" $TMPFILE) || (echo "Couldn't extract task status from task $OID" ; cat $TMPFILE ; rm $TMPFILE ; return 1)
+    TASK_STATUS=$(xmllint --xpath "/*/*[local-name()='resultStatus']/text()" $OUTFILE) || (echo "Couldn't extract task status from task $OID" ; cat $OUTFILE ; rm $OUTFILE ; return 1)
     if [[ $TASK_STATUS = "success" ]]; then
         echo "Task $OID status is OK"
-        rm $TMPFILE
+        rm $OUTFILE
         return 0
     else
         echo "Task $OID status is not OK: $TASK_STATUS"
-        cat $TMPFILE
-        rm $TMPFILE
+        cat $OUTFILE
+        rm $OUTFILE
         return 1
     fi
 }
@@ -321,14 +320,14 @@ function wait_for_task_completion () {
         echo "Waiting $DELAY seconds for task with oid $OID to finish (attempt $ATTEMPT) ..."
         sleep $DELAY
 	get_object tasks $OID
-        TASK_EXECUTION_STATUS=$(xmllint --xpath "/*/*[local-name()='executionStatus']/text()" $TMPFILE) || (echo "Couldn't extract task status from task $OID" ; cat $TMPFILE ; rm $TMPFILE ; return 1)
+        TASK_EXECUTION_STATUS=$(xmllint --xpath "/*/*[local-name()='executionStatus']/text()" $OUTFILE) || (echo "Couldn't extract task status from task $OID" ; cat $OUTFILE ; rm $OUTFILE ; return 1)
         if [[ $TASK_EXECUTION_STATUS = "suspended" ]] || [[ $TASK_EXECUTION_STATUS = "closed" ]]; then
     	    echo "Task $OID is finished"
-        	rm $TMPFILE
+        	rm $OUTFILE
         	return 0
         fi
     done
-    rm $TMPFILE
+    rm $OUTFILE
     echo Task with $OID did not finish in $(( $MAX_ATTEMPTS * $DELAY )) seconds
     return 1
 }
@@ -342,7 +341,7 @@ function search_ldap_object_by_filter () {
     TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
 
     docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (rm $TMPFILE ; return 1)
-    LDAPSEARCH_RESULT_FILE=$TMPFILE  
+    LDAPSEARCH_RESULT_FILE=$TMPFILE
     return 0
 }
 
@@ -351,10 +350,10 @@ function check_ldap_account_by_user_name () {
     local LDAP_CONTAINER=$2
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME" $LDAP_CONTAINER
     search_objects_by_name users $NAME
-    
+
     local MP_FULL_NAME=$(xmllint --xpath "/*/*/*[local-name()='fullName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user fullName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
     local MP_GIVEN_NAME=$(xmllint --xpath "/*/*/*[local-name()='givenName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user givenName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
-    local MP_FAMILY_NAME=$(xmllint --xpath "/*/*/*[local-name()='familyName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user familyName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)    
+    local MP_FAMILY_NAME=$(xmllint --xpath "/*/*/*[local-name()='familyName']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user familyName from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
 
     local LDAP_CN=$(grep -oP "cn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user cn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
     local LDAP_GIVEN_NAME=$(grep -oP "givenName: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user givenName from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
@@ -366,7 +365,7 @@ function check_ldap_account_by_user_name () {
     if [[ $MP_FULL_NAME = $LDAP_CN ]] && [[ $MP_GIVEN_NAME = $LDAP_GIVEN_NAME ]] && [[ $MP_FAMILY_NAME = $LDAP_SN ]]; then
 	return 0
     fi
-    
+
     echo "User in Midpoint and LDAP Account with uid $NAME are not same"
     return 1
 }
@@ -378,7 +377,7 @@ function check_of_ldap_membership () {
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER" $LDAP_CONTAINER
 
     local LDAP_ACCOUNT_DN=$(grep -oP "dn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user dn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
-    
+
     search_ldap_object_by_filter "ou=groups,dc=internet2,dc=edu" "cn=$NAME_OF_GROUP" $LDAP_CONTAINER
 
     local LDAP_MEMBERS_DNS=$(grep -oP "uniqueMember: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user uniqueMember from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
@@ -392,4 +391,3 @@ function check_of_ldap_membership () {
     echo "LDAP Account with uid $NAME_OF_USER is not member of LDAP Group $NAME_OF_GROUP"
     return 1
 }
-

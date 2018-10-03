@@ -11,10 +11,9 @@ load ../../../library
 }
 
 @test "010 Initialize and start the composition" {
-    docker ps -a >> /tmp/log
+    # We want to fail cleanly if there's any interference
     docker ps
     ! (docker ps | grep -E "shibboleth_(idp|directory)_1|(complex|simple|shibboleth|postgresql)_(midpoint_server|midpoint_data)_1")
-    cp tests/resources/sql/* sources/container_files/seed-data/
     docker-compose up -d --build
 }
 
@@ -59,8 +58,13 @@ load ../../../library
 
 @test "200 Upload objects" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    # reduce data in SIS database so imports will take reasonable time
+    docker exec complex_sources_1 mysql sis -e "delete from SIS_COURSES where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -e "delete from SIS_AFFILIATIONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -e "delete from SIS_PERSONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+
     check_health
-    pwd >&2
     ./upload-objects
 
     search_and_check_object objectTemplates template-org-course
@@ -132,8 +136,8 @@ load ../../../library
     rm /tmp/testuser230.xml
     search_and_check_object users TestUser230
 
-    execute_bulk_action tests/resources/bulk-action/recom-role-grouper-sysadmin.xml
-    execute_bulk_action tests/resources/bulk-action/assign-role-grouper-sysadmin-to-test-user.xml
+    execute_bulk_action tests/resources/bulk-action/recompute-role-grouper-sysadmin.xml complex_midpoint_server_1
+    execute_bulk_action tests/resources/bulk-action/assign-role-grouper-sysadmin-to-test-user.xml complex_midpoint_server_1
 
     check_ldap_account_by_user_name TestUser230 complex_directory_1
     check_of_ldap_membership TestUser230 sysadmingroup complex_directory_1
