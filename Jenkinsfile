@@ -71,7 +71,7 @@ pipeline {
                 }
             }
         }
-/*        stage ('Push') {
+        stage ('Push') {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com/', "dockerhub-$maintainer") {
@@ -81,11 +81,10 @@ pipeline {
                 }
             }
         }
-*/
         stage ('Notify') {
             steps {
                 echo "$maintainer"
-                slackSend color: 'good', message: "$maintainer/$imagename:$tag built but NOT pushed to DockerHub (push temporarily disabled for this branch)"
+                slackSend color: 'good', message: "$maintainer/$imagename:$tag pushed to DockerHub"
             }
         }
     }
