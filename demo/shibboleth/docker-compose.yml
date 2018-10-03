@@ -32,7 +32,9 @@ services:
      - REPO_UPGRADEABLE_SCHEMA_ACTION
      - REPO_SCHEMA_VERSION_IF_MISSING
      - REPO_SCHEMA_VARIANT
-     - MP_MEM
+     - MP_MEM_MAX
+     - MP_MEM_INIT
+     - MP_JAVA_OPTS
      - TIER_BEACON_OPT_OUT
     networks:
      - net
@@ -44,6 +46,12 @@ services:
     volumes:
      - midpoint_home:/opt/midpoint/var
      - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
+     - type: bind
        source: ./configs-and-secrets/midpoint/shibboleth/shibboleth2.xml
        target: /etc/shibboleth/shibboleth2.xml
      - type: bind
@@ -52,19 +60,11 @@ services:
      - type: bind
        source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
        target: /etc/shibboleth/sp-cert.pem
-     - type: bind
-       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
-       target: /etc/pki/tls/certs/host-cert.pem
-     - type: bind
-       source: ./configs-and-secrets/midpoint/httpd/host-cert.pem
-       target: /etc/pki/tls/certs/cachain.pem
 
   directory:
     build: ./directory/
-    expose:
-     - "389"
     ports:
-     - "389:389"
+     - 389:389
     networks:
      - net
     volumes:
@@ -74,28 +74,28 @@ services:
     build: ./idp/
     depends_on:
      - directory
+    ports:
+     - 4443:4443
     environment:
      - JETTY_MAX_HEAP=64m
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
     networks:
      - net
-    ports:
-     - "4443:4443"
 
 networks:
   net:
     driver: bridge
 
 secrets:
-  mp_host-key.pem:
-    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
-  mp_sp-key.pem:
-    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
   mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
   mp_keystore_password.txt:
     file: ./configs-and-secrets/midpoint/application/keystore_password.txt
+  mp_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
+  mp_sp-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
     
 volumes:
   midpoint_mysql:
