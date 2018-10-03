@@ -1,5 +1,28 @@
 #!/bin/bash
 
+function check () {
+    local VARNAME=$1
+    if [ -z ${!VARNAME} ]; then
+        echo "*** Couldn't start midPoint: $VARNAME variable is undefined. Please check your Docker composition."
+        exit 1
+    fi
+}
+
+# These variables have reasonable defaults in Dockerfile. So we will _not_ supply defaults here.
+# The composer or user has to make sure they are well defined.
+
+check MP_MEM
+check MP_DIR
+check REPO_DATABASE_TYPE
+check REPO_USER
+check REPO_PASSWORD_FILE
+check REPO_MISSING_SCHEMA_ACTION
+check REPO_UPGRADEABLE_SCHEMA_ACTION
+check MP_KEYSTORE_PASSWORD_FILE
+check SSO_HEADER
+check AJP_ENABLED
+check AJP_PORT
+
 java -Xmx$MP_MEM -Xms2048m -Dfile.encoding=UTF8 \
        -Dmidpoint.home=$MP_DIR/var \
        -Dmidpoint.repository.database=$REPO_DATABASE_TYPE \
@@ -17,8 +40,7 @@ java -Xmx$MP_MEM -Xms2048m -Dfile.encoding=UTF8 \
        -Dmidpoint.logging.alt.filename=/tmp/logmidpoint \
        -Dmidpoint.logging.alt.timezone=UTC \
        -Dspring.profiles.active="`$MP_DIR/active-spring-profiles`" \
-       -Dauth.sso.header=$SSO_HEADER \
-       $(if [ "$AUTHENTICATION" = "shibboleth" ]; then echo "-Dauth.logout.url=$MP_LOGOUT_URL"; fi) \
+       $(if [ "$AUTHENTICATION" = "shibboleth" ]; then echo "-Dauth.logout.url=$LOGOUT_URL -Dauth.sso.header=$SSO_HEADER"; fi) \
        -Dserver.tomcat.ajp.enabled=$AJP_ENABLED \
        -Dserver.tomcat.ajp.port=$AJP_PORT \
        -Dlogging.path=/tmp/logtomcat \

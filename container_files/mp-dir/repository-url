@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function resolvePort() {
-    if [ $REPO_PORT == "default" ]; then
+    if [[ $REPO_PORT == "default" ]]; then
         case $REPO_DATABASE_TYPE in
             mariadb)
               echo 3306
@@ -26,7 +26,7 @@ function resolvePort() {
     fi
 }
 
-if [ $REPO_JDBC_URL == "default" ]; then
+if [[ $REPO_JDBC_URL == "default" ]]; then
   REPO_PORT=$( resolvePort )
   case $REPO_DATABASE_TYPE in
 	mariadb)
