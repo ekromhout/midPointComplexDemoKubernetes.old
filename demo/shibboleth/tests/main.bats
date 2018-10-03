@@ -8,14 +8,16 @@ load ../../../library
     run docker-compose down -v
 }
 
-@test "010 Initialize and start midPoint" {
-    cd ../simple ; env AUTHENTICATION=shibboleth docker-compose up -d
-    wait_for_midpoint_start simple_midpoint-server_1
+@test "010 Initialize and start containers" {
+    env docker-compose up -d
 }
 
-@test "020 Initialize and start Shibboleth" {
-    docker-compose up -d
+@test "012 Wait for Shibboleth to start up" {
     wait_for_shibboleth_idp_start shibboleth_idp_1
+}
+
+@test "014 Wait for midPoint to start up" {
+    wait_for_midpoint_start shibboleth_midpoint_server_1
 }
 
 @test "030 Check health" {
@@ -49,6 +51,5 @@ load ../../../library
 }
 
 @test "999 Clean up" {
-    cd ../simple ; docker-compose down -v ; true
     docker-compose down -v
 }
