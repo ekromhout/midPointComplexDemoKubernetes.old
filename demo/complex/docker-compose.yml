@@ -1,21 +1,21 @@
 version: "3.3"
 
 services:
-  grouper-daemon:
-    build: ./grouper-daemon/
-    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec daemon"
+  grouper_daemon:
+    build: ./grouper_daemon/
+    command: bash -c "while ! curl -s grouper_data:3306 > /dev/null; do echo waiting for mysql on grouper_data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec daemon"
     depends_on:
-     - grouper-data
+     - grouper_data
      - directory
     environment:
-     - ENV=demo
+     - ENV
+     - USERTOKEN
      - GROUPER_CLIENT_WEBSERVICE_PASSWORD_FILE=password
      - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
      - RABBITMQ_PASSWORD_FILE=/run/secrets/rabbitmq_password.txt
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
-     - USERTOKEN=build-2
     networks:
-     - back
+     - net
     secrets:
      - g_database_password.txt
      - rabbitmq_password.txt
@@ -34,21 +34,21 @@ services:
        target: /opt/grouper/conf/grouper.client.properties
 
 
-  grouper-ui:
-    build: ./grouper-ui/
-    command: bash -c "while ! curl -s grouper-data:3306 > /dev/null; do echo waiting for mysql on grouper-data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ui"
+  grouper_ui:
+    build: ./grouper_ui/
+    command: bash -c "while ! curl -s grouper_data:3306 > /dev/null; do echo waiting for mysql on grouper_data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ui"
     depends_on:
-     - grouper-data
+     - grouper_data
      - directory
     environment:
-     - ENV=demo
+     - ENV
+     - USERTOKEN
      - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
-     - USERTOKEN=build-2
     networks:
-     - back
+     - net
     ports:
-     - "443:443"
+     - 443:443
     secrets:
      - g_database_password.txt
      - source: grouper.hibernate.properties
@@ -84,57 +84,60 @@ services:
        source: ./configs-and-secrets/grouper/httpd/host-cert.pem
        target: /etc/pki/tls/certs/cachain.pem
 
-  grouper-data:
-    build: ./grouper-data/
+  grouper_data:
+    build: ./grouper_data/
     networks:
-     - back
+     - net
     ports:
-     - "3306:3306"
+     - 3306:3306
     volumes:
      - grouper_data:/var/lib/mysql  
 
   directory:
     build: ./directory/
     ports:
-     - "389:389"
+     - 389:389
     networks:
-     - back
+     - net
     volumes:
      - ldap:/var/lib/dirsrv
 
   sources:
     build: ./sources/
     ports:
-     - "13306:3306"
+     - 13306:3306
     networks:
-     - back
+     - net
     volumes:
      - source_data:/var/lib/mysql
 
   targets:
     build: ./targets/
     ports:
-     - "23306:389"
+     - 23306:389
     networks:
-     - back
+     - net
     volumes:
      - target_data:/var/lib/mysql
 
-  midpoint-data:
+  midpoint_data:
     image: tier/mariadb:mariadb10
     ports:
-     - "33306:3306"
+     - 33306:3306
     networks:
-     - back
+     - net
     volumes:
-     - midpoint_data:/var/lib/mysql
+     - midpoint_mysql:/var/lib/mysql
+     - midpoint_data:/var/lib/mysqlmounted
+    environment:
+     - CREATE_NEW_DATABASE=if_needed
 
-  midpoint-server:
-    build: ./midpoint-server/
+  midpoint_server:
+    build: ./midpoint_server/
     depends_on:
-     - midpoint-data
+     - midpoint_data
     ports:
-     - "8443:443"
+     - 8443:443
     environment:
      - AUTHENTICATION
      - ENV
@@ -150,18 +153,20 @@ services:
      - REPO_UPGRADEABLE_SCHEMA_ACTION
      - REPO_SCHEMA_VERSION_IF_MISSING
      - REPO_SCHEMA_VARIANT
-     - KEYSTORE_PASSWORD_FILE
-     - MEM
+     - MP_KEYSTORE_PASSWORD_FILE
+     - MP_MEM_MAX
+     - MP_MEM_INIT
+     - MP_JAVA_OPTS
      - SSO_HEADER
      - LOGOUT_URL
      - TIER_BEACON_OPT_OUT
     networks:
-     - back
+     - net
     secrets:
-     - m_database_password.txt
-     - m_keystore_password.txt
-     - m_sp-key.pem
-     - m_host-key.pem
+     - mp_database_password.txt
+     - mp_keystore_password.txt
+     - mp_sp-key.pem
+     - mp_host-key.pem
     volumes:
      - midpoint_home:/opt/midpoint/var
      - type: bind
@@ -189,9 +194,9 @@ services:
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password
      - JETTY_BACKCHANNEL_SSL_KEYSTORE_PASSWORD=password
     networks:
-     - back
+     - net
     ports:
-     - "4443:4443"
+     - 4443:4443
 
   mq:
     image: rabbitmq:management
@@ -199,12 +204,12 @@ services:
      - RABBITMQ_NODENAME=docker-rabbit
     hostname: rabbitmq
     networks:
-     - back
+     - net
     ports:
-     - "15672:15672"
+     - 15672:15672
 
 networks:
-  back:    
+  net:    
     driver: bridge
 
 secrets:
@@ -224,13 +229,13 @@ secrets:
   subject.properties:
     file: ./configs-and-secrets/grouper/application/subject.properties
 # midPoint
-  m_host-key.pem:
+  mp_host-key.pem:
     file: ./configs-and-secrets/midpoint/httpd/host-key.pem
-  m_sp-key.pem:
+  mp_sp-key.pem:
     file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
-  m_database_password.txt:
+  mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
-  m_keystore_password.txt:
+  mp_keystore_password.txt:
     file: ./configs-and-secrets/midpoint/application/keystore_password.txt    
     
 volumes:
@@ -239,4 +244,5 @@ volumes:
   target_data:
   ldap:
   midpoint_data:
+  midpoint_mysql:
   midpoint_home:

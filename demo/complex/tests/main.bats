@@ -6,22 +6,23 @@ load ../../../library
 @test "000 Cleanup before running the tests" {
     (cd ../simple ; docker-compose down -v)
     (cd ../shibboleth ; docker-compose down -v)
+    (cd ../postgresql ; docker-compose down -v)
     docker-compose down -v
 }
 
 @test "010 Initialize and start the composition" {
     docker ps -a >> /tmp/log
     docker ps
-    ! (docker ps | grep -E "shibboleth_(idp|directory)_1|complex_(midpoint-server|midpoint-data)_1|simple_(midpoint-server|midpoint-data)_1")
+    ! (docker ps | grep -E "shibboleth_(idp|directory)_1|(complex|simple|shibboleth|postgresql)_(midpoint_server|midpoint_data)_1")
     cp tests/resources/sql/* sources/container_files/seed-data/
     docker-compose up -d --build
 }
 
 @test "020 Wait until components are started" {
     touch $BATS_TMPDIR/not-started
-    wait_for_midpoint_start complex_midpoint-server_1 complex_midpoint-data_1
+    wait_for_midpoint_start complex_midpoint_server_1 complex_midpoint_data_1
     wait_for_shibboleth_idp_start complex_idp_1
-    wait_for_grouper_ui_start complex_grouper-ui_1
+    wait_for_grouper_ui_start complex_grouper_ui_1
     rm $BATS_TMPDIR/not-started
 }
 

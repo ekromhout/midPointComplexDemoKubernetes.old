@@ -2,7 +2,7 @@ This is a demonstration of using midPoint dockerization for TIER environment in 
 
 # Building and execution
 ```
-$ ../../midpoint/build.sh
+$ ../../build.sh
 $ docker-compose up --build
 ```
 
