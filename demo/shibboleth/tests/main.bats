@@ -9,7 +9,7 @@ load ../../../library
 }
 
 @test "010 Initialize and start containers" {
-    env docker-compose up -d
+    docker-compose up -d
 }
 
 @test "012 Wait for Shibboleth to start up" {
@@ -48,6 +48,31 @@ load ../../../library
 @test "045 Check SOAP without Shibboleth redirection (/midpoint/model/)" {
     status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:8443/midpoint/model/)"
     [ "$status" -eq 200 ]
+}
+
+@test "100 Check internally-authenticated REST call: get 'administrator'" {
+    check_health
+    get_and_check_object users 00000000-0000-0000-0000-000000000002 administrator
+}
+
+@test "200 Shut down" {
+    docker-compose down
+}
+
+@test "210 Start with internal authentication" {
+    env AUTHENTICATION=internal docker-compose up -d
+}
+
+@test "210 Wait for midPoint to start up" {
+    wait_for_midpoint_start shibboleth_midpoint_server_1
+}
+
+@test "220 Check health" {
+    check_health
+}
+
+@test "230 Check internal login redirection" {
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/self/dashboard | grep 'https:\/\/localhost:8443\/midpoint\/login'
 }
 
 @test "999 Clean up" {
