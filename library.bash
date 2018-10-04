@@ -12,7 +12,7 @@ function generic_wait_for_log () {
     FAILURE="$4"
     ADDITIONAL_CONTAINER_NAME=$5
     ATTEMPT=0
-    MAX_ATTEMPTS=40
+    MAX_ATTEMPTS=20
     DELAY=10
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
@@ -340,7 +340,7 @@ function search_ldap_object_by_filter () {
     local LDAP_CONTAINER=$3
     TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
 
-    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (rm $TMPFILE ; return 1)
+    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (echo "Couldn't search $FILTER:" ;m $TMPFILE ; return 1)
     LDAPSEARCH_RESULT_FILE=$TMPFILE
     return 0
 }
@@ -370,15 +370,40 @@ function check_ldap_account_by_user_name () {
     return 1
 }
 
+function check_ldap_courses_by_name () {
+    local NAME="$1"
+    local LDAP_CONTAINER=$2
+    search_objects_by_name orgs $NAME
+
+    local MP_ORG_IDENTIFIER=$(xmllint --xpath "/*/*/*[local-name()='identifier']/text()" $SEARCH_RESULT_FILE) || (echo "Couldn't extract user identifier from file:" ; cat $SEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; return 1)
+
+    search_ldap_object_by_filter "ou=courses,ou=groups,dc=internet2,dc=edu" "cn=$MP_ORG_IDENTIFIER" $LDAP_CONTAINER
+
+    local LDAP_CN=$(grep -oP "cn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user cn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $SEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
+
+    rm $SEARCH_RESULT_FILE
+    rm $LDAPSEARCH_RESULT_FILE
+
+    if [[ $MP_ORG_IDENTIFIER = $LDAP_CN ]]; then
+        return 0
+    fi
+
+    echo "Orgs $NAME in Midpoint and LDAP Group(Course) with cn $MP_ORG_IDENTIFIER are not same"
+    return 1
+}
+
+
 function check_of_ldap_membership () {
     local NAME_OF_USER="$1"
-    local NAME_OF_GROUP="$2"
-    local LDAP_CONTAINER=$3
+    local BASE_CONTEXT_FOR_GROUP="$2" 
+    #path to curent group from ou=group
+    local NAME_OF_GROUP="$3"
+    local LDAP_CONTAINER=$4
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER" $LDAP_CONTAINER
 
     local LDAP_ACCOUNT_DN=$(grep -oP "dn: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user dn from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
 
-    search_ldap_object_by_filter "ou=groups,dc=internet2,dc=edu" "cn=$NAME_OF_GROUP" $LDAP_CONTAINER
+    search_ldap_object_by_filter "$BASE_CONTEXT_FOR_GROUP" "cn=$NAME_OF_GROUP" $LDAP_CONTAINER
 
     local LDAP_MEMBERS_DNS=$(grep -oP "uniqueMember: \K.*" $LDAPSEARCH_RESULT_FILE) || (echo "Couldn't extract user uniqueMember from file:" ; cat $LDAPSEARCH_RESULT_FILE ; rm $LDAPSEARCH_RESULT_FILE ; return 1)
 
@@ -388,6 +413,6 @@ function check_of_ldap_membership () {
         return 0
     fi
 
-    echo "LDAP Account with uid $NAME_OF_USER is not member of LDAP Group $NAME_OF_GROUP"
+    echo "LDAP Account with uid $NAME_OF_USER is not member of LDAP Group $NAME_OF_GROUP in base context $BASE_CONTEXT_FOR_GROUP"
     return 1
 }

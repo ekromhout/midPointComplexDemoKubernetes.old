@@ -128,21 +128,76 @@ load ../../../library
     # TODO check assignments etc
 }
 
-@test "230 Check 'TestUser230' in Midpoint and LDAP" {
+@test "230 Import SIS_COURSES" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    add_object tasks midpoint-objects-manual/tasks/task-import-sis-courses.xml
+    search_and_check_object tasks "Import from SIS courses"
+    wait_for_task_completion b73a2e66-8233-4c20-928f-acb30027b33e 8 10
+    assert_task_success b73a2e66-8233-4c20-928f-acb30027b33e
+
+    search_and_check_object orgs course_ACCT101
+    search_and_check_object orgs course_ACCT201
+    search_and_check_object orgs course_CS251
+    search_and_check_object orgs course_CS252
+    search_and_check_object orgs course_MATH100
+    search_and_check_object orgs course_MATH101
+    search_and_check_object orgs course_SCI123
+    search_and_check_object orgs course_SCI404
+
+    check_ldap_courses_by_name course_ACCT101 complex_directory_1
+    check_ldap_courses_by_name course_ACCT201 complex_directory_1
+    check_ldap_courses_by_name course_CS251 complex_directory_1
+    check_ldap_courses_by_name course_CS252 complex_directory_1
+    check_ldap_courses_by_name course_MATH100 complex_directory_1
+    check_ldap_courses_by_name course_MATH101 complex_directory_1
+    check_ldap_courses_by_name course_SCI123 complex_directory_1
+    check_ldap_courses_by_name course_SCI404 complex_directory_1
+
+    check_of_ldap_membership amorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "ACCT101" complex_directory_1
+    check_of_ldap_membership cmorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "ACCT101" complex_directory_1
+    check_of_ldap_membership mroberts "ou=courses,ou=groups,dc=internet2,dc=edu" "ACCT101" complex_directory_1
+    check_of_ldap_membership whenderson "ou=courses,ou=groups,dc=internet2,dc=edu" "ACCT101" complex_directory_1
+
+    check_of_ldap_membership amorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "CS251" complex_directory_1
+    check_of_ldap_membership cmorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "CS251" complex_directory_1
+    check_of_ldap_membership ddavis "ou=courses,ou=groups,dc=internet2,dc=edu" "CS251" complex_directory_1
+    check_of_ldap_membership mroberts "ou=courses,ou=groups,dc=internet2,dc=edu" "CS251" complex_directory_1
+
+    check_of_ldap_membership kwhite "ou=courses,ou=groups,dc=internet2,dc=edu" "CS252" complex_directory_1
+
+    check_of_ldap_membership danderson "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH100" complex_directory_1
+    check_of_ldap_membership ddavis "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH100" complex_directory_1
+    check_of_ldap_membership kwhite "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH100" complex_directory_1
+    check_of_ldap_membership wprice "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH100" complex_directory_1
+
+    check_of_ldap_membership amorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH101" complex_directory_1
+    check_of_ldap_membership cmorrison "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH101" complex_directory_1
+    check_of_ldap_membership mroberts "ou=courses,ou=groups,dc=internet2,dc=edu" "MATH101" complex_directory_1
+
+    check_of_ldap_membership danderson "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI123" complex_directory_1
+    check_of_ldap_membership mroberts "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI123" complex_directory_1
+
+    check_of_ldap_membership kwhite "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI404" complex_directory_1
+    check_of_ldap_membership wprice "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI404" complex_directory_1
+}
+
+
+@test "240 Check 'TestUser240' in Midpoint and LDAP" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
-    echo "<user><name>TestUser230</name><fullName>Test User230</fullName><givenName>Test</givenName><familyName>User230</familyName><credentials><password><value><clearValue>password</clearValue></value></password></credentials></user>" >/tmp/testuser230.xml
-    add_object users /tmp/testuser230.xml
-    rm /tmp/testuser230.xml
-    search_and_check_object users TestUser230
+    echo "<user><name>TestUser240</name><fullName>Test User240</fullName><givenName>Test</givenName><familyName>User240</familyName><credentials><password><value><clearValue>password</clearValue></value></password></credentials></user>" >/tmp/testuser240.xml
+    add_object users /tmp/testuser240.xml
+    rm /tmp/testuser240.xml
+    search_and_check_object users TestUser240
 
     execute_bulk_action tests/resources/bulk-action/recompute-role-grouper-sysadmin.xml complex_midpoint_server_1
     execute_bulk_action tests/resources/bulk-action/assign-role-grouper-sysadmin-to-test-user.xml complex_midpoint_server_1
 
-    check_ldap_account_by_user_name TestUser230 complex_directory_1
-    check_of_ldap_membership TestUser230 sysadmingroup complex_directory_1
+    check_ldap_account_by_user_name TestUser240 complex_directory_1
+    check_of_ldap_membership TestUser240 "ou=groups,dc=internet2,dc=edu" "sysadmingroup" complex_directory_1
     
-    delete_object_by_name users TestUser230
+    delete_object_by_name users TestUser240
 }
 
 

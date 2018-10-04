@@ -8,7 +8,7 @@
                     <s:searchFilter>
                         <q:equal>
                             <q:path>c:name</q:path>
-                            <q:value>TestUser230</q:value>
+                            <q:value>TestUser240</q:value>
                         </q:equal>
                     </s:searchFilter>
                     <s:action>
