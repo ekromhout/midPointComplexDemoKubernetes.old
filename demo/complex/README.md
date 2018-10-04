@@ -6,4 +6,4 @@ $ ../../build.sh
 $ docker-compose up --build
 ```
 
-Please see a detailed description [here](https://spaces.at.internet2.edu/display/MID/midPoint+-+Grouper+integration+demo).
+Please see a detailed description [here](https://spaces.at.internet2.edu/display/MID/Complex+midPoint+integration+demo).
