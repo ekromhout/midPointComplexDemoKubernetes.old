@@ -148,17 +148,14 @@ services:
      - REPO_PORT
      - REPO_DATABASE
      - REPO_USER
-     - REPO_PASSWORD_FILE
      - REPO_MISSING_SCHEMA_ACTION
      - REPO_UPGRADEABLE_SCHEMA_ACTION
      - REPO_SCHEMA_VERSION_IF_MISSING
      - REPO_SCHEMA_VARIANT
-     - MP_KEYSTORE_PASSWORD_FILE
      - MP_MEM_MAX
      - MP_MEM_INIT
      - MP_JAVA_OPTS
      - SSO_HEADER
-     - LOGOUT_URL
      - TIER_BEACON_OPT_OUT
     networks:
      - net
@@ -207,6 +204,8 @@ services:
      - net
     ports:
      - 15672:15672
+    volumes:
+     - mq:/var/lib/rabbitmq
 
 networks:
   net:    
@@ -246,3 +245,4 @@ volumes:
   midpoint_data:
   midpoint_mysql:
   midpoint_home:
+  mq:
