@@ -63,15 +63,15 @@ load ../../../library
     env AUTHENTICATION=internal docker-compose up -d
 }
 
-@test "210 Wait for midPoint to start up" {
+@test "220 Wait for midPoint to start up" {
     wait_for_midpoint_start shibboleth_midpoint_server_1
 }
 
-@test "220 Check health" {
+@test "230 Check health" {
     check_health
 }
 
-@test "230 Check internal login redirection" {
+@test "240 Check internal login redirection" {
     curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/self/dashboard | grep 'https:\/\/localhost:8443\/midpoint\/login'
 }
 

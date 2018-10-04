@@ -12,7 +12,7 @@ load ../../../library
     wait_for_midpoint_start postgresql_midpoint_server_1
 }
 
-@test "010 Check health" {
+@test "020 Check health" {
     check_health
 }
 
