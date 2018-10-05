@@ -1,17 +1,22 @@
 #!/bin/bash
 
 DIR=`dirname "$0"`
+source $DIR/common.bash
 if [[ -n "$1" ]]; then
   MP_VERSION=$1
 else
-  MP_VERSION=3.9-SNAPSHOT
+  if [[ $tag == "latest" ]]; then
+    MP_VERSION=3.9-SNAPSHOT
+  else
+    MP_VERSION=$tag
+  fi
 fi
 echo "Downloading midPoint $MP_VERSION"
 echo "-----------------------------------------"
-curl --output $dir/midpoint-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-$MP_VERSION-dist.tar.gz"
+curl --output $DIR/midpoint-dist.tar.gz "https://evolveum.com/downloads/midpoint-tier/midpoint-$MP_VERSION-dist.tar.gz"
 echo "-----------------------------------------"
 echo "Checking the download..."
-if tar -tf $dir/midpoint-dist.tar.gz >/dev/null; then
+if tar -tf $DIR/midpoint-dist.tar.gz >/dev/null; then
   echo "OK"
   exit 0
 else

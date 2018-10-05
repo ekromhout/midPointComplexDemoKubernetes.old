@@ -27,7 +27,9 @@ pipeline {
                         sh 'ls'
                         sh 'mv bin/* ../bin/.'
                     }
-                    sh "echo \"tag=\\\"${tag}\\\"\" > tag.bash ; chmod a+x tag.bash ; echo tag.bash ; cat tag.bash'
+                    // Build and test scripts expect that 'tag' is present in common.bash. This is necessary for both Jenkins and standalone testing.
+                    // We don't care if there are more 'tag' assignments there. The latest one wins.
+                    sh "echo >> common.bash ; echo \"tag=\\\"${tag}\\\"\" >> common.bash ; echo common.bash ; cat common.bash'
                 }  
             }
         }    
@@ -35,13 +37,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        if (env.BRANCH_NAME == "master") {
-                           toDownload = "3.9-SNAPSHOT"
-                        } else {
-                           toDownload = env.BRANCH_NAME
-                        }
-                        sh "./download-midpoint ${toDownload} 2>&1 | tee -a debug ; test \${PIPESTATUS[0]} -eq 0"
-                        sh './jenkins-rebuild.sh 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'			// temporary
+                        // using custom ./build.sh instead of bin/rebuild.sh because the bin/ version does not support building specific tag yet
+                        sh './build.sh -r 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"

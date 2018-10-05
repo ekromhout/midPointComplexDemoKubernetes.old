@@ -3,11 +3,11 @@
 load ../common
 
 @test "010 Image is present" {
-    docker image inspect tier/midpoint:latest
+    docker image inspect tier/midpoint:$tag
 }
 
 @test "020 Check basic components" {
-    docker run -i $maintainer/$imagename \
+    docker run -i $maintainer/$imagename:$tag \
 	find \
 		/usr/local/bin/startup.sh \
 		/opt/midpoint/var/ \

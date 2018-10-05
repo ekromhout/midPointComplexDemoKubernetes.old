@@ -1,5 +1,5 @@
 #
-#  Building assumes midpoint-3.9-SNAPSHOT-dist.tar.gz is present in the current directory.
+#  Building assumes midpoint-dist.tar.gz is present in the current directory.
 #
 
 FROM tier/shibboleth_sp
