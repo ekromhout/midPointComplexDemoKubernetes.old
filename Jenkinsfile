@@ -11,7 +11,7 @@ pipeline {
                 script {
                     maintainer = maintain()
                     imagename = imagename()
-                    if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "bats") {		// temporary
+                    if (env.BRANCH_NAME == "master") {
                        tag = "latest"
                     } else {
                        tag = env.BRANCH_NAME
