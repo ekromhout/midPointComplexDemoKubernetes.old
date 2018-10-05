@@ -34,10 +34,8 @@ pipeline {
             steps {
                 script {
                     try {
-			sh '(ls -l ; docker ps -a ; docker image ls ; echo Destroying ; bin/destroy.sh ; docker image ls) 2>&1 | tee debug'	// temporary
                         sh './download-midpoint 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
-                        sh 'bin/rebuild.sh 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
-                        //sh 'echo Build output ; cat debug'
+                        sh './jenkins-rebuild.sh 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'			// temporary
                     } catch (error) {
                         def error_details = readFile('./debug')
                         def message = "BUILD ERROR: There was a problem building ${imagename}:${tag}. \n\n ${error_details}"
