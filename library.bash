@@ -340,7 +340,7 @@ function search_ldap_object_by_filter () {
     local LDAP_CONTAINER=$3
     TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
 
-    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (echo "Couldn't search $FILTER:" ;m $TMPFILE ; return 1)
+    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (echo "Couldn't search $FILTER:" ;rm $TMPFILE ; return 1)
     LDAPSEARCH_RESULT_FILE=$TMPFILE
     return 0
 }
@@ -396,7 +396,6 @@ function check_ldap_courses_by_name () {
 function check_of_ldap_membership () {
     local NAME_OF_USER="$1"
     local BASE_CONTEXT_FOR_GROUP="$2" 
-    #path to curent group from ou=group
     local NAME_OF_GROUP="$3"
     local LDAP_CONTAINER=$4
     search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$NAME_OF_USER" $LDAP_CONTAINER
