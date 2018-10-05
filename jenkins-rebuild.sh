@@ -4,6 +4,11 @@
 
 # from destroy.sh (adapted)
 
+source common.bash
+source tag.bash
+
+echo "Rebuilding $maintainer/$imagename:$tag..."
+
 result=$(docker ps -a | grep $maintainer/$imagename:$tag)
 
 if [ ! -z "$result" ]; then

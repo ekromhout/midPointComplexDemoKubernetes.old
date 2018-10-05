@@ -50,7 +50,7 @@ RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
 # Build arguments
 
 ARG MP_VERSION=3.9-SNAPSHOT
-ARG MP_DIST_FILE=midpoint-${MP_VERSION}-dist.tar.gz
+ARG MP_DIST_FILE=midpoint-dist.tar.gz
 
 ENV MP_DIR /opt/midpoint
 
@@ -60,7 +60,7 @@ COPY ${MP_DIST_FILE} ${MP_DIR}
 COPY container_files/mp-dir/ ${MP_DIR}/
 
 RUN echo 'Extracting midPoint archive...' \
- && tar xzf ${MP_DIR}/midpoint-${MP_VERSION}-dist.tar.gz -C ${MP_DIR} --strip-components=1
+ && tar xzf ${MP_DIR}/${MP_DIST_FILE} -C ${MP_DIR} --strip-components=1
 
 VOLUME ${MP_DIR}/var
 

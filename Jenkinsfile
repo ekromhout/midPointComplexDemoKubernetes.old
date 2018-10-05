@@ -27,6 +27,7 @@ pipeline {
                         sh 'ls'
                         sh 'mv bin/* ../bin/.'
                     }
+                    sh "echo \"tag=\\\"${tag}\\\"\" > tag.bash ; chmod a+x tag.bash ; echo tag.bash ; cat tag.bash'
                 }  
             }
         }    
@@ -34,7 +35,12 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh './download-midpoint 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'
+                        if (env.BRANCH_NAME == "master") {
+                           toDownload = "3.9-SNAPSHOT"
+                        } else {
+                           toDownload = env.BRANCH_NAME
+                        }
+                        sh "./download-midpoint ${toDownload} 2>&1 | tee -a debug ; test \${PIPESTATUS[0]} -eq 0"
                         sh './jenkins-rebuild.sh 2>&1 | tee -a debug ; test ${PIPESTATUS[0]} -eq 0'			// temporary
                     } catch (error) {
                         def error_details = readFile('./debug')
