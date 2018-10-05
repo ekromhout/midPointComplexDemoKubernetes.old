@@ -4,6 +4,8 @@
 export ENV=${ENV//[; ]/_}
 export USERTOKEN=${USERTOKEN//[; ]/_}
 
+/usr/local/bin/setup-timezone.sh
+
 # this is to be executed at run time, not at build time -- to ensure sufficient variability of execution times
 /usr/local/bin/setup-cron.sh
 

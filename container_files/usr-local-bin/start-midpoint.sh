@@ -39,7 +39,6 @@ java -Xmx$MP_MEM_MAX -Xms$MP_MEM_INIT -Dfile.encoding=UTF8 \
        -Dmidpoint.keystore.keyStorePassword_FILE=$MP_KEYSTORE_PASSWORD_FILE \
        -Dmidpoint.logging.alt.enabled=true \
        -Dmidpoint.logging.alt.filename=/tmp/logmidpoint \
-       -Dmidpoint.logging.alt.timezone=UTC \
        -Dspring.profiles.active="`$MP_DIR/active-spring-profiles`" \
        $(if [ "$AUTHENTICATION" = "shibboleth" ]; then echo "-Dauth.logout.url=$LOGOUT_URL -Dauth.sso.header=$SSO_HEADER"; fi) \
        -Dserver.tomcat.ajp.enabled=$AJP_ENABLED \

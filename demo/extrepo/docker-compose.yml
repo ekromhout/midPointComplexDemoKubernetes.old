@@ -22,6 +22,7 @@ services:
      - MP_MEM_INIT
      - MP_JAVA_OPTS
      - TIER_BEACON_OPT_OUT
+     - TIMEZONE
     networks:
      - net
     secrets:

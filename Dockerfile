@@ -29,6 +29,7 @@ COPY container_files/opt-tier/* /opt/tier/
 RUN chmod 755 /opt/tier/setenv.sh \
     && chmod 755 /usr/local/bin/sendtierbeacon.sh \
     && chmod 755 /usr/local/bin/setup-cron.sh \
+    && chmod 755 /usr/local/bin/setup-timezone.sh \
     && chmod 755 /usr/local/bin/start-midpoint.sh \
     && chmod 755 /usr/local/bin/start-httpd.sh \
     && chmod 755 /usr/local/bin/startup.sh \
@@ -93,6 +94,7 @@ ENV LOGOUT_URL https://localhost:8443/Shibboleth.sso/Logout
 ENV MP_KEYSTORE_PASSWORD_FILE /run/secrets/mp_keystore_password.txt
 ENV MP_MEM_MAX 2048m
 ENV MP_MEM_INIT 1024m
+ENV TIMEZONE UTC
 ENV TIER_RELEASE not-released-yet
 ENV TIER_MAINTAINER tier
 

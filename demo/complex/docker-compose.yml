@@ -157,6 +157,7 @@ services:
      - MP_JAVA_OPTS
      - SSO_HEADER
      - TIER_BEACON_OPT_OUT
+     - TIMEZONE
     networks:
      - net
     secrets:
