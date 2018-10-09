@@ -9,7 +9,7 @@ load ../../../library
 }
 
 @test "010 Initialize and start containers" {
-    docker-compose up -d
+    docker-compose up --build -d
 }
 
 @test "012 Wait for Shibboleth to start up" {
