@@ -20,14 +20,14 @@ function generic_wait_for_log () {
         echo "Waiting $DELAY seconds for $WAITING_FOR (attempt $ATTEMPT) ..."
         sleep $DELAY
         docker ps
-        ( docker logs $CONTAINER_NAME 2>&1 | grep "$MESSAGE" ) && return 0
+        ( docker logs $CONTAINER_NAME 2>&1 | grep -F "$MESSAGE" ) && return 0
     done
 
     echo "$FAILURE" in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
     echo "========== Container log =========="
     docker logs $CONTAINER_NAME 2>&1
     echo "========== End of the container log =========="
-    if [ -n "ADDITIONAL_CONTAINER_NAME" ]; then
+    if [ -n "$ADDITIONAL_CONTAINER_NAME" ]; then
         echo "========== Container log ($ADDITIONAL_CONTAINER_NAME) =========="
         docker logs $ADDITIONAL_CONTAINER_NAME 2>&1
         echo "========== End of the container log ($DATABASE_CONTAINER_NAME) =========="
@@ -46,8 +46,13 @@ function wait_for_midpoint_start () {
 }
 
 # Waits until Shibboleth IDP starts
-function wait_for_shibboleth_idp_start () {
+function wait_for_shibboleth_idp_start_old () {
     generic_wait_for_log $1 "INFO:oejs.Server:main: Started" "shibboleth idp to start" "shibboleth idp did not start" $2
+}
+
+# Waits until Shibboleth IDP starts
+function wait_for_shibboleth_idp_start () {
+    generic_wait_for_log $1 "[main] INFO  org.apache.catalina.startup.Catalina- Server startup in" "shibboleth idp to start" "shibboleth idp did not start" $2
 }
 
 # Waits until Grouper UI starts
@@ -71,9 +76,22 @@ function check_health () {
 }
 
 # Checks the health of Shibboleth IDP server
-function check_health_shibboleth_idp () {
+function check_health_shibboleth_idp_old () {
     echo Checking health of shibboleth idp...
     status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:4443/idp/)"
+    if [ $status -ne 200 ]; then
+        echo Error: Http code of response is $status
+        docker ps
+        return 1
+    else
+        echo OK
+        return 0
+    fi
+}
+
+function check_health_shibboleth_idp () {
+    echo Checking health of shibboleth idp...
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost/idp/)"
     if [ $status -ne 200 ]; then
         echo Error: Http code of response is $status
         docker ps

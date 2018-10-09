@@ -76,7 +76,7 @@ services:
     depends_on:
      - directory
     ports:
-     - 4443:4443
+     - 443:443
     environment:
      - JETTY_MAX_HEAP=64m
      - JETTY_BROWSER_SSL_KEYSTORE_PASSWORD=password

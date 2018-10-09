@@ -1,4 +1,4 @@
-FROM unicon/shibboleth-idp:latest
+FROM tier/shib-idp:181001
 
 LABEL author="tier-packaging@internet2.edu <tier-packaging@internet2.edu>"
 

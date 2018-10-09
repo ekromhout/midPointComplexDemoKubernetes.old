@@ -20,24 +20,28 @@ load ../../../library
     wait_for_midpoint_start shibboleth_midpoint_server_1
 }
 
-@test "030 Check health" {
+@test "030 Check health (midPoint)" {
     check_health
 }
 
+@test "035 Check health (Shibboleth IdP)" {
+    check_health_shibboleth_idp
+}
+
 @test "040 Check Shibboleth redirection (/midpoint)" {
-    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint | grep 'https:\/\/localhost\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "041 Check Shibboleth redirection (/midpoint/)" {
-    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/ | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/ | grep 'https:\/\/localhost\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "042 Check Shibboleth redirection (/midpoint/login)" {
-    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/login | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/login | grep 'https:\/\/localhost\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "043 Check Shibboleth redirection (/midpoint/something)" {
-    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/something | grep 'https:\/\/localhost:4443\/idp\/profile\/SAML2\/Redirect'
+    curl -k --write-out %{redirect_url} --silent --output /dev/null https://localhost:8443/midpoint/something | grep 'https:\/\/localhost\/idp\/profile\/SAML2\/Redirect'
 }
 
 @test "044 Check SOAP without Shibboleth redirection (/midpoint/ws/)" {
