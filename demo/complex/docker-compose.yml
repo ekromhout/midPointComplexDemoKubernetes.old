@@ -3,7 +3,7 @@ version: "3.3"
 services:
   grouper_daemon:
     build: ./grouper_daemon/
-    command: bash -c "while ! curl -s grouper_data:3306 > /dev/null; do echo waiting for mysql on grouper_data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec daemon"
+# do NOT put command: here
     depends_on:
      - grouper_data
      - directory

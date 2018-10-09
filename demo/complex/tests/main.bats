@@ -20,7 +20,7 @@ load ../../../library
 @test "020 Wait until components are started" {
     touch $BATS_TMPDIR/not-started
     wait_for_midpoint_start complex_midpoint_server_1 complex_midpoint_data_1
-    wait_for_shibboleth_idp_start complex_idp_1
+    wait_for_shibboleth_idp_start_old complex_idp_1
     wait_for_grouper_ui_start complex_grouper_ui_1
     rm $BATS_TMPDIR/not-started
 }
@@ -32,7 +32,7 @@ load ../../../library
 
 @test "050 Check Shibboleth IDP health" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
-    check_health_shibboleth_idp
+    check_health_shibboleth_idp_old
 }
 
 @test "060 Check Grouper health" {
@@ -182,7 +182,6 @@ load ../../../library
     check_of_ldap_membership wprice "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI404" complex_directory_1
 }
 
-
 @test "240 Check 'TestUser240' in Midpoint and LDAP" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
@@ -200,6 +199,75 @@ load ../../../library
     delete_object_by_name users TestUser240
 }
 
+@test "300 Add wprice to 'etc:testGroup' and 'ref:affiliation:alum_includes'. Export 'ref:affiliation:alum'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker cp tests/resources/grouper/t300.gsh complex_grouper_daemon_1:/tmp/
+    docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t300.gsh"
+}
+
+@test "310 Import Grouper-to-midPoint import task" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    check_health
+    add_object tasks midpoint-objects-manual/tasks/task-import-grouper.xml
+    search_and_check_object tasks "Import from Grouper"
+}
+
+@test "320 Wait for the import to finish" {
+    wait_for_task_completion 617fec0c-f7a6-4f91-89d0-395fb8878edd 8 10
+    assert_task_success 617fec0c-f7a6-4f91-89d0-395fb8878edd
+}
+
+@test "330 Assert wprice membership in LDAP" {
+    skip TODO
+}
+
+@test "400 Clean sampleQueue" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker exec complex_mq_1 rabbitmqctl purge_queue sampleQueue
+}
+
+@test "410 Import Grouper-to-midPoint live sync task" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    check_health
+    add_object tasks tests/resources/tasks/task-livesync-grouper-single.xml
+    search_and_check_object tasks "LiveSync from Grouper"
+    wait_for_task_completion 87ffce52-717a-4205-ba01-0a698f0deaee 8 10
+    assert_task_success 87ffce52-717a-4205-ba01-0a698f0deaee
+}
+
+@test "420 Add kwhite to 'etc:testGroup', remove wprice from 'ref:affiliation:alum_includes'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker cp tests/resources/grouper/t420.gsh complex_grouper_daemon_1:/tmp/
+    docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t420.gsh"
+}
+
+@test "430 Assert existence of change messages in sampleQueue" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    sleep 80
+    docker cp tests/resources/rabbitmq/check-samplequeue.sh complex_mq_1:/tmp/
+    docker exec complex_mq_1 bash /tmp/check-samplequeue.sh
+}
+
+@test "440 Execute Grouper-to-midPoint live sync task (again)" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+	skip TODO
+
+    check_health
+    run_task_now 87ffce52-717a-4205-ba01-0a698f0deaee
+    wait_for_task_completion 87ffce52-717a-4205-ba01-0a698f0deaee 8 10
+    assert_task_success 87ffce52-717a-4205-ba01-0a698f0deaee
+}
+
+@test "450 Assert wprice and kwhite membership in LDAP" {
+    skip TODO
+}
 
 @test "999 Clean up" {
     docker-compose down -v

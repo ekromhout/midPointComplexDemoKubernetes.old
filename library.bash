@@ -17,10 +17,10 @@ function generic_wait_for_log () {
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
         ATTEMPT=$((ATTEMPT+1))
-        echo "Waiting $DELAY seconds for $WAITING_FOR (attempt $ATTEMPT) ..."
-        sleep $DELAY
         docker ps
         ( docker logs $CONTAINER_NAME 2>&1 | grep -F "$MESSAGE" ) && return 0
+        echo "Waiting $DELAY seconds for $WAITING_FOR (attempt $ATTEMPT) ..."
+        sleep $DELAY
     done
 
     echo "$FAILURE" in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
