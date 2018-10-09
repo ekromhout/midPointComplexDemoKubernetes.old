@@ -197,7 +197,7 @@ services:
      - 4443:4443
 
   mq:
-    image: rabbitmq:management
+    build: ./mq/
     environment:
      - RABBITMQ_NODENAME=docker-rabbit
     hostname: rabbitmq
