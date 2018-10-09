@@ -9,7 +9,7 @@ load ../../../library
 }
 
 @test "010 Initialize and start containers" {
-    docker-compose up --build -d
+    docker-compose -f docker-compose-tests.yml up --build -d
 }
 
 @test "012 Wait for Shibboleth to start up" {
@@ -64,7 +64,7 @@ load ../../../library
 }
 
 @test "210 Start with internal authentication" {
-    env AUTHENTICATION=internal docker-compose up -d
+    env AUTHENTICATION=internal docker-compose -f docker-compose-tests.yml up -d
 }
 
 @test "220 Wait for midPoint to start up" {
