@@ -125,7 +125,6 @@ load ../../../library
     check_ldap_account_by_user_name amorrison complex_directory_1
     check_ldap_account_by_user_name wprice complex_directory_1
     check_ldap_account_by_user_name mroberts complex_directory_1
-    # TODO check assignments etc
 }
 
 @test "230 Import SIS_COURSES" {
@@ -215,12 +214,17 @@ load ../../../library
 }
 
 @test "320 Wait for the import to finish" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
     wait_for_task_completion 617fec0c-f7a6-4f91-89d0-395fb8878edd 8 10
     assert_task_success 617fec0c-f7a6-4f91-89d0-395fb8878edd
 }
 
 @test "330 Assert wprice membership in LDAP" {
-    skip TODO
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    assert_ldap_user_has_value wprice Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_value wprice Entitlement "ref:affiliation:alum" complex_directory_1
 }
 
 @test "400 Clean sampleQueue" {
@@ -246,18 +250,21 @@ load ../../../library
     docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t420.gsh"
 }
 
-@test "430 Assert existence of change messages in sampleQueue" {
+@test "425 Wait 80 seconds for changes to be propagated to MQ" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
 
     sleep 80
+}
+
+@test "430 Assert existence of change messages in sampleQueue" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
     docker cp tests/resources/rabbitmq/check-samplequeue.sh complex_mq_1:/tmp/
     docker exec complex_mq_1 bash /tmp/check-samplequeue.sh
 }
 
 @test "440 Execute Grouper-to-midPoint live sync task (again)" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
-
-	skip TODO
 
     check_health
     run_task_now 87ffce52-717a-4205-ba01-0a698f0deaee
@@ -266,7 +273,11 @@ load ../../../library
 }
 
 @test "450 Assert wprice and kwhite membership in LDAP" {
-    skip TODO
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    assert_ldap_user_has_value kwhite Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_value wprice Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_no_value wprice Entitlement "ref:affiliation:alum" complex_directory_1
 }
 
 @test "999 Clean up" {
