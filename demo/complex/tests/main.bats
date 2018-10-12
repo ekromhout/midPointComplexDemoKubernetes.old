@@ -60,9 +60,9 @@ load ../../../library
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
 
     # reduce data in SIS database so imports will take reasonable time
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_COURSES where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_AFFILIATIONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_PERSONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_COURSES where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_AFFILIATIONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_PERSONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
 
     check_health
     ./upload-objects
