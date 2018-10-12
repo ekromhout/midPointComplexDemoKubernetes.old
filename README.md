@@ -26,4 +26,5 @@ You can then continue with one of demo composition, e.g. simple or complex one.
 # Documentation
 Please see [Dockerized midPoint](https://spaces.at.internet2.edu/display/MID/Dockerized+midPoint) wiki page.
 
-This is a work in progress. For its current status please see [Status of the work](https://spaces.at.internet2.edu/display/MID/Status+of+the+work).
+This is a work in progress, suitable for testing.
+For details on the project, see [Status of the work](https://spaces.at.internet2.edu/display/MID/Status+of+the+work).
