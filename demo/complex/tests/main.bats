@@ -14,7 +14,8 @@ load ../../../library
     # We want to fail cleanly if there's any interference
     docker ps
     ! (docker ps | grep -E "shibboleth_(idp|directory)_1|(complex|simple|shibboleth|postgresql)_(midpoint_server|midpoint_data)_1")
-    docker-compose up -d --build
+    docker-compose build --pull
+    docker-compose up -d
 }
 
 @test "020 Wait until components are started" {
