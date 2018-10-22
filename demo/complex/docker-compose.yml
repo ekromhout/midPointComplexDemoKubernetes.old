@@ -48,7 +48,7 @@ services:
     networks:
      - net
     ports:
-     - 443:443
+     - 4443:443
     secrets:
      - g_database_password.txt
      - source: grouper.hibernate.properties
@@ -194,7 +194,7 @@ services:
     networks:
      - net
     ports:
-     - 4443:4443
+     - 443:443
 
   mq:
     build: ./mq/
