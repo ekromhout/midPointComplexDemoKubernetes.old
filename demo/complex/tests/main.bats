@@ -21,7 +21,7 @@ load ../../../library
 @test "020 Wait until components are started" {
     touch $BATS_TMPDIR/not-started
     wait_for_midpoint_start complex_midpoint_server_1 complex_midpoint_data_1
-    wait_for_shibboleth_idp_start_old complex_idp_1
+    wait_for_shibboleth_idp_start complex_idp_1
     wait_for_grouper_ui_start complex_grouper_ui_1
     rm $BATS_TMPDIR/not-started
 }
@@ -33,7 +33,7 @@ load ../../../library
 
 @test "050 Check Shibboleth IDP health" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
-    check_health_shibboleth_idp_old
+    check_health_shibboleth_idp
 }
 
 @test "060 Check Grouper health" {
