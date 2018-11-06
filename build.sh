@@ -4,6 +4,7 @@ cd "$(dirname "$0")"
 source common.bash
 
 SKIP_DOWNLOAD=0
+REFRESH=""
 while getopts "nhr?" opt; do
     case $opt in
     n)
@@ -17,6 +18,8 @@ while getopts "nhr?" opt; do
          docker rmi -f $maintainer/$imagename:$tag
          echo "Done"
        fi
+       REFRESH="--no-cache --pull"
+       echo "Using 'refresh' mode: $REFRESH"
        ;;
     h | ?)
        echo "Options: -n skip download"
@@ -29,7 +32,7 @@ while getopts "nhr?" opt; do
     esac
 done
 if [ "$SKIP_DOWNLOAD" = "0" ]; then ./download-midpoint || exit 1; fi
-docker build --tag $maintainer/$imagename:$tag --build-arg maintainer=$maintainer --build-arg imagename=$imagename . || exit 1
+docker build $REFRESH --tag $maintainer/$imagename:$tag --build-arg maintainer=$maintainer --build-arg imagename=$imagename . || exit 1
 echo "---------------------------------------------------------------------------------------"
 echo "The midPoint containers were successfully built. To start them, execute the following:"
 echo ""

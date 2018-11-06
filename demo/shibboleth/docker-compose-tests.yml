@@ -1,11 +1,14 @@
+# Version for running Bats tests.
+# Minimizes the number of ports mapped to localhost, to avoid collisions during testing.
+
 version: "3.3"
 
 services:
 
   midpoint_data:
     image: tier/mariadb:mariadb10
-    ports:
-     - 3306:3306
+    expose:
+     - 3306
     networks:
      - net
     volumes:
@@ -64,8 +67,8 @@ services:
 
   directory:
     build: ./directory/
-    ports:
-     - 389:389
+    expose:
+     - 389
     networks:
      - net
     volumes:

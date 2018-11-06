@@ -8,7 +8,7 @@ load ../../../library
 }
 
 @test "010 Initialize and start midPoint" {
-    docker-compose up -d
+    docker-compose -f docker-compose-tests.yml up --build -d
     wait_for_midpoint_start postgresql_midpoint_server_1
 }
 

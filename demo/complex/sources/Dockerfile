@@ -1,32 +1,10 @@
-FROM centos:centos7
-
-LABEL author="tier-packaging@internet2.edu <tier-packaging@internet2.edu>"
-
-RUN yum install -y epel-release \
-    && yum update -y \
-    && yum install -y mariadb-server mariadb \
-    && yum clean all \
-    && rm -rf /var/cache/yum
+FROM tier/mariadb:mariadb10
 
 COPY container_files/seed-data/ /seed-data/
 
-RUN mysql_install_db \
-    && chown -R mysql:mysql /var/lib/mysql/ \
-    && sed -i 's/^\(bind-address\s.*\)/# \1/' /etc/my.cnf \
-    && sed -i 's/^\(log_error\s.*\)/# \1/' /etc/my.cnf \
-    && sed -i 's/\[mysqld\]/\[mysqld\]\ncharacter_set_server = utf8/' /etc/my.cnf \
-    && sed -i 's/\[mysqld\]/\[mysqld\]\ncollation_server = utf8_general_ci/' /etc/my.cnf \
-    && sed -i 's/\[mysqld\]/\[mysqld\]\nport = 3306/' /etc/my.cnf \
-    && cat  /etc/my.cnf \
-    && echo "/usr/bin/mysqld_safe &" > /tmp/config \
-    && echo "mysqladmin --silent --wait=30 ping || exit 1" >> /tmp/config \
-    && echo "mysql -e 'GRANT ALL PRIVILEGES ON *.* TO \"root\"@\"%\" WITH GRANT OPTION;'" >> /tmp/config \
-    && echo "mysql -e 'CREATE DATABASE sis CHARACTER SET utf8 COLLATE utf8_bin;'" >> /tmp/config \
-    && bash /tmp/config \
-    && rm -f /tmp/config \
-    && mysql sis < /seed-data/persons.sql \
-    && mysql sis < /seed-data/courses.sql
+ENV MYSQL_DATABASE sis
+ENV MYSQL_USER sis_user
+ENV MYSQL_PASSWORD 49321420423
+ENV MYSQL_DATADIR /var/lib/mysql
+ENV AFTER_FIRST_TIME_SQL /seed-data/persons-and-courses.sql
 
-EXPOSE 3306
-
-CMD mysqld_safe

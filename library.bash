@@ -17,17 +17,17 @@ function generic_wait_for_log () {
 
     until [[ $ATTEMPT = $MAX_ATTEMPTS ]]; do
         ATTEMPT=$((ATTEMPT+1))
+        docker ps
+        ( docker logs $CONTAINER_NAME 2>&1 | grep -F "$MESSAGE" ) && return 0
         echo "Waiting $DELAY seconds for $WAITING_FOR (attempt $ATTEMPT) ..."
         sleep $DELAY
-        docker ps
-        ( docker logs $CONTAINER_NAME 2>&1 | grep "$MESSAGE" ) && return 0
     done
 
     echo "$FAILURE" in $(( $MAX_ATTEMPTS * $DELAY )) seconds in $CONTAINER_NAME
     echo "========== Container log =========="
     docker logs $CONTAINER_NAME 2>&1
     echo "========== End of the container log =========="
-    if [ -n "ADDITIONAL_CONTAINER_NAME" ]; then
+    if [ -n "$ADDITIONAL_CONTAINER_NAME" ]; then
         echo "========== Container log ($ADDITIONAL_CONTAINER_NAME) =========="
         docker logs $ADDITIONAL_CONTAINER_NAME 2>&1
         echo "========== End of the container log ($DATABASE_CONTAINER_NAME) =========="
@@ -46,8 +46,13 @@ function wait_for_midpoint_start () {
 }
 
 # Waits until Shibboleth IDP starts
-function wait_for_shibboleth_idp_start () {
+function wait_for_shibboleth_idp_start_old () {
     generic_wait_for_log $1 "INFO:oejs.Server:main: Started" "shibboleth idp to start" "shibboleth idp did not start" $2
+}
+
+# Waits until Shibboleth IDP starts
+function wait_for_shibboleth_idp_start () {
+    generic_wait_for_log $1 "[main] INFO  org.apache.catalina.startup.Catalina- Server startup in" "shibboleth idp to start" "shibboleth idp did not start" $2
 }
 
 # Waits until Grouper UI starts
@@ -71,9 +76,22 @@ function check_health () {
 }
 
 # Checks the health of Shibboleth IDP server
-function check_health_shibboleth_idp () {
+function check_health_shibboleth_idp_old () {
     echo Checking health of shibboleth idp...
     status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost:4443/idp/)"
+    if [ $status -ne 200 ]; then
+        echo Error: Http code of response is $status
+        docker ps
+        return 1
+    else
+        echo OK
+        return 0
+    fi
+}
+
+function check_health_shibboleth_idp () {
+    echo Checking health of shibboleth idp...
+    status="$(curl -k --write-out %{http_code} --silent --output /dev/null https://localhost/idp/)"
     if [ $status -ne 200 ]; then
         echo Error: Http code of response is $status
         docker ps
@@ -124,23 +142,25 @@ function add_object () {
 
     curl -k -sD - --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE" -d @$FILE >$TMPFILE
     local HTTP_CODE=$(sed '$!d' $TMPFILE)
+    sed -i '$ d' $TMPFILE
 
     if [ "$HTTP_CODE" -eq 201 ] || [ "$HTTP_CODE" -eq 202 ]; then
 
-	OID=$(grep -oP "Location: \K.*" $TMPFILE | awk -F "$TYPE/" '{print $2}') || (echo "Couldn't extract oid from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+        OID=$(grep -oP "Location: \K.*" $TMPFILE | awk -F "$TYPE/" '{print $2}') || (echo "Couldn't extract oid from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
 
         echo "OID of created object: $OID"
-	rm $TMPFILE
+        rm $TMPFILE
         return 0
     else
-    	echo "Error code: $HTTP_CODE"
-    	if [ "$HTTP_CODE" -ge 500 ]; then
+        echo "Error code: $HTTP_CODE"
+        if [ "$HTTP_CODE" -ge 500 ]; then
             echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
-    	else
-	    local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='error']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+        else
+            echo $(sed '1,/^\s*$/d' $TMPFILE) >$TMPFILE
+            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='message']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
             echo "Error message: $ERROR_MESSAGE"
-    	fi
-	rm $TMPFILE
+        fi
+        rm $TMPFILE
         return 1
     fi
 }
@@ -174,12 +194,34 @@ function execute_bulk_action () {
 
     else
         echo "Error code: $HTTP_CODE"
-        if [ "$HTTP_CODE" -ge 500 ]; then
+        if [[ $HTTP_CODE -ge 500 ]]; then
             echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
         else
-            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='error']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='message']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
 	    echo "Error message: $ERROR_MESSAGE"
         fi
+  	rm $TMPFILE
+        return 1
+    fi
+}
+
+# parameter $2 (CONTAINER) is just for diagnostics: it is the container whose logs we want to dump on error (might be omitted)
+function run_task_now () {
+    local OID=$1
+    local CONTAINER=$2
+    echo "Running task $1 now..."
+    TMPFILE=$(mktemp /tmp/runtasknow.XXXXXX)
+
+    (curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/tasks/$OID/run" >$TMPFILE)  || (echo "Midpoint logs: " ; ([[ -n "$CONTAINER" ]] && docker logs $CONTAINER ) ; return 1)
+    local HTTP_CODE=$(sed '$!d' $TMPFILE)
+    sed -i '$ d' $TMPFILE
+
+    if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+        rm $TMPFILE
+        return 0
+    else
+        echo "Error code: $HTTP_CODE"
+        cat $TMPFILE
   	rm $TMPFILE
         return 1
     fi
@@ -209,13 +251,13 @@ function delete_object () {
         return 0
     else
         echo "Error code: $HTTP_CODE"
-        if [ "$HTTP_CODE" -ge 500 ]; then
+        if [[ $HTTP_CODE -ge 500 ]]; then
             echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
         else
-            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='error']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='message']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
             echo "Error message: $ERROR_MESSAGE"
 	fi
-	rm $TMPFILE
+	#rm $TMPFILE
         return 1
     fi
 }
@@ -247,10 +289,10 @@ EOF
         return 0
     else
         echo "Error code: $HTTP_CODE"
-        if [ "$HTTP_CODE" -ge 500 ]; then
+        if [[ $HTTP_CODE -ge 500 ]]; then
             echo "Error message: Internal server error. Unexpected error occurred, if necessary please contact system administrator."
         else
-            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='error']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
+            local ERROR_MESSAGE=$(xmllint --xpath "/*/*[local-name()='message']/text()" $TMPFILE) || (echo "Couldn't extract error message from file:" ; cat $TMPFILE ; rm $TMPFILE; return 1)
             echo "Error message: $ERROR_MESSAGE"
         fi
         rm $SEARCH_RESULT_FILE
@@ -333,16 +375,62 @@ function wait_for_task_completion () {
 }
 
 
-#search LDAP accout by uid
 function search_ldap_object_by_filter () {
     local BASE_CONTEXT_FOR_SEARCH=$1
     local FILTER="$2"
     local LDAP_CONTAINER=$3
     TMPFILE=$(mktemp /tmp/ldapsearch.XXXXXX)
 
-    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (echo "Couldn't search $FILTER:" ;rm $TMPFILE ; return 1)
+    docker exec $LDAP_CONTAINER ldapsearch -h localhost -p 389 -D "cn=Directory Manager" -w password -b "$BASE_CONTEXT_FOR_SEARCH" "($FILTER)" >$TMPFILE || (echo "Couldn't search $FILTER" ;rm $TMPFILE ; return 1)
     LDAPSEARCH_RESULT_FILE=$TMPFILE
     return 0
+}
+
+function get_ldap_user () {
+    local USER_UID="$1"
+    local LDAP_CONTAINER=$2
+    search_ldap_object_by_filter "ou=people,dc=internet2,dc=edu" "uid=$USER_UID" $LDAP_CONTAINER || return 1
+    if ! grep -F "uid: $USER_UID" $LDAPSEARCH_RESULT_FILE; then
+        echo "Couldn't find user '$USER_UID'"
+        rm $LDAPSEARCH_RESULT_FILE
+        return 1
+    else
+        return 0
+    fi
+}
+
+function assert_ldap_user_has_value () {
+    local USER_UID="$1"
+    local TYPE=$2		# Entitlement or Affiliation
+    local VALUE="$3"
+    local LDAP_CONTAINER=$4
+    get_ldap_user "$USER_UID" $LDAP_CONTAINER || return 1
+    if ! grep -F "eduPerson$TYPE: $VALUE" $LDAPSEARCH_RESULT_FILE; then
+        echo "'$USER_UID' has no $TYPE of '$VALUE'"
+        cat $LDAPSEARCH_RESULT_FILE
+        rm $LDAPSEARCH_RESULT_FILE
+        return 1
+    else
+        rm $LDAPSEARCH_RESULT_FILE
+        return 0
+    fi
+}
+
+function assert_ldap_user_has_no_value () {
+    local USER_UID="$1"
+    local TYPE=$2		# Entitlement or Affiliation
+    local VALUE="$3"
+    local LDAP_CONTAINER=$4
+    get_ldap_user "$USER_UID" $LDAP_CONTAINER || return 1
+    if grep -F "eduPerson$TYPE: $VALUE" $LDAPSEARCH_RESULT_FILE; then
+        echo "'$USER_UID' has an $TYPE of '$VALUE' although it should not have one"
+        cat $LDAPSEARCH_RESULT_FILE
+        rm $LDAPSEARCH_RESULT_FILE
+        return 1
+    else
+        rm $LDAPSEARCH_RESULT_FILE
+        return 0
+    fi
 }
 
 function check_ldap_account_by_user_name () {

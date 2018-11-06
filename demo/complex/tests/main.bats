@@ -14,7 +14,8 @@ load ../../../library
     # We want to fail cleanly if there's any interference
     docker ps
     ! (docker ps | grep -E "shibboleth_(idp|directory)_1|(complex|simple|shibboleth|postgresql)_(midpoint_server|midpoint_data)_1")
-    docker-compose up -d --build
+    docker-compose build --pull
+    docker-compose up -d
 }
 
 @test "020 Wait until components are started" {
@@ -60,9 +61,9 @@ load ../../../library
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
 
     # reduce data in SIS database so imports will take reasonable time
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_COURSES where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_AFFILIATIONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
-    docker exec complex_sources_1 mysql sis -e "delete from SIS_PERSONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_COURSES where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_AFFILIATIONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
+    docker exec complex_sources_1 mysql sis -u root -p123321 -e "delete from SIS_PERSONS where uid not in ('amorrison', 'banderson', 'cmorrison', 'danderson', 'ddavis', 'jsmith', 'kwhite', 'mroberts', 'whenderson', 'wprice')"
 
     check_health
     ./upload-objects
@@ -125,7 +126,6 @@ load ../../../library
     check_ldap_account_by_user_name amorrison complex_directory_1
     check_ldap_account_by_user_name wprice complex_directory_1
     check_ldap_account_by_user_name mroberts complex_directory_1
-    # TODO check assignments etc
 }
 
 @test "230 Import SIS_COURSES" {
@@ -182,7 +182,6 @@ load ../../../library
     check_of_ldap_membership wprice "ou=courses,ou=groups,dc=internet2,dc=edu" "SCI404" complex_directory_1
 }
 
-
 @test "240 Check 'TestUser240' in Midpoint and LDAP" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
     check_health
@@ -200,6 +199,87 @@ load ../../../library
     delete_object_by_name users TestUser240
 }
 
+@test "300 Add wprice to 'etc:testGroup' and 'ref:affiliation:alum_includes'. Export 'ref:affiliation:alum'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker cp tests/resources/grouper/t300.gsh complex_grouper_daemon_1:/tmp/
+    docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t300.gsh"
+}
+
+@test "310 Import Grouper-to-midPoint import task" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    check_health
+    add_object tasks midpoint-objects-manual/tasks/task-import-grouper.xml
+    search_and_check_object tasks "Import from Grouper"
+}
+
+@test "320 Wait for the import to finish" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    wait_for_task_completion 617fec0c-f7a6-4f91-89d0-395fb8878edd 8 10
+    assert_task_success 617fec0c-f7a6-4f91-89d0-395fb8878edd
+}
+
+@test "330 Assert wprice membership in LDAP" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    assert_ldap_user_has_value wprice Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_value wprice Entitlement "ref:affiliation:alum" complex_directory_1
+}
+
+@test "400 Clean sampleQueue" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker exec complex_mq_1 rabbitmqctl purge_queue sampleQueue
+}
+
+@test "410 Import Grouper-to-midPoint live sync task" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    check_health
+    add_object tasks tests/resources/tasks/task-livesync-grouper-single.xml
+    search_and_check_object tasks "LiveSync from Grouper"
+    wait_for_task_completion 87ffce52-717a-4205-ba01-0a698f0deaee 8 10
+    assert_task_success 87ffce52-717a-4205-ba01-0a698f0deaee
+}
+
+@test "420 Add kwhite to 'etc:testGroup', remove wprice from 'ref:affiliation:alum_includes'" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker cp tests/resources/grouper/t420.gsh complex_grouper_daemon_1:/tmp/
+    docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t420.gsh"
+}
+
+@test "425 Wait 80 seconds for changes to be propagated to MQ" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    sleep 80
+}
+
+@test "430 Assert existence of change messages in sampleQueue" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    docker cp tests/resources/rabbitmq/check-samplequeue.sh complex_mq_1:/tmp/
+    docker exec complex_mq_1 bash /tmp/check-samplequeue.sh
+}
+
+@test "440 Execute Grouper-to-midPoint live sync task (again)" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    check_health
+    run_task_now 87ffce52-717a-4205-ba01-0a698f0deaee
+    wait_for_task_completion 87ffce52-717a-4205-ba01-0a698f0deaee 8 10
+    assert_task_success 87ffce52-717a-4205-ba01-0a698f0deaee
+}
+
+@test "450 Assert wprice and kwhite membership in LDAP" {
+    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+
+    assert_ldap_user_has_value kwhite Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_value wprice Entitlement "etc:testGroup" complex_directory_1
+    assert_ldap_user_has_no_value wprice Entitlement "ref:affiliation:alum" complex_directory_1
+}
 
 @test "999 Clean up" {
     docker-compose down -v

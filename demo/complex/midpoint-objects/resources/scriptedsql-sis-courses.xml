@@ -23,7 +23,7 @@
 			<icscscriptedsql:quoting></icscscriptedsql:quoting>
 			<icscscriptedsql:user>root</icscscriptedsql:user>
 			<icscscriptedsql:password>
-				<clearValue></clearValue>
+				<clearValue>123321</clearValue>
 			</icscscriptedsql:password>
 			<icscscriptedsql:database>sis</icscscriptedsql:database>
 			<!-- >icscscriptedsql:clearTextPasswordToScript>true</icscscriptedsql:clearTextPasswordToScript -->
