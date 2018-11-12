@@ -23,6 +23,7 @@ while getopts "nhr?" opt; do
        ;;
     h | ?)
        echo "Options: -n skip download"
+       echo "         -r refresh mode: uses --no-cache --pull and removes container and image before build"
        exit 0
        ;;
     *)
