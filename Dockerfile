@@ -49,7 +49,7 @@ RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
 
 # Build arguments
 
-ARG MP_VERSION=3.9-SNAPSHOT
+ARG MP_VERSION=3.9
 ARG MP_DIST_FILE=midpoint-dist.tar.gz
 
 ENV MP_DIR /opt/midpoint
