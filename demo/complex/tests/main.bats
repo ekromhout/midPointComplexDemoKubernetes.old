@@ -14,7 +14,9 @@ load ../../../library
     # We want to fail cleanly if there's any interference
     docker ps
     ! (docker ps | grep -E "shibboleth_(idp|directory)_1|(complex|simple|shibboleth|postgresql)_(midpoint_server|midpoint_data)_1")
-    docker-compose build --pull
+    docker-compose build --pull grouper_daemon grouper_ui grouper_data directory sources targets midpoint_data idp mq
+    # Sometimes the tier/midpoint:xyz is not yet in the repository, causing issues with --pull
+    docker-compose build midpoint_server
     docker-compose up -d
 }
 
