@@ -84,6 +84,47 @@ services:
        source: ./configs-and-secrets/grouper/httpd/host-cert.pem
        target: /etc/pki/tls/certs/cachain.pem
 
+  grouper_ws:
+    build: ./grouper_ws/
+    command: bash -c "while ! curl -s grouper_data:3306 > /dev/null; do echo waiting for mysql to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap to start; sleep 3; done; exec ws"
+    depends_on:
+     - grouper_data
+     - directory
+    environment:
+     - ENV
+     - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
+     - SUBJECT_SOURCE_LDAP_PASSWORD=password
+     - USERTOKEN
+    networks:
+     - net
+    ports:
+     - 9443:443
+    secrets:
+     - g_database_password.txt
+     - source: grouper.hibernate.properties
+       target: grouper_grouper.hibernate.properties
+     - source: grouper-loader.properties
+       target: grouper_grouper-loader.properties
+     - source: subject.properties
+       target: grouper_subject.properties
+     - source: g_sp-key.pem
+       target: shib_sp-key.pem
+     - source: g_host-key.pem
+       target: host-key.pem
+    volumes:
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.properties
+       target: /opt/grouper/conf/grouper.properties
+     - type: bind
+       source: ./configs-and-secrets/grouper/application/grouper.client.properties
+       target: /opt/grouper/conf/grouper.client.properties
+     - type: bind
+       source: ./configs-and-secrets/grouper/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/host-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/grouper/httpd/host-cert.pem
+       target: /etc/pki/tls/certs/cachain.pem
+
   grouper_data:
     build: ./grouper_data/
     networks:
