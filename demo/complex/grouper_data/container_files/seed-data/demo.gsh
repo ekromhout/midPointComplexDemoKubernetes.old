@@ -7,6 +7,7 @@ addStem("", "basis", "basis")
 addStem("", "bundle", "bundle")
 addStem("", "org", "org")
 addStem("", "test", "test")
+addStem("", "midpoint", "midpoint")
 
 addRootStem("ref", "ref")
 addStem("ref", "course", "course")
@@ -71,9 +72,8 @@ attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperL
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uniqueMember");
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
 
-testGroup = new GroupSave(gs).assignName("etc:testGroup").assignCreateParentStemsIfNotExist(true).save();
-
-exportedGroups = new GroupSave(gs).assignName("etc:exportedGroups").assignCreateParentStemsIfNotExist(true).save();
+midpointGroupsGroup = new GroupSave(gs).assignName("etc:midpointGroups").assignCreateParentStemsIfNotExist(true).save();
+testGroup = new GroupSave(gs).assignName("midpoint:test").assignCreateParentStemsIfNotExist(true).save();
 
 s = SubjectFinder.findById(testGroup.getId(), 'group', 'g:gsa');
-exportedGroups.addMember(s, false);
+midpointGroupsGroup.addMember(s, false);
