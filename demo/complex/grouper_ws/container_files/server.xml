@@ -145,7 +145,7 @@
                resourceName="UserDatabase"/> <!-- we can log in with tomcat-users.xml accounts -->
 
         <Realm className="org.apache.catalina.realm.JNDIRealm"
-               connectionURL="ldap://data"
+               connectionURL="ldap://directory"
                userBase="ou=people,dc=internet2,dc=edu"
                userSearch="(uid={0})"
                userSubtree="true"
