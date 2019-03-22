@@ -6,7 +6,7 @@ if [[ -n "$1" ]]; then
   MP_VERSION=$1
 else
   if [[ $tag == "latest" ]]; then
-    MP_VERSION=3.9
+    MP_VERSION="4.0-SNAPSHOT"
   else
     MP_VERSION=$tag
   fi

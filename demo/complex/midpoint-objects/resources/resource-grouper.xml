@@ -38,7 +38,7 @@
 	</connectorRef>
 	<connectorConfiguration>
 		<icfc:configurationProperties>
-			<rest:baseUrl>grouper_ws:443</rest:baseUrl>
+			<rest:baseUrl>http://grouper_ws:8080</rest:baseUrl>
 			<rest:username>banderson</rest:username>
 			<rest:password>password</rest:password>
 			<rest:superGroup>etc:midpointGroups</rest:superGroup>
@@ -102,9 +102,11 @@
 			</attribute>
 			<attribute>
 				<ref>ri:group</ref>
+				<displayName>Subject Groups</displayName>
 				<inbound>
+			                <strength>strong</strength>
 					<target>
-						<path>organizationalUnit</path>
+						<path>extension/grouper_group</path>
 					</target>
 				</inbound>
 			</attribute>

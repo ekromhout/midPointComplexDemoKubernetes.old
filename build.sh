@@ -32,7 +32,7 @@ while getopts "nhr?" opt; do
        ;;
     esac
 done
-if [ "$SKIP_DOWNLOAD" = "0" ]; then ./download-midpoint || exit 1; fi
+if [ "$SKIP_DOWNLOAD" = "0" ]; then ./download-midpoint.sh || exit 1; fi
 docker build $REFRESH --tag $maintainer/$imagename:$tag --build-arg maintainer=$maintainer --build-arg imagename=$imagename . || exit 1
 echo "---------------------------------------------------------------------------------------"
 echo "The midPoint containers were successfully built. To start them, execute the following:"

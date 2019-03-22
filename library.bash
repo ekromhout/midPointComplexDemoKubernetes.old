@@ -227,6 +227,28 @@ function run_task_now () {
     fi
 }
 
+# parameter $2 (CONTAINER) is just for diagnostics: it is the container whose logs we want to dump on error (might be omitted)
+function suspend_task () {
+    local OID=$1
+    local CONTAINER=$2
+    echo "Suspending task $OID..."
+    TMPFILE=$(mktemp /tmp/suspendtask.XXXXXX)
+
+    (curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/tasks/$OID/suspend" >$TMPFILE)  || (echo "Midpoint logs: " ; ([[ -n "$CONTAINER" ]] && docker logs $CONTAINER ) ; return 1)
+    local HTTP_CODE=$(sed '$!d' $TMPFILE)
+    sed -i '$ d' $TMPFILE
+
+    if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+        rm $TMPFILE
+        return 0
+    else
+        echo "Error code: $HTTP_CODE"
+        cat $TMPFILE
+  	rm $TMPFILE
+        return 1
+    fi
+}
+
 function delete_object_by_name () {
     local TYPE=$1
     local NAME=$2
@@ -322,13 +344,35 @@ function test_resource () {
     local OID=$1
     local TMPFILE=$(mktemp /tmp/test.resource.XXXXXX)
 
-    curl -k --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE ; return 1)
+    curl -k --silent --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/resources/$OID/test" >$TMPFILE || (rm $TMPFILE ; return 1)
     if [[ $(xmllint --xpath "/*/*[local-name()='status']/text()" $TMPFILE) == "success" ]]; then
         echo "Resource $OID test succeeded"
         rm $TMPFILE
         return 0
     else
         echo "Resource $OID test failed"
+        cat $TMPFILE
+        rm $TMPFILE
+        return 1
+    fi
+}
+
+function recompute () {
+    local TYPE=$1
+    local OID=$2
+    local TMPFILE=$(mktemp /tmp/recompute.XXXXXX)
+
+    curl -k --silent --write-out "%{http_code}" --user administrator:5ecr3t -H "Content-Type: application/xml" -X POST "https://localhost:8443/midpoint/ws/rest/$TYPE/$OID" -d @- << EOF >$TMPFILE || (rm $TMPFILE ; return 1)
+<objectModification xmlns='http://midpoint.evolveum.com/xml/ns/public/common/api-types-3'></objectModification>
+EOF
+    local HTTP_CODE=$(sed '$!d' $TMPFILE)
+    sed -i '$ d' $TMPFILE
+    if [[ $HTTP_CODE -ge 200 && $HTTP_CODE -lt 300 ]]; then
+        echo "Object $TYPE/$OID recomputation succeeded"
+        rm $TMPFILE
+        return 0
+    else
+        echo "Object $TYPE/$OID recomputation failed: $HTTP_CODE"
         cat $TMPFILE
         rm $TMPFILE
         return 1
@@ -471,7 +515,6 @@ function check_ldap_courses_by_name () {
 
     rm $SEARCH_RESULT_FILE
     rm $LDAPSEARCH_RESULT_FILE
-
     if [[ $MP_ORG_IDENTIFIER = $LDAP_CN ]]; then
         return 0
     fi
@@ -502,4 +545,14 @@ function check_of_ldap_membership () {
 
     echo "LDAP Account with uid $NAME_OF_USER is not member of LDAP Group $NAME_OF_GROUP in base context $BASE_CONTEXT_FOR_GROUP"
     return 1
+}
+
+function get_messages () {
+    local QUEUE="$1"
+    MESSAGES=$(curl -s -i -u guest:guest "http://localhost:15672/api/queues/%2f/$QUEUE" | sed 's/,/\n/g' | grep '"messages"' | sed 's/"messages"://g')
+    if [ -z "$MESSAGES" ]; then
+        echo "Unable to get number of messages in $QUEUE"
+	return 1
+    fi
+    return 0
 }
