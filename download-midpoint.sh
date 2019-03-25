@@ -13,9 +13,9 @@ else
 fi
 
 if [[ $MP_VERSION =~ ^[0-9]+\.[0-9]+$ ]]; then
-  URL_BASE="https://evolveum.com/downloads/midpoint/$MP_VERSION/"
+  URL_BASE="https://download.evolveum.com/downloads/midpoint/$MP_VERSION/"
 else
-  URL_BASE="https://evolveum.com/downloads/midpoint-tier/"
+  URL_BASE="https://download.evolveum.com/downloads/midpoint-tier/"
 fi
 
 echo "Downloading midPoint $MP_VERSION from $URL_BASE"
