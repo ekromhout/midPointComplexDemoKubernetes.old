@@ -25,8 +25,9 @@ pipeline {
                     dir ('tmp') {
                         git([ url: "https://github.internet2.edu/docker/util.git", credentialsId: "jenkins-github-access-token" ])
                         sh 'ls -l'
-			sh 'ls -l ../bin'
-                        sh 'mv -f bin/* ../bin/.'
+			sh 'ls -lR ../bin'
+			sh 'rm -r ../bin/windows || true'
+                        sh 'mv bin/* ../bin/.'
                     }
                     // Build and test scripts expect that 'tag' is present in common.bash. This is necessary for both Jenkins and standalone testing.
                     // We don't care if there are more 'tag' assignments there. The latest one wins.
