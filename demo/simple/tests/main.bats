@@ -64,6 +64,7 @@ load ../../../library
 }
 
 @test "360 Test DB schema upgrade" {
+	skip 'Not supported for 4.0-SNAPSHOT'
     echo "Stopping midpoint_server container"
     docker stop simple_midpoint_server_1
 
