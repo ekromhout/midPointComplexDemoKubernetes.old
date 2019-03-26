@@ -119,8 +119,18 @@
 			<attribute>
 				<ref>icfs:name</ref>
 				<inbound>
+			                <strength>strong</strength>
 					<target>
 						<path>name</path>
+					</target>
+				</inbound>
+				<inbound>
+			                <strength>strong</strength>
+					<expression>
+						<value>group</value>
+					</expression>
+					<target>
+						<path>subtype</path>
 					</target>
 				</inbound>
 			</attribute>

@@ -105,10 +105,19 @@
          <subtype>course</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="d35bdec6-643b-41d8-ad5d-8eeb701169d1" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
+      <defaultObjectPolicyConfiguration id="100">
+         <type>OrgType</type>
+         <subtype>group</subtype>
+         <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="e2a6193a-8981-4143-9da1-9a7b32c0b819" relation="org:default" type="tns:ObjectTemplateType"/>
+      </defaultObjectPolicyConfiguration>
       <defaultObjectPolicyConfiguration id="21">
          <type>RoleType</type>
          <subtype>generic-group</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="804f8658-0828-4dab-a2ed-f13985e4f80b" relation="org:default" type="tns:ObjectTemplateType"/>
+      </defaultObjectPolicyConfiguration>
+      <defaultObjectPolicyConfiguration id="101">
+         <type>UserType</type>
+         <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="8098b124-c20c-4965-8adf-e528abedf7a4" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
       <cleanupPolicy>
          <auditRecords>
