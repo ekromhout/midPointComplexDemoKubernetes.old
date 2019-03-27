@@ -15,7 +15,9 @@ services:
      - RABBITMQ_PASSWORD_FILE=/run/secrets/rabbitmq_password.txt
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
     networks:
-     - net
+      net:
+        aliases:
+         - grouper-daemon
     secrets:
      - g_database_password.txt
      - rabbitmq_password.txt
@@ -33,7 +35,6 @@ services:
        source: ./configs-and-secrets/grouper/application/grouper.client.properties
        target: /opt/grouper/conf/grouper.client.properties
 
-
   grouper_ui:
     build: ./grouper_ui/
     command: bash -c "while ! curl -s grouper_data:3306 > /dev/null; do echo waiting for mysql on grouper_data to start; sleep 3; done; while ! curl -s ldap://directory:389 > /dev/null; do echo waiting for ldap on directory to start; sleep 3; done; exec ui"
@@ -46,7 +47,9 @@ services:
      - GROUPER_DATABASE_PASSWORD_FILE=/run/secrets/g_database_password.txt
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
     networks:
-     - net
+      net:
+        aliases:
+         - grouper-ui
     ports:
      - 4443:443
     secrets:
@@ -96,7 +99,9 @@ services:
      - SUBJECT_SOURCE_LDAP_PASSWORD=password
      - USERTOKEN
     networks:
-     - net
+      net:
+        aliases:
+         - grouper-ws
     ports:
      - 9443:443
     secrets:
@@ -128,7 +133,9 @@ services:
   grouper_data:
     build: ./grouper_data/
     networks:
-     - net
+      net:
+        aliases:
+         - grouper-data
     ports:
      - 3306:3306
     volumes:
@@ -166,7 +173,9 @@ services:
     ports:
      - 33306:3306
     networks:
-     - net
+      net:
+        aliases:
+         - midpoint-data
     volumes:
      - midpoint_mysql:/var/lib/mysql
      - midpoint_data:/var/lib/mysqlmounted
@@ -200,7 +209,9 @@ services:
      - TIER_BEACON_OPT_OUT
      - TIMEZONE
     networks:
-     - net
+      net:
+        aliases:
+         - midpoint-server
     secrets:
      - mp_database_password.txt
      - mp_keystore_password.txt
