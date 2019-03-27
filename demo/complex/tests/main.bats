@@ -209,11 +209,16 @@ load ../../../library
     check_of_ldap_membership banderson "ou=groups,dc=internet2,dc=edu" "sysadmingroup" complex_directory_1
 }
 
-@test "260 Export groups" {
+#@test "255 Wait 120 seconds for changes to be propagated to Grouper" {
+#    if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
+#
+#    sleep 120
+#}
+
+@test "260 Export ref groups" {
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
 
-    docker cp tests/resources/grouper/t260.gsh complex_grouper_daemon_1:/tmp/
-    docker exec complex_grouper_daemon_1 bash -c "/opt/grouper/grouper.apiBinary/bin/gsh /tmp/t260.gsh"
+    ./add-ref-groups.sh
 }
 
 @test "265 Wait 120 seconds for changes to be propagated to MQ" {
@@ -273,7 +278,7 @@ load ../../../library
     if [ -e $BATS_TMPDIR/not-started ]; then skip 'not started'; fi
 
     assert_ldap_user_has_value wprice Entitlement "midpoint:test" complex_directory_1
-    assert_ldap_user_has_value wprice Entitlement "midpoint:alum" complex_directory_1
+    assert_ldap_user_has_value wprice Entitlement "ref:affiliation:alum" complex_directory_1
 }
 
 @test "350 Add kwhite to 'midpoint:test', remove wprice from 'ref:affiliation:alum_includes'" {
