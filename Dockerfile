@@ -16,8 +16,7 @@ RUN yum -y install \
 	libcurl \
 	&& yum clean -y all
 
-RUN rm /etc/shibboleth/sp-key.pem /etc/shibboleth/sp-cert.pem \
-    && cd /etc/httpd/conf.d/ \
+RUN cd /etc/httpd/conf.d/ \
     && rm -f autoindex.conf ssl.conf userdir.conf welcome.conf
 
 COPY container_files/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
@@ -38,8 +37,6 @@ RUN chmod 755 /opt/tier/setenv.sh \
 RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
     && mv /etc/httpd/conf.d/shib.conf /etc/httpd/conf.d/shib.conf.auth.shibboleth \
     && touch /etc/httpd/conf.d/shib.conf.auth.internal \
-    && mv /etc/httpd/conf.modules.d/00-shib.conf /etc/httpd/conf.modules.d/00-shib.conf.auth.shibboleth \
-    && touch /etc/httpd/conf.modules.d/00-shib.conf.auth.internal \
     && sed -i 's/LogFormat "/LogFormat "httpd;access_log;%{ENV}e;%{USERTOKEN}e;/g' /etc/httpd/conf/httpd.conf \
     && echo -e "\nErrorLogFormat \"httpd;error_log;%{ENV}e;%{USERTOKEN}e;[%{u}t] [%-m:%l] [pid %P:tid %T] %7F: %E: [client\ %a] %M% ,\ referer\ %{Referer}i\"" >> /etc/httpd/conf/httpd.conf \
     && sed -i 's/CustomLog "logs\/access_log"/CustomLog "\/tmp\/loghttpd"/g' /etc/httpd/conf/httpd.conf \
@@ -49,7 +46,7 @@ RUN cp /dev/null /etc/httpd/conf.d/ssl.conf \
 
 # Build arguments
 
-ARG MP_VERSION=3.9
+ARG MP_VERSION=4.0
 ARG MP_DIST_FILE=midpoint-dist.tar.gz
 
 ENV MP_DIR /opt/midpoint
@@ -100,7 +97,7 @@ ENV TIER_MAINTAINER tier
 
 # TIER Beacon Opt-out
 # Completely uncomment the following ENV line to prevent the containers from sending analytics information to Internet2.
-# With the default/release configuration, it will only send product (Shibb/Grouper/COmanage/midPoint) and version (3.9, etc)
+# With the default/release configuration, it will only send product (Shibb/Grouper/COmanage/midPoint) and version (4.0, etc)
 # once daily between midnight and 4am.  There is no configuration or private information collected or sent.
 # This data helps with the scaling and funding of TIER.  Please do not disable it if you find the TIER tools useful.
 # To keep it commented, keep multiple comments on the following line (to prevent other scripts from processing it).

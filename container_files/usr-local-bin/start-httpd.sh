@@ -13,7 +13,7 @@ done
 echo "Linking config files; using authentication: $AUTHENTICATION"
 ln -sf /etc/httpd/conf.d/midpoint.conf.auth.$AUTHENTICATION /etc/httpd/conf.d/midpoint.conf
 ln -sf /etc/httpd/conf.d/shib.conf.auth.$AUTHENTICATION /etc/httpd/conf.d/shib.conf
-ln -sf /etc/httpd/conf.modules.d/00-shib.conf.auth.$AUTHENTICATION /etc/httpd/conf.modules.d/00-shib.conf
+#ln -sf /etc/httpd/conf.modules.d/00-shib.conf.auth.$AUTHENTICATION /etc/httpd/conf.modules.d/00-shib.conf
 
 case $AUTHENTICATION in
   shibboleth)
