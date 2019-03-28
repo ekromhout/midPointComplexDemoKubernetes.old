@@ -8,7 +8,7 @@
       xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" 
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
       oid="48e231be-8474-4ed0-a85e-6acf4c5e8d52">
-    <name>metarole-group</name>
+    <name>metarole-grouper-group</name>
     <inducement id="1">
         <targetRef oid="1f339075-5b2f-4a18-9c98-451f3eb0d28d" relation="org:default" type="c:OrgType" />     <!-- groups -->
     </inducement>

@@ -17,4 +17,14 @@ objectClass: top
 objectClass: organizationalUnit
 ou: Courses
 
+dn: ou=midpoint,ou=Groups,dc=internet2,dc=edu
+objectClass: top
+objectClass: organizationalUnit
+ou: midpoint
+
+dn: ou=Generic,ou=Groups,dc=internet2,dc=edu
+objectClass: top
+objectClass: organizationalUnit
+ou: Generic
+
 

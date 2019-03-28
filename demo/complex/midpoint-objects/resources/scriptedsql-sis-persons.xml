@@ -246,85 +246,9 @@
                 <ref>ri:affiliation</ref>
                 <inbound>
                     <strength>strong</strength>
-                    <expression>
-                        <assignmentTargetSearch>
-                            <targetType>RoleType</targetType>
-                            <filter>
-                                <q:equal>
-                                    <q:path>name</q:path>                       
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'affiliation_' + input
-                                            </code>
-                                        </script>
-                                    </expression>                       
-                                </q:equal>
-                            </filter>
-                            <createOnDemand>true</createOnDemand>
-                            <populateObject>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'affiliation_' + input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>name</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'Affiliation: ' + input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>displayName</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>identifier</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <value>affiliation</value>
-                                    </expression>
-                                    <target>
-                                        <path>subtype</path>
-                                    </target>
-                                </populateItem>
-                            </populateObject>
-                            <assignmentProperties>
-                                <subtype>affiliation</subtype>
-                            </assignmentProperties>
-                        </assignmentTargetSearch>       
-                    </expression>
                     <target>
-                        <path>assignment</path>
-                        <set>
-                            <condition>
-                                <script>
-                                    <code>
-                                        assignment.subtype.contains('affiliation')
-                                    </code>
-                                </script>
-                            </condition>
-                        </set>
-                    </target>
+			<path>extension/rawAffiliation</path>
+		    </target>
                 </inbound>
             </attribute>
 		</objectType>

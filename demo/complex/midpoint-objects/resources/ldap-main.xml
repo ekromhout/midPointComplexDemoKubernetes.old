@@ -180,22 +180,20 @@
 				</attribute>
 				<attribute>
 					<ref>ri:eduPersonAffiliation</ref>
+					<outbound>
+						<strength>strong</strength>
+						<source>
+							<path>extension/rawAffiliation</path>
+						</source>
+					</outbound>
                     <tolerant>false</tolerant>
 				</attribute>
-                <attribute>
-                    <ref>ri:eduPersonEntitlement</ref>
-                    <tolerant>false</tolerant>
-                    <outbound>
-                        <source>
-                            <path>extension/grouper_group</path>
-                        </source>
-                    </outbound>
-                </attribute>
                 <association>
                     <tolerant>false</tolerant>
                     <ref>ri:group</ref>
                     <kind>entitlement</kind>
                     <intent>course-group</intent>
+                    <intent>midpoint-group</intent>
                     <intent>generic-group</intent>
                     <direction>objectToSubject</direction>
                     <associationAttribute>ri:uniqueMember</associationAttribute>
@@ -261,6 +259,45 @@
             </objectType>
             <objectType>
                 <kind>entitlement</kind>
+                <intent>midpoint-group</intent>
+                <displayName>LDAP Group</displayName>
+                <objectClass>ri:groupOfUniqueNames</objectClass>
+                <attribute>
+                    <ref>ri:uniqueMember</ref>
+                    <matchingRule>mr:distinguishedName</matchingRule>
+                    <fetchStrategy>minimal</fetchStrategy>
+                </attribute>
+                <attribute>
+                    <ref>ri:dn</ref>
+                    <matchingRule>mr:stringIgnoreCase</matchingRule>
+                    <outbound>
+                        <strength>strong</strength>
+                        <trace>true</trace>
+                        <source>
+                            <path>identifier</path>
+                        </source>
+                        <expression>
+                            <script>
+                                <code>
+                                    basic.composeDnWithSuffix('cn', identifier, 'ou=midpoint,ou=Groups,dc=internet2,dc=edu')
+                                </code>
+                            </script>
+                        </expression>
+                    </outbound>
+                </attribute>
+                <attribute>
+                    <ref>ri:cn</ref>
+                    <matchingRule>mr:stringIgnoreCase</matchingRule>
+                    <outbound>
+                        <strength>weak</strength>
+                        <source>
+                            <path>identifier</path>
+                        </source>
+                    </outbound>
+                </attribute>
+            </objectType>
+            <objectType>
+                <kind>entitlement</kind>
                 <intent>generic-group</intent>
                 <displayName>LDAP Group</displayName>
                 <objectClass>ri:groupOfUniqueNames</objectClass>
@@ -281,7 +318,7 @@
                         <expression>
                             <script>
                                 <code>
-                                    basic.composeDnWithSuffix('cn', identifier, 'ou=Groups,dc=internet2,dc=edu')
+                                    basic.composeDnWithSuffix('cn', identifier, 'ou=generic,ou=Groups,dc=internet2,dc=edu')
                                 </code>
                             </script>
                         </expression>
@@ -394,10 +431,10 @@
                 </reaction>
             </objectSynchronization>
             <objectSynchronization>
-                <name>generic-group sync</name>
+                <name>midpoint-group sync</name>
                 <objectClass>ri:groupOfUniqueNames</objectClass>
                 <kind>entitlement</kind>
-                <intent>generic-group</intent>
+                <intent>midpoint-group</intent>
                 <focusType>RoleType</focusType>
                 <enabled>true</enabled>
                 <condition>
@@ -405,8 +442,61 @@
                         <code>
                             import javax.naming.ldap.*
                             dn = new LdapName(basic.getAttributeValue(account, 'http://midpoint.evolveum.com/xml/ns/public/resource/instance-3', 'dn'))
-                            log.info('generic-group sync: considering {}; dn.size={}, dn.startsWith={}', dn, dn.size(), dn.startsWith(new LdapName('ou=Groups,dc=internet2,dc=edu')))
-                            dn.size() == 4 &amp;&amp; dn.startsWith(new LdapName('ou=Groups,dc=internet2,dc=edu'))
+                            log.info('midpoint-group sync: considering {}; dn.size={}, dn.startsWith={}', dn, dn.size(), dn.startsWith(new LdapName('ou=midpoint,ou=Groups,dc=internet2,dc=edu')))
+                            dn.size() == 5 &amp;&amp; dn.startsWith(new LdapName('ou=midpoint,ou=Groups,dc=internet2,dc=edu'))
+                        </code>
+                    </script>
+                </condition>
+                <correlation>
+                    <q:and>
+                        <q:equal>
+                            <q:path>identifier</q:path>
+                            <expression>
+                                <path>$shadow/attributes/ri:cn</path>
+                            </expression>
+                        </q:equal>
+                        <q:equal>
+                            <q:path>subtype</q:path>
+                            <q:value>midpoint-group</q:value>
+                        </q:equal>
+                    </q:and>
+                </correlation>
+                <reaction>
+                    <situation>linked</situation>
+                    <synchronize>true</synchronize>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <synchronize>true</synchronize>
+                    <action>
+                        <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#unlink</handlerUri>
+                    </action>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <synchronize>true</synchronize>
+                    <action>
+                        <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
+                    </action>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                </reaction>
+            </objectSynchronization>
+            <objectSynchronization>
+                <name>generic-group sync</name>
+                <objectClass>ri:groupOfUniqueNames</objectClass>
+                <kind>entitlement</kind>
+                <intent>generic-group</intent>
+                <focusType>OrgType</focusType>
+                <enabled>true</enabled>
+                <condition>
+                    <script>
+                        <code>
+                            import javax.naming.ldap.*
+                            dn = new LdapName(basic.getAttributeValue(account, 'http://midpoint.evolveum.com/xml/ns/public/resource/instance-3', 'dn'))
+                            log.info('generic-group sync: considering {}; dn.size={}, dn.startsWith={}', dn, dn.size(), dn.startsWith(new LdapName('ou=Generic,ou=Groups,dc=internet2,dc=edu')))
+                            dn.size() == 5 &amp;&amp; dn.startsWith(new LdapName('ou=Generic,ou=Groups,dc=internet2,dc=edu'))
                         </code>
                     </script>
                 </condition>

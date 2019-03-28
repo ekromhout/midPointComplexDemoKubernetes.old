@@ -91,7 +91,7 @@
          </auditing>
       </logging>
       <defaultObjectPolicyConfiguration id="18">
-         <type>RoleType</type>
+         <type>OrgType</type>
          <subtype>affiliation</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="d87aa04f-189c-4d6f-b6e1-216dad622142" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
@@ -107,12 +107,12 @@
       </defaultObjectPolicyConfiguration>
       <defaultObjectPolicyConfiguration id="100">
          <type>OrgType</type>
-         <subtype>group</subtype>
+         <subtype>generic-group</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="e2a6193a-8981-4143-9da1-9a7b32c0b819" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
       <defaultObjectPolicyConfiguration id="21">
          <type>RoleType</type>
-         <subtype>generic-group</subtype>
+         <subtype>midpoint-group</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="804f8658-0828-4dab-a2ed-f13985e4f80b" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
       <defaultObjectPolicyConfiguration id="101">

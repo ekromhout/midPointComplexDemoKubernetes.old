@@ -14,7 +14,8 @@
       </xsd:appinfo>
     </xsd:annotation>
     <xsd:sequence>
-        <xsd:element name="grouper_group" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="grouperGroup" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="rawAffiliation" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
     </xsd:sequence>
   </xsd:complexType>  
 </xsd:schema>

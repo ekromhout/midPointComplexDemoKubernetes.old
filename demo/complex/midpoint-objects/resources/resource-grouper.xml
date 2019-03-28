@@ -110,7 +110,7 @@
 				<inbound>
 			                <strength>strong</strength>
 					<target>
-						<path>extension/grouper_group</path>
+						<path>extension/grouperGroup</path>
 					</target>
 				</inbound>
 			</attribute>
@@ -131,7 +131,7 @@
 				<inbound>
 			                <strength>strong</strength>
 					<expression>
-						<value>group</value>
+						<value>generic-group</value>
 					</expression>
 					<target>
 						<path>subtype</path>

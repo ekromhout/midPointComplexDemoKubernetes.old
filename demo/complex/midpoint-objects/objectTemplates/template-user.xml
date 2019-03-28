@@ -4,7 +4,7 @@
     <mapping>
         <strength>strong</strength>
         <source>
-            <path>extension/grouper_group</path>
+            <path>extension/grouperGroup</path>
         </source>
         <expression>
             <assignmentTargetSearch>
@@ -15,14 +15,14 @@
                         <expression>
                             <script>
                                 <code>
-                                    grouper_group
+                                    grouperGroup
                                 </code>
                             </script>
                         </expression>
                     </q:equal>
                 </filter>
                 <assignmentProperties>
-                    <subtype>group</subtype>
+                    <subtype>generic-group</subtype>
                 </assignmentProperties>
                 <createOnDemand>true</createOnDemand>
                 <populateObject>
@@ -33,7 +33,7 @@
                         <expression>
                             <script>
                                 <code>
-                                    grouper_group
+                                    grouperGroup
                                 </code>
                             </script>
                         </expression>
@@ -43,7 +43,7 @@
                             <path>subtype</path>
                         </target>
                         <expression>
-                            <value>group</value>
+                            <value>generic-group</value>
                         </expression>
                     </populateItem>
                 </populateObject>
@@ -55,7 +55,7 @@
                 <condition>
                     <script>
                         <code>
-                            assignment?.subtype.contains('group')
+                            assignment?.subtype.contains('generic-group')
                         </code>
                     </script>
                 </condition>

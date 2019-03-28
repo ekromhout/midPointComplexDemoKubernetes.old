@@ -29,9 +29,9 @@
 			<!-- >icscscriptedsql:clearTextPasswordToScript>true</icscscriptedsql:clearTextPasswordToScript -->
 			<icscscriptedsql:scriptingLanguage>GROOVY</icscscriptedsql:scriptingLanguage>
 
-			<icscscriptedsql:searchScriptFileName>/opt/midpoint/var/res/sis/SearchScript.groovy</icscscriptedsql:searchScriptFileName>
-			<icscscriptedsql:testScriptFileName>/opt/midpoint/var/res/sis/TestScript.groovy</icscscriptedsql:testScriptFileName>
-			<icscscriptedsql:schemaScriptFileName>/opt/midpoint/var/res/sis/SchemaScript.groovy</icscscriptedsql:schemaScriptFileName>
+			<icscscriptedsql:searchScriptFileName>/opt/midpoint/var/res/sis-courses/SearchScript.groovy</icscscriptedsql:searchScriptFileName>
+			<icscscriptedsql:testScriptFileName>/opt/midpoint/var/res/sis-courses/TestScript.groovy</icscscriptedsql:testScriptFileName>
+			<icscscriptedsql:schemaScriptFileName>/opt/midpoint/var/res/sis-courses/SchemaScript.groovy</icscscriptedsql:schemaScriptFileName>
 			
 			<icscscriptedsql:reloadScriptOnExecution>true</icscscriptedsql:reloadScriptOnExecution>
 			<!-- >icscscriptedsql:syncScriptFileName>/opt/midpoint/var/res/SyncScript.groovy</icscscriptedsql:syncScriptFileName -->

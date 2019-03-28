@@ -8,12 +8,12 @@
       xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" 
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
       oid="c691e15a-f30b-4e15-8445-532db07ceeeb">
-    <name>metarole-generic-group</name>
+    <name>metarole-midpoint-group</name>
     <inducement id="1">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP for Grouper (i-data) -->
             <kind>entitlement</kind>
-            <intent>generic-group</intent>
+            <intent>midpoint-group</intent>
         </construction>
     </inducement>
     <inducement id="2">
@@ -26,7 +26,7 @@
                         <associationFromLink>
                             <projectionDiscriminator>
                                 <kind>entitlement</kind>
-                                <intent>generic-group</intent>
+                                <intent>midpoint-group</intent>
                             </projectionDiscriminator>
                         </associationFromLink>
                     </expression>

@@ -10,8 +10,8 @@
       oid="d48ec05b-fffd-4262-acd3-d9ff63365b62">
     <name>role-grouper-sysadmin</name>
     <assignment id="1">
-        <targetRef oid="c691e15a-f30b-4e15-8445-532db07ceeeb" type="RoleType"/>         <!--  metarole-generic-group -->
+        <targetRef oid="c691e15a-f30b-4e15-8445-532db07ceeeb" type="RoleType"/>         <!--  metarole-midpoint-group -->
     </assignment>
-    <subtype>generic-group</subtype>
+    <subtype>midpoint-group</subtype>
     <identifier>sysadmingroup</identifier>
 </role>
