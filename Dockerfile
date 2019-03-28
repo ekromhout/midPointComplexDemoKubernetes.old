@@ -16,7 +16,8 @@ RUN yum -y install \
 	libcurl \
 	&& yum clean -y all
 
-RUN cd /etc/httpd/conf.d/ \
+RUN rm /etc/shibboleth/sp-signing-key.pem /etc/shibboleth/sp-signing-cert.pem  /etc/shibboleth/sp-encrypt-key.pem /etc/shibboleth/sp-encrypt-cert.pem\
+    && cd /etc/httpd/conf.d/ \
     && rm -f autoindex.conf ssl.conf userdir.conf welcome.conf
 
 COPY container_files/supervisor/supervisord.conf /etc/supervisor/supervisord.conf

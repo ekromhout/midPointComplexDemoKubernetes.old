@@ -42,7 +42,8 @@ services:
     secrets:
      - mp_database_password.txt
      - mp_keystore_password.txt
-     - mp_sp-key.pem
+     - mp_sp-encrypt-key.pem
+     - mp_sp-signing-key.pem
      - mp_host-key.pem
     volumes:
      - midpoint_home:/opt/midpoint/var
@@ -59,8 +60,11 @@ services:
        source: ./configs-and-secrets/midpoint/shibboleth/idp-metadata.xml
        target: /etc/shibboleth/idp-metadata.xml
      - type: bind
-       source: ./configs-and-secrets/midpoint/shibboleth/sp-cert.pem
-       target: /etc/shibboleth/sp-cert.pem
+       source: ./configs-and-secrets/midpoint/shibboleth/sp-signing-cert.pem
+       target: /etc/shibboleth/sp-signing-cert.pem
+     - type: bind
+       source: ./configs-and-secrets/midpoint/shibboleth/sp-encrypt-cert.pem
+       target: /etc/shibboleth/sp-encrypt-cert.pem
 
   directory:
     build: ./directory/
@@ -89,14 +93,16 @@ networks:
     driver: bridge
 
 secrets:
+  mp_host-key.pem:
+    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
+  mp_sp-signing-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-signing-key.pem
+  mp_sp-encrypt-key.pem:
+    file: ./configs-and-secrets/midpoint/shibboleth/sp-encrypt-key.pem
   mp_database_password.txt:
     file: ./configs-and-secrets/midpoint/application/database_password.txt
   mp_keystore_password.txt:
-    file: ./configs-and-secrets/midpoint/application/keystore_password.txt
-  mp_host-key.pem:
-    file: ./configs-and-secrets/midpoint/httpd/host-key.pem
-  mp_sp-key.pem:
-    file: ./configs-and-secrets/midpoint/shibboleth/sp-key.pem
+    file: ./configs-and-secrets/midpoint/application/keystore_password.txt 
     
 volumes:
   midpoint_mysql:
