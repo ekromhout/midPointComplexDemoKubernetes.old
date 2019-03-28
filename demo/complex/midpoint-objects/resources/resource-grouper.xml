@@ -38,7 +38,7 @@
 	</connectorRef>
 	<connectorConfiguration>
 		<icfc:configurationProperties>
-			<rest:baseUrl>http://grouper_ws:8080</rest:baseUrl>
+			<rest:baseUrl>https://grouper-ws:443</rest:baseUrl>
 			<rest:username>banderson</rest:username>
 			<rest:password>password</rest:password>
 			<rest:superGroup>etc:midpointGroups</rest:superGroup>
