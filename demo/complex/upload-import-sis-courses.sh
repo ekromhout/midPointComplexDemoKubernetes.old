@@ -14,4 +14,4 @@ function upload () {
   fi
 }
 
-upload midpoint-objects-manual/tasks/task-import-sis-persons.xml
+upload midpoint-objects-manual/tasks/task-import-sis-courses.xml
