@@ -22,6 +22,7 @@ load ../../../library
 }
 
 @test "030 Check health (midPoint)" {
+#    docker logs shibboleth_midpoint_server_1
     check_health
 }
 
