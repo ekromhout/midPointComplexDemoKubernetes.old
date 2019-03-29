@@ -7,9 +7,10 @@
       xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3" 
       xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" 
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-      oid="fecae27b-d1d3-40ae-95fa-8f7e44e2ee70">
-    <name>metarole-affiliation</name>
+      oid="1c7beff4-cdf6-4e9f-b54c-79d0766f6fbe">
+    <name>metarole-mailing-list</name>
     <inducement id="1">
-        <targetRef oid="1d7c0e3a-4456-409c-9f50-95407b2eb785" relation="org:default" type="c:OrgType" />     <!-- affiliations -->
+        <targetRef oid="d81fb46c-20c7-44d3-8402-fef404ea1264" relation="org:default" type="c:OrgType" />     <!-- mailing-lists -->
     </inducement>
+
 </role>

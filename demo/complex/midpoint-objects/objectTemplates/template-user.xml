@@ -5,6 +5,15 @@
         <strength>strong</strength>
         <source>
             <path>extension/grouperGroup</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            !(grouperGroup ==~ /ref:affiliation:.*/) &amp;&amp; !(grouperGroup ==~ /app:mailinglist:.*/)
+                        </code>
+                    </script>
+                </condition>
+            </set>
         </source>
         <expression>
             <assignmentTargetSearch>
@@ -15,7 +24,7 @@
                         <expression>
                             <script>
                                 <code>
-                                    grouperGroup
+                                    'generic_' + grouperGroup
                                 </code>
                             </script>
                         </expression>
@@ -33,7 +42,7 @@
                         <expression>
                             <script>
                                 <code>
-                                    grouperGroup
+                                    'generic_' + grouperGroup
                                 </code>
                             </script>
                         </expression>
@@ -56,6 +65,146 @@
                     <script>
                         <code>
                             assignment?.subtype.contains('generic-group')
+                        </code>
+                    </script>
+                </condition>
+            </set>
+        </target>
+    </mapping>
+    <mapping>
+        <strength>strong</strength>
+        <source>
+            <path>extension/grouperGroup</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            grouperGroup ==~ /app:mailinglist:.*/
+                        </code>
+                    </script>
+                </condition>
+            </set>
+        </source>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>OrgType</targetType>
+                <filter>
+                    <q:equal>
+                        <q:path>name</q:path>                       
+                        <expression>
+                            <script>
+                                <code>
+                                    'mailinglist_' + grouperGroup.substring(16)
+                                </code>
+                            </script>
+                        </expression>
+                    </q:equal>
+                </filter>
+                <assignmentProperties>
+                    <subtype>mailing-list</subtype>
+                </assignmentProperties>
+                <createOnDemand>true</createOnDemand>
+                <populateObject>
+                    <populateItem>
+                        <target>
+                            <path>name</path>
+                        </target>
+                        <expression>
+                            <script>
+                                <code>
+                                    'mailinglist_' + grouperGroup.substring(16)
+                                </code>
+                            </script>
+                        </expression>
+                    </populateItem>
+                    <populateItem>
+                        <target>
+                            <path>subtype</path>
+                        </target>
+                        <expression>
+                            <value>mailing-list</value>
+                        </expression>
+                    </populateItem>
+                </populateObject>
+            </assignmentTargetSearch>       
+        </expression>
+        <target>
+            <path>assignment</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            assignment?.subtype.contains('mailing-list')
+                        </code>
+                    </script>
+                </condition>
+            </set>
+        </target>
+    </mapping>
+    <mapping>
+        <strength>strong</strength>
+        <source>
+            <path>extension/grouperGroup</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            grouperGroup ==~ /ref:affiliation:.*/
+                        </code>
+                    </script>
+                </condition>
+            </set>
+        </source>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>OrgType</targetType>
+                <filter>
+                    <q:equal>
+                        <q:path>name</q:path>                       
+                        <expression>
+                            <script>
+                                <code>
+                                    'affiliation_' + grouperGroup.substring(16)
+                                </code>
+                            </script>
+                        </expression>
+                    </q:equal>
+                </filter>
+                <assignmentProperties>
+                    <subtype>affiliation</subtype>
+                </assignmentProperties>
+                <createOnDemand>true</createOnDemand>
+                <populateObject>
+                    <populateItem>
+                        <target>
+                            <path>name</path>
+                        </target>
+                        <expression>
+                            <script>
+                                <code>
+                                    'affiliation_' + grouperGroup.substring(16)
+                                </code>
+                            </script>
+                        </expression>
+                    </populateItem>
+                    <populateItem>
+                        <target>
+                            <path>subtype</path>
+                        </target>
+                        <expression>
+                            <value>affiliation</value>
+                        </expression>
+                    </populateItem>
+                </populateObject>
+            </assignmentTargetSearch>       
+        </expression>
+        <target>
+            <path>assignment</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            assignment?.subtype.contains('affiliation')
                         </code>
                     </script>
                 </condition>

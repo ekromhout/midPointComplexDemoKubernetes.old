@@ -105,6 +105,11 @@
          <subtype>course</subtype>
          <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="d35bdec6-643b-41d8-ad5d-8eeb701169d1" relation="org:default" type="tns:ObjectTemplateType"/>
       </defaultObjectPolicyConfiguration>
+      <defaultObjectPolicyConfiguration id="110">
+         <type>OrgType</type>
+         <subtype>mailing-list</subtype>
+         <objectTemplateRef xmlns:tns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" oid="be84a39a-c004-490b-9b78-a871b837f6df" relation="org:default" type="tns:ObjectTemplateType"/>
+      </defaultObjectPolicyConfiguration>
       <defaultObjectPolicyConfiguration id="100">
          <type>OrgType</type>
          <subtype>generic-group</subtype>

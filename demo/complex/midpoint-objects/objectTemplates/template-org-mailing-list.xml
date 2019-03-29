@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<objectTemplate xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+    oid="be84a39a-c004-490b-9b78-a871b837f6df">
+    <name>template-org-mailing-list</name>
+    <mapping>
+        <strength>strong</strength>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>RoleType</targetType>
+                <oid>1c7beff4-cdf6-4e9f-b54c-79d0766f6fbe</oid>     <!--  metarole-mailing-list -->
+            </assignmentTargetSearch>
+        </expression>
+        <target>
+            <path>assignment</path>
+        </target>
+    </mapping>
+    
+</objectTemplate>

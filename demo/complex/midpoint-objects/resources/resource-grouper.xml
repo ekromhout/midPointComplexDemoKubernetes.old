@@ -43,8 +43,10 @@
 			<rest:password>password</rest:password>
 			<rest:superGroup>etc:midpointGroups</rest:superGroup>
 			<rest:groupIncludePattern>midpoint:.*</rest:groupIncludePattern>
-			<rest:groupIncludePattern>ref:.*</rest:groupIncludePattern>
-			<rest:groupExcludePattern>ref:.*_(includes|excludes|systemOfRecord|systemOfRecordAndIncludes)</rest:groupExcludePattern>
+			<rest:groupIncludePattern>app:.*</rest:groupIncludePattern>
+			<rest:groupIncludePattern>test:.*</rest:groupIncludePattern>
+			<rest:groupIncludePattern>ref:affiliation:.*</rest:groupIncludePattern>
+			<rest:groupExcludePattern>.*_(includes|excludes|systemOfRecord|systemOfRecordAndIncludes)</rest:groupExcludePattern>
 			<rest:subjectSource>ldap</rest:subjectSource>
 			<rest:groupSource>g:gsa</rest:groupSource>
 			<rest:ignoreSslValidation>true</rest:ignoreSslValidation>
@@ -76,8 +78,8 @@
 
 						parameters = [
 							superGroup: 'etc:midpointGroups',
-							groupIncludePattern: [ 'midpoint:.*', 'ref:.*' ],
-							groupExcludePattern: [ 'ref:.*_(includes|excludes|systemOfRecord|systemOfRecordAndIncludes)' ],
+							groupIncludePattern: [ 'midpoint:.*', 'app:.*', 'test:.*', 'ref:affiliation:.*' ],
+							groupExcludePattern: [ '.*_(includes|excludes|systemOfRecord|systemOfRecordAndIncludes)' ],
 							relevantSourceId: 'ldap'
 						]
 
@@ -124,6 +126,17 @@
 				<ref>icfs:name</ref>
 				<inbound>
 			                <strength>strong</strength>
+					<expression>
+						<script>
+							<code>
+								switch (input) {
+									case ~/ref:affiliation:.*/: return 'affiliation_' + input.substring(16)
+									case ~/app:mailinglist:.*/: return 'mailinglist_' + input.substring(16)
+									default: return 'generic_' + input
+								}
+							</code>
+						</script>
+					</expression>
 					<target>
 						<path>name</path>
 					</target>
@@ -131,7 +144,15 @@
 				<inbound>
 			                <strength>strong</strength>
 					<expression>
-						<value>generic-group</value>
+						<script>
+							<code>
+								switch (input) {
+									case ~/ref:affiliation:.*/: return 'affiliation'
+									case ~/app:mailinglist:.*/: return 'mailing-list'
+									default: return 'generic-group'
+								}
+							</code>
+						</script>
 					</expression>
 					<target>
 						<path>subtype</path>
@@ -190,9 +211,16 @@
 				<q:equal>
 					<q:path>name</q:path>
 					<expression>
-						<path>
-							$account/attributes/name
-						</path>
+						<script>
+							<code>
+								def name = basic.getAttributeValue(shadow, 'http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3', 'name')
+                                                                switch (name) {
+                                                                        case ~/ref:affiliation:.*/: return 'affiliation_' + name.substring(16)
+                                                                        case ~/app:mailinglist:.*/: return 'mailinglist_' + name.substring(16)
+                                                                        default: return 'generic_' + name
+                                                                }
+							</code>
+						</script>
 					</expression>
 				</q:equal>
 			</correlation>

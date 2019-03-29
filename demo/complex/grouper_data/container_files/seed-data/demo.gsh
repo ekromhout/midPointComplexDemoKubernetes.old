@@ -73,7 +73,16 @@ attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperL
 attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
 
 midpointGroupsGroup = new GroupSave(gs).assignName("etc:midpointGroups").assignCreateParentStemsIfNotExist(true).save();
-testGroup = new GroupSave(gs).assignName("midpoint:test").assignCreateParentStemsIfNotExist(true).save();
 
-s = SubjectFinder.findById(testGroup.getId(), 'group', 'g:gsa');
-midpointGroupsGroup.addMember(s, false);
+testGroup = new GroupSave(gs).assignName("midpoint:test").assignCreateParentStemsIfNotExist(true).save();
+chess = new GroupSave(gs).assignName("app:mailinglist:chess").assignCreateParentStemsIfNotExist(true).save()
+idmfans = new GroupSave(gs).assignName("app:mailinglist:idm-fans").assignCreateParentStemsIfNotExist(true).save()
+cs = new GroupSave(gs).assignName("app:cs").assignCreateParentStemsIfNotExist(true).save()
+volunteers = new GroupSave(gs).assignName("test:volunteers").assignCreateParentStemsIfNotExist(true).save()
+
+midpointGroupsGroup.addMember(SubjectFinder.findById(testGroup.getId(), 'group', 'g:gsa'), false)
+midpointGroupsGroup.addMember(SubjectFinder.findById(chess.getId(), 'group', 'g:gsa'), false)
+midpointGroupsGroup.addMember(SubjectFinder.findById(idmfans.getId(), 'group', 'g:gsa'), false)
+midpointGroupsGroup.addMember(SubjectFinder.findById(cs.getId(), 'group', 'g:gsa'), false)
+midpointGroupsGroup.addMember(SubjectFinder.findById(volunteers.getId(), 'group', 'g:gsa'), false)
+
