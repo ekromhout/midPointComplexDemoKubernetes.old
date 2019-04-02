@@ -190,35 +190,11 @@
 				</attribute>
                 <association>
                     <tolerant>false</tolerant>
-                    <ref>ri:affiliationGroup</ref>
+                    <ref>ri:group</ref>
                     <kind>entitlement</kind>
                     <intent>affiliation-group</intent>
-                    <direction>objectToSubject</direction>
-                    <associationAttribute>ri:uniqueMember</associationAttribute>
-                    <valueAttribute>ri:dn</valueAttribute>
-                </association>
-                <association>
-                    <tolerant>false</tolerant>
-                    <ref>ri:courseGroup</ref>
-                    <kind>entitlement</kind>
                     <intent>course-group</intent>
-                    <direction>objectToSubject</direction>
-                    <associationAttribute>ri:uniqueMember</associationAttribute>
-                    <valueAttribute>ri:dn</valueAttribute>
-                </association>
-                <association>
-                    <tolerant>false</tolerant>
-                    <ref>ri:midpointGroup</ref>
-                    <kind>entitlement</kind>
                     <intent>midpoint-group</intent>
-                    <direction>objectToSubject</direction>
-                    <associationAttribute>ri:uniqueMember</associationAttribute>
-                    <valueAttribute>ri:dn</valueAttribute>
-                </association>
-                <association>
-                    <tolerant>false</tolerant>
-                    <ref>ri:genericGroup</ref>
-                    <kind>entitlement</kind>
                     <intent>generic-group</intent>
                     <direction>objectToSubject</direction>
                     <associationAttribute>ri:uniqueMember</associationAttribute>
