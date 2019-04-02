@@ -38,5 +38,17 @@
         </construction>
         <order>2</order>
     </inducement>
-    
+    <inducement id="4">
+        <construction>
+            <resourceRef oid="e417225d-8a08-46f3-9b5d-624990b52386" relation="org:default" type="c:ResourceType" />     <!-- Faculty CSV -->
+        </construction>
+        <order>2</order>
+        <condition>
+            <expression>
+                <script>
+                    <code>assignmentPath[0].target.identifier == 'faculty'</code>
+                </script>
+            </expression>
+        </condition>
+    </inducement>
 </role>

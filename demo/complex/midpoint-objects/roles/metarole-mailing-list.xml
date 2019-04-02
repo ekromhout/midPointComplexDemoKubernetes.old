@@ -39,4 +39,21 @@
     <inducement id="3">
         <targetRef oid="d81fb46c-20c7-44d3-8402-fef404ea1264" relation="org:default" type="c:OrgType" />     <!-- mailing-lists -->
     </inducement>
+    <inducement id="4">
+        <construction>
+            <resourceRef oid="fe805d13-481b-43ec-97d8-9d2df72cd38e" relation="org:default" type="c:ResourceType" />     <!-- Mailing lists CSV -->
+            <attribute>
+                <c:ref>ri:lists</c:ref>
+                <outbound>
+                    <strength>strong</strength>
+                    <expression>
+                        <script>
+                            <code>assignmentPath[0].target.identifier?.substring(16)</code>
+                        </script>
+                    </expression>
+                </outbound>
+            </attribute>
+        </construction>
+        <order>2</order>
+    </inducement>
 </role>
