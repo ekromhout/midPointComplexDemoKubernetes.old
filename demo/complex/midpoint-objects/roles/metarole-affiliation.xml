@@ -12,4 +12,31 @@
     <inducement id="1">
         <targetRef oid="1d7c0e3a-4456-409c-9f50-95407b2eb785" relation="org:default" type="c:OrgType" />     <!-- affiliations -->
     </inducement>
+    <inducement id="2">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <kind>entitlement</kind>
+            <intent>affiliation-group</intent>
+        </construction>
+    </inducement>
+    <inducement id="3">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <association>
+                <c:ref>ri:affiliationGroup</c:ref>
+                <outbound>
+                    <expression>
+                        <associationFromLink>
+                            <projectionDiscriminator>
+                                <kind>entitlement</kind>
+                                <intent>affiliation-group</intent>
+                            </projectionDiscriminator>
+                        </associationFromLink>
+                    </expression>
+                </outbound>
+            </association>
+        </construction>
+        <order>2</order>
+    </inducement>
+    
 </role>

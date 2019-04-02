@@ -190,10 +190,35 @@
 				</attribute>
                 <association>
                     <tolerant>false</tolerant>
-                    <ref>ri:group</ref>
+                    <ref>ri:affiliationGroup</ref>
+                    <kind>entitlement</kind>
+                    <intent>affiliation-group</intent>
+                    <direction>objectToSubject</direction>
+                    <associationAttribute>ri:uniqueMember</associationAttribute>
+                    <valueAttribute>ri:dn</valueAttribute>
+                </association>
+                <association>
+                    <tolerant>false</tolerant>
+                    <ref>ri:courseGroup</ref>
                     <kind>entitlement</kind>
                     <intent>course-group</intent>
+                    <direction>objectToSubject</direction>
+                    <associationAttribute>ri:uniqueMember</associationAttribute>
+                    <valueAttribute>ri:dn</valueAttribute>
+                </association>
+                <association>
+                    <tolerant>false</tolerant>
+                    <ref>ri:midpointGroup</ref>
+                    <kind>entitlement</kind>
                     <intent>midpoint-group</intent>
+                    <direction>objectToSubject</direction>
+                    <associationAttribute>ri:uniqueMember</associationAttribute>
+                    <valueAttribute>ri:dn</valueAttribute>
+                </association>
+                <association>
+                    <tolerant>false</tolerant>
+                    <ref>ri:genericGroup</ref>
+                    <kind>entitlement</kind>
                     <intent>generic-group</intent>
                     <direction>objectToSubject</direction>
                     <associationAttribute>ri:uniqueMember</associationAttribute>
@@ -219,6 +244,44 @@
                 </credentials>
 			</objectType>
             
+            <objectType>
+                <kind>entitlement</kind>
+                <intent>affiliation-group</intent>
+                <displayName>LDAP Group for affiliations</displayName>
+                <objectClass>ri:groupOfUniqueNames</objectClass>
+                <attribute>
+                    <ref>ri:uniqueMember</ref>
+                    <matchingRule>mr:distinguishedName</matchingRule>
+                    <fetchStrategy>minimal</fetchStrategy>
+                </attribute>
+                <attribute>
+                    <ref>ri:dn</ref>
+                    <matchingRule>mr:stringIgnoreCase</matchingRule>
+                    <outbound>
+                        <strength>strong</strength>
+                        <source>
+                            <path>identifier</path>
+                        </source>
+                        <expression>
+                            <script>
+                                <code>
+                                    basic.composeDnWithSuffix('cn', identifier, 'ou=Affiliations,ou=Groups,dc=internet2,dc=edu')
+                                </code>
+                            </script>
+                        </expression>
+                    </outbound>
+                </attribute>
+                <attribute>
+                    <ref>ri:cn</ref>
+                    <matchingRule>mr:stringIgnoreCase</matchingRule>
+                    <outbound>
+                        <strength>weak</strength>
+                        <source>
+                            <path>identifier</path>
+                        </source>
+                    </outbound>
+                </attribute>
+            </objectType>
             <objectType>
                 <kind>entitlement</kind>
                 <intent>course-group</intent>
@@ -377,6 +440,59 @@
 					</action>
 				</reaction>
 			</objectSynchronization>
+            <objectSynchronization>
+                <name>affiliation-group sync</name>
+                <objectClass>ri:groupOfUniqueNames</objectClass>
+                <kind>entitlement</kind>
+                <intent>affiliation-group</intent>
+                <focusType>OrgType</focusType>
+                <enabled>true</enabled>
+                <condition>
+                    <script>
+                        <code>
+                            import javax.naming.ldap.*
+                            dn = new LdapName(basic.getAttributeValue(account, 'http://midpoint.evolveum.com/xml/ns/public/resource/instance-3', 'dn'))
+                            log.info('affiliation-group sync: considering {}; dn.size={}, dn.startsWith={}', dn, dn.size(), dn.startsWith(new LdapName('ou=Affiliations,ou=Groups,dc=internet2,dc=edu')))
+                            dn.size() == 5 &amp;&amp; dn.startsWith(new LdapName('ou=Affiliations,ou=Groups,dc=internet2,dc=edu'))
+                        </code>
+                    </script>
+                </condition>
+                <correlation>
+                    <q:and>
+                        <q:equal>
+                            <q:path>identifier</q:path>
+                            <expression>
+                                <path>$shadow/attributes/ri:cn</path>
+                            </expression>
+                        </q:equal>
+                        <q:equal>
+                            <q:path>subtype</q:path>
+                            <q:value>affiliation</q:value>
+                        </q:equal>
+                    </q:and>
+                </correlation>
+                <reaction>
+                    <situation>linked</situation>
+                    <synchronize>true</synchronize>
+                </reaction>
+                <reaction>
+                    <situation>deleted</situation>
+                    <synchronize>true</synchronize>
+                    <action>
+                        <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#unlink</handlerUri>
+                    </action>
+                </reaction>
+                <reaction>
+                    <situation>unlinked</situation>
+                    <synchronize>true</synchronize>
+                    <action>
+                        <handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#link</handlerUri>
+                    </action>
+                </reaction>
+                <reaction>
+                    <situation>unmatched</situation>
+                </reaction>
+            </objectSynchronization>
             <objectSynchronization>
                 <name>course-group sync</name>
                 <objectClass>ri:groupOfUniqueNames</objectClass>

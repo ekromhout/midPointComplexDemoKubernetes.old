@@ -55,6 +55,18 @@
                             <value>generic-group</value>
                         </expression>
                     </populateItem>
+                    <populateItem>
+                        <expression>
+                            <script>
+                                <code>
+                                    grouperGroup
+                                </code>
+                            </script>
+                        </expression>
+                        <target>
+                            <path>identifier</path>
+                        </target>
+                    </populateItem>
                 </populateObject>
             </assignmentTargetSearch>       
         </expression>
@@ -125,6 +137,18 @@
                             <value>mailing-list</value>
                         </expression>
                     </populateItem>
+                    <populateItem>
+                        <expression>
+                            <script>
+                                <code>
+                                    grouperGroup
+                                </code>
+                            </script>
+                        </expression>
+                        <target>
+                            <path>identifier</path>
+                        </target>
+                    </populateItem>
                 </populateObject>
             </assignmentTargetSearch>       
         </expression>
@@ -194,6 +218,18 @@
                         <expression>
                             <value>affiliation</value>
                         </expression>
+                    </populateItem>
+                    <populateItem>
+                        <expression>
+                            <script>
+                                <code>
+                                    grouperGroup.substring(16)
+                                </code>
+                            </script>
+                        </expression>
+                        <target>
+                            <path>identifier</path>
+                        </target>
                     </populateItem>
                 </populateObject>
             </assignmentTargetSearch>       

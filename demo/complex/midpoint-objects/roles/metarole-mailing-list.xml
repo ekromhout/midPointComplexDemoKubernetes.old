@@ -10,7 +10,33 @@
       oid="1c7beff4-cdf6-4e9f-b54c-79d0766f6fbe">
     <name>metarole-mailing-list</name>
     <inducement id="1">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <kind>entitlement</kind>
+            <intent>generic-group</intent>
+        </construction>
+        <order>1</order>
+    </inducement>
+    <inducement id="2">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <association>
+                <c:ref>ri:genericGroup</c:ref>
+                <outbound>
+                    <expression>
+                        <associationFromLink>
+                            <projectionDiscriminator>
+                                <kind>entitlement</kind>
+                                <intent>generic-group</intent>
+                            </projectionDiscriminator>
+                        </associationFromLink>
+                    </expression>
+                </outbound>
+            </association>
+        </construction>
+        <order>2</order>
+    </inducement>
+    <inducement id="3">
         <targetRef oid="d81fb46c-20c7-44d3-8402-fef404ea1264" relation="org:default" type="c:OrgType" />     <!-- mailing-lists -->
     </inducement>
-
 </role>
