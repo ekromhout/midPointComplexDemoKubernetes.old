@@ -5,54 +5,43 @@
         <strength>strong</strength>
         <source>
             <path>extension/grouperGroup</path>
-            <set>
-                <condition>
-                    <script>
-                        <code>
-                            !(grouperGroup ==~ /ref:affiliation:.*/) &amp;&amp; !(grouperGroup ==~ /app:mailinglist:.*/)
-                        </code>
-                    </script>
-                </condition>
-            </set>
         </source>
         <expression>
             <assignmentTargetSearch>
                 <targetType>OrgType</targetType>
                 <filter>
                     <q:equal>
-                        <q:path>name</q:path>                       
+                        <q:path>extension/grouperName</q:path>                       
                         <expression>
                             <script>
                                 <code>
-                                    'generic_' + grouperGroup
+                                    grouperGroup
                                 </code>
                             </script>
                         </expression>
                     </q:equal>
                 </filter>
                 <assignmentProperties>
-                    <subtype>generic-group</subtype>
+                    <subtype>grouper-group</subtype>
                 </assignmentProperties>
                 <createOnDemand>true</createOnDemand>
                 <populateObject>
                     <populateItem>
                         <target>
-                            <path>name</path>
+                            <path>subtype</path>
                         </target>
                         <expression>
                             <script>
                                 <code>
-                                    'generic_' + grouperGroup
+                                    switch (grouperGroup) {
+                                        case ~/ref:affiliation:.*/: return 'affiliation'
+                                        case ~/ref:dept:.*/: return 'department'
+                                        case ~/ref:course:.*/: return 'course'
+                                        case ~/app:mailinglist:.*/: return 'mailing-list'
+                                        default: return 'generic-group'
+                                    }
                                 </code>
                             </script>
-                        </expression>
-                    </populateItem>
-                    <populateItem>
-                        <target>
-                            <path>subtype</path>
-                        </target>
-                        <expression>
-                            <value>generic-group</value>
                         </expression>
                     </populateItem>
                     <populateItem>
@@ -64,7 +53,7 @@
                             </script>
                         </expression>
                         <target>
-                            <path>identifier</path>
+                            <path>extension/grouperName</path>
                         </target>
                     </populateItem>
                 </populateObject>
@@ -76,171 +65,7 @@
                 <condition>
                     <script>
                         <code>
-                            assignment?.subtype.contains('generic-group')
-                        </code>
-                    </script>
-                </condition>
-            </set>
-        </target>
-    </mapping>
-    <mapping>
-        <strength>strong</strength>
-        <source>
-            <path>extension/grouperGroup</path>
-            <set>
-                <condition>
-                    <script>
-                        <code>
-                            grouperGroup ==~ /app:mailinglist:.*/
-                        </code>
-                    </script>
-                </condition>
-            </set>
-        </source>
-        <expression>
-            <assignmentTargetSearch>
-                <targetType>OrgType</targetType>
-                <filter>
-                    <q:equal>
-                        <q:path>name</q:path>                       
-                        <expression>
-                            <script>
-                                <code>
-                                    'mailinglist_' + grouperGroup.substring(16)
-                                </code>
-                            </script>
-                        </expression>
-                    </q:equal>
-                </filter>
-                <assignmentProperties>
-                    <subtype>mailing-list</subtype>
-                </assignmentProperties>
-                <createOnDemand>true</createOnDemand>
-                <populateObject>
-                    <populateItem>
-                        <target>
-                            <path>name</path>
-                        </target>
-                        <expression>
-                            <script>
-                                <code>
-                                    'mailinglist_' + grouperGroup.substring(16)
-                                </code>
-                            </script>
-                        </expression>
-                    </populateItem>
-                    <populateItem>
-                        <target>
-                            <path>subtype</path>
-                        </target>
-                        <expression>
-                            <value>mailing-list</value>
-                        </expression>
-                    </populateItem>
-                    <populateItem>
-                        <expression>
-                            <script>
-                                <code>
-                                    grouperGroup
-                                </code>
-                            </script>
-                        </expression>
-                        <target>
-                            <path>identifier</path>
-                        </target>
-                    </populateItem>
-                </populateObject>
-            </assignmentTargetSearch>       
-        </expression>
-        <target>
-            <path>assignment</path>
-            <set>
-                <condition>
-                    <script>
-                        <code>
-                            assignment?.subtype.contains('mailing-list')
-                        </code>
-                    </script>
-                </condition>
-            </set>
-        </target>
-    </mapping>
-    <mapping>
-        <strength>strong</strength>
-        <source>
-            <path>extension/grouperGroup</path>
-            <set>
-                <condition>
-                    <script>
-                        <code>
-                            grouperGroup ==~ /ref:affiliation:.*/
-                        </code>
-                    </script>
-                </condition>
-            </set>
-        </source>
-        <expression>
-            <assignmentTargetSearch>
-                <targetType>OrgType</targetType>
-                <filter>
-                    <q:equal>
-                        <q:path>name</q:path>                       
-                        <expression>
-                            <script>
-                                <code>
-                                    'affiliation_' + grouperGroup.substring(16)
-                                </code>
-                            </script>
-                        </expression>
-                    </q:equal>
-                </filter>
-                <assignmentProperties>
-                    <subtype>affiliation</subtype>
-                </assignmentProperties>
-                <createOnDemand>true</createOnDemand>
-                <populateObject>
-                    <populateItem>
-                        <target>
-                            <path>name</path>
-                        </target>
-                        <expression>
-                            <script>
-                                <code>
-                                    'affiliation_' + grouperGroup.substring(16)
-                                </code>
-                            </script>
-                        </expression>
-                    </populateItem>
-                    <populateItem>
-                        <target>
-                            <path>subtype</path>
-                        </target>
-                        <expression>
-                            <value>affiliation</value>
-                        </expression>
-                    </populateItem>
-                    <populateItem>
-                        <expression>
-                            <script>
-                                <code>
-                                    grouperGroup.substring(16)
-                                </code>
-                            </script>
-                        </expression>
-                        <target>
-                            <path>identifier</path>
-                        </target>
-                    </populateItem>
-                </populateObject>
-            </assignmentTargetSearch>       
-        </expression>
-        <target>
-            <path>assignment</path>
-            <set>
-                <condition>
-                    <script>
-                        <code>
-                            assignment?.subtype.contains('affiliation')
+                            assignment?.subtype.contains('grouper-group')
                         </code>
                     </script>
                 </condition>
