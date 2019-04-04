@@ -127,36 +127,8 @@
 				<ref>icfs:name</ref>
 				<inbound>
 			        <strength>strong</strength>
-					<expression>
-						<script>
-							<code>
-								switch (input) {
-									case ~/ref:affiliation:.*/: return 'affiliation_' + input.substring(16)
-									case ~/app:mailinglist:.*/: return 'mailinglist_' + input.substring(16)
-									default: return 'generic_' + input
-								}
-							</code>
-						</script>
-					</expression>
 					<target>
-						<path>name</path>
-					</target>
-				</inbound>
-				<inbound>
-			        <strength>strong</strength>
-					<expression>
-						<script>
-							<code>
-								switch (input) {
-									case ~/ref:affiliation:.*/: return 'affiliation'
-									case ~/app:mailinglist:.*/: return 'mailing-list'
-									default: return 'generic-group'
-								}
-							</code>
-						</script>
-					</expression>
-					<target>
-						<path>subtype</path>
+						<path>extension/grouperName</path>
 					</target>
 				</inbound>
                 <inbound>
@@ -164,16 +136,16 @@
                     <expression>
                         <script>
                             <code>
-                                if (input ==~ /ref:affiliation:.*/) {
-                                    input.substring(16)
-                                } else {
-                                    input
+                                switch (input) {
+                                    case ~/ref:affiliation:.*/: return 'affiliation'
+                                    case ~/app:mailinglist:.*/: return 'mailing-list'
+                                    default: return 'generic-group'
                                 }
                             </code>
                         </script>
                     </expression>
                     <target>
-                        <path>identifier</path>
+                        <path>subtype</path>
                     </target>
                 </inbound>
 			</attribute>
@@ -227,19 +199,12 @@
 			<focusType>OrgType</focusType>
 			<correlation>
 				<q:equal>
-					<q:path>name</q:path>
-					<expression>
-						<script>
-							<code>
-								def name = basic.getAttributeValue(shadow, 'http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3', 'name')
-                                                                switch (name) {
-                                                                        case ~/ref:affiliation:.*/: return 'affiliation_' + name.substring(16)
-                                                                        case ~/app:mailinglist:.*/: return 'mailinglist_' + name.substring(16)
-                                                                        default: return 'generic_' + name
-                                                                }
-							</code>
-						</script>
-					</expression>
+					<q:path>extension/grouperName</q:path>
+                    <expression>
+                        <path>
+                            $account/attributes/name
+                        </path>
+                    </expression>
 				</q:equal>
 			</correlation>
 			<reaction>

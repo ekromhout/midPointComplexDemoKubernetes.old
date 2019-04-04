@@ -10,6 +10,9 @@
       oid="ffa9eaec-9539-4d15-97aa-24cd5b92ca5b">
     <name>metarole-department</name>
     <inducement id="1">
+        <targetRef oid="bee44c51-2469-411d-bac7-695728e9c241" type="c:OrgType"/>            <!-- departments -->
+    </inducement>
+    <inducement id="2">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP for Grouper (i-data) -->
             <attribute>

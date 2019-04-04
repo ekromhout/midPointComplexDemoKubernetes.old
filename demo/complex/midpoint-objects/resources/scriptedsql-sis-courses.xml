@@ -72,54 +72,25 @@
                         <assignmentTargetSearch>
                             <targetType>OrgType</targetType>
                             <filter>
-                                <q:equal>
-                                    <q:path>name</q:path>                       
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'course_' + input
-                                            </code>
-                                        </script>
-                                    </expression>                       
-                                </q:equal>
+                                <q:and>
+                                    <q:equal>
+                                        <q:path>identifier</q:path>                       
+                                        <expression>
+                                            <script>
+                                                <code>
+                                                    input
+                                                </code>
+                                            </script>
+                                        </expression>                       
+                                    </q:equal>
+                                    <q:equal>
+                                        <q:path>subtype</q:path>
+                                        <q:value>course</q:value>
+                                    </q:equal>
+                                </q:and>
                             </filter>
                             <createOnDemand>true</createOnDemand>
                             <populateObject>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'course_' + input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>name</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>displayName</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <assignmentTargetSearch>
-                                            <targetType>OrgType</targetType>
-                                            <oid>225e9360-0639-40ba-8a31-7f31bef067be</oid>
-                                        </assignmentTargetSearch>
-                                    </expression>
-                                    <target>
-                                        <path>assignment</path>
-                                    </target>
-                                </populateItem>
                                 <populateItem>
                                     <expression>
                                         <script>

@@ -10,13 +10,16 @@
       oid="8aa99e7b-f7d3-4585-9800-14bab4d26a43">
     <name>metarole-course</name>
     <inducement id="1">
+        <targetRef oid="225e9360-0639-40ba-8a31-7f31bef067be" type="c:OrgType"/>            <!-- courses -->
+    </inducement>
+    <inducement id="2">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
             <kind>entitlement</kind>
             <intent>course-group</intent>
         </construction>
     </inducement>
-    <inducement id="2">
+    <inducement id="3">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
             <association>
@@ -35,7 +38,7 @@
         </construction>
         <order>2</order>
     </inducement>
-    <inducement id="3">
+    <inducement id="4">
         <construction>
             <strength>weak</strength>
             <resourceRef oid="a343fc2e-3954-4034-ba1a-2b72c21e577a" relation="org:default" type="c:ResourceType" />     <!-- CS CSV -->

@@ -176,6 +176,6 @@
             <color>purple</color>
             <authorization>http://midpoint.evolveum.com/xml/ns/public/security/authorization-ui-3#resources</authorization>
          </userDashboardLink>
-         <enableExperimentalFeatures>true</enableExperimentalFeatures>
+         <enableExperimentalFeatures>false</enableExperimentalFeatures>
       </adminGuiConfiguration>
    </systemConfiguration>

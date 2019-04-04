@@ -14,4 +14,29 @@
             <path>assignment</path>
         </target>
     </mapping>
+    <item>
+        <ref>name</ref>
+        <mapping>
+            <strength>strong</strength>
+            <source>
+                <path>identifier</path>
+            </source>
+            <expression>
+                <script>
+                    <code>
+                        'department_' + identifier
+                    </code>
+                </script>
+            </expression>
+        </mapping>
+    </item>
+    <item>
+        <ref>displayName</ref>
+        <mapping>
+            <strength>strong</strength>
+            <source>
+                <path>identifier</path>
+            </source>
+        </mapping>
+    </item>
 </objectTemplate>

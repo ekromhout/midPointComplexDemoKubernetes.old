@@ -10,6 +10,9 @@
       oid="48e231be-8474-4ed0-a85e-6acf4c5e8d52">
     <name>metarole-grouper-group</name>
     <inducement id="1">
+        <targetRef oid="1f339075-5b2f-4a18-9c98-451f3eb0d28d" relation="org:default" type="c:OrgType" />     <!-- groups -->
+    </inducement>
+    <inducement id="2">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
             <kind>entitlement</kind>
@@ -17,7 +20,7 @@
         </construction>
         <order>1</order>
     </inducement>
-    <inducement id="2">
+    <inducement id="3">
         <construction>
             <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
             <association>
@@ -35,9 +38,6 @@
             </association>
         </construction>
         <order>2</order>
-    </inducement>
-    <inducement id="3">
-        <targetRef oid="1f339075-5b2f-4a18-9c98-451f3eb0d28d" relation="org:default" type="c:OrgType" />     <!-- groups -->
     </inducement>
     <inducement id="4">
         <construction>

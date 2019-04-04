@@ -352,12 +352,12 @@
                         <strength>strong</strength>
                         <trace>true</trace>
                         <source>
-                            <path>identifier</path>
+                            <path>extension/grouperName</path>
                         </source>
                         <expression>
                             <script>
                                 <code>
-                                    basic.composeDnWithSuffix('cn', identifier, 'ou=generic,ou=Groups,dc=internet2,dc=edu')
+                                    basic.composeDnWithSuffix('cn', grouperName, 'ou=generic,ou=Groups,dc=internet2,dc=edu')
                                 </code>
                             </script>
                         </expression>
@@ -369,7 +369,7 @@
                     <outbound>
                         <strength>weak</strength>
                         <source>
-                            <path>identifier</path>
+                            <path>extension/grouperName</path>
                         </source>
                     </outbound>
                 </attribute>

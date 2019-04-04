@@ -154,54 +154,25 @@
                         <assignmentTargetSearch>
                             <targetType>OrgType</targetType>
                             <filter>
-                                <q:equal>
-                                    <q:path>name</q:path>                       
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'department_' + input
-                                            </code>
-                                        </script>
-                                    </expression>                       
-                                </q:equal>
+                                <q:and>
+                                    <q:equal>
+                                        <q:path>identifier</q:path>                       
+                                        <expression>
+                                            <script>
+                                                <code>
+                                                    input
+                                                </code>
+                                            </script>
+                                        </expression>                       
+                                    </q:equal>
+                                    <q:equal>
+                                        <q:path>subtype</q:path>
+                                        <q:value>department</q:value>
+                                    </q:equal>
+                                </q:and>
                             </filter>
                             <createOnDemand>true</createOnDemand>
                             <populateObject>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                'department_' + input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>name</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <script>
-                                            <code>
-                                                input
-                                            </code>
-                                        </script>
-                                    </expression>
-                                    <target>
-                                        <path>displayName</path>
-                                    </target>
-                                </populateItem>
-                                <populateItem>
-                                    <expression>
-                                        <assignmentTargetSearch>
-                                            <targetType>OrgType</targetType>
-                                            <oid>bee44c51-2469-411d-bac7-695728e9c241</oid>
-                                        </assignmentTargetSearch>
-                                    </expression>
-                                    <target>
-                                        <path>assignment</path>
-                                    </target>
-                                </populateItem>
                                 <populateItem>
                                     <expression>
                                         <script>
