@@ -2,7 +2,7 @@
 #  Building assumes midpoint-dist.tar.gz is present in the current directory.
 #
 
-FROM tier/shibboleth_sp
+FROM tier/shibboleth_sp:3.0.4_03122019
 
 MAINTAINER info@evolveum.com
 
