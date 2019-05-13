@@ -60,7 +60,9 @@ COPY container_files/mp-dir/ ${MP_DIR}/
 RUN echo 'Extracting midPoint archive...' \
  && tar xzf ${MP_DIR}/${MP_DIST_FILE} -C ${MP_DIR} --strip-components=1
 
-VOLUME ${MP_DIR}/var
+# Disabled because of wider compatibility issues (e.g. AWS)
+# TODO: consider all the consequences
+#VOLUME ${MP_DIR}/var
 
 # Repository parameters
 
