@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<objectTemplate xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3" oid="8098b124-c20c-4965-8adf-e528abedf7a4">
+    <name>User Template</name>
+    <mapping>
+        <strength>strong</strength>
+        <source>
+            <path>extension/grouperGroup</path>
+        </source>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>OrgType</targetType>
+                <filter>
+                    <q:equal>
+                        <q:path>extension/grouperName</q:path>                       
+                        <expression>
+                            <script>
+                                <code>
+                                    grouperGroup
+                                </code>
+                            </script>
+                        </expression>
+                    </q:equal>
+                </filter>
+                <assignmentProperties>
+                    <subtype>grouper-group</subtype>
+                </assignmentProperties>
+                <createOnDemand>true</createOnDemand>
+                <populateObject>
+                    <populateItem>
+                        <target>
+                            <path>subtype</path>
+                        </target>
+                        <expression>
+                            <script>
+                                <code>
+                                    switch (grouperGroup) {
+                                        case ~/ref:affiliation:.*/: return 'affiliation'
+                                        case ~/ref:dept:.*/: return 'department'
+                                        case ~/ref:course:.*/: return 'course'
+                                        case ~/app:mailinglist:.*/: return 'mailing-list'
+                                        default: return 'generic-group'
+                                    }
+                                </code>
+                            </script>
+                        </expression>
+                    </populateItem>
+                    <populateItem>
+                        <expression>
+                            <script>
+                                <code>
+                                    grouperGroup
+                                </code>
+                            </script>
+                        </expression>
+                        <target>
+                            <path>extension/grouperName</path>
+                        </target>
+                    </populateItem>
+                </populateObject>
+            </assignmentTargetSearch>       
+        </expression>
+        <target>
+            <path>assignment</path>
+            <set>
+                <condition>
+                    <script>
+                        <code>
+                            assignment?.subtype.contains('grouper-group')
+                        </code>
+                    </script>
+                </condition>
+            </set>
+        </target>
+    </mapping>
+</objectTemplate>

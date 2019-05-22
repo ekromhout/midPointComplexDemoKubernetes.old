@@ -1,0 +1,111 @@
+<c:resource oid="a343fc2e-3954-4034-ba1a-2b72c21e577a" xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+	xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3" xmlns:my="http://myself.me/schemas/whatever"
+	xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3" xmlns:icfc="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/connector-schema-3">
+
+	<c:name>Target: Computer science portal (CSV)</c:name>
+
+	<connectorRef type="ConnectorType">
+		<filter>
+			<q:equal>
+				<q:path>c:connectorType</q:path>
+				<q:value>com.evolveum.polygon.connector.csv.CsvConnector</q:value>
+			</q:equal>
+		</filter>
+	</connectorRef>
+
+	<connectorConfiguration xmlns:icfi="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/bundle/com.evolveum.polygon.connector-csv/com.evolveum.polygon.connector.csv.CsvConnector">
+					   
+		<icfc:configurationProperties>
+			<icfi:filePath>/opt/midpoint/var/cs-portal.csv</icfi:filePath>
+			<icfi:encoding>utf-8</icfi:encoding>
+			<icfi:fieldDelimiter>,</icfi:fieldDelimiter>
+			<icfi:multivalueDelimiter>;</icfi:multivalueDelimiter>
+			<icfi:uniqueAttribute>identifier</icfi:uniqueAttribute>
+		</icfc:configurationProperties>
+
+	</connectorConfiguration>
+
+	<schemaHandling>
+		<objectType>
+			<displayName>Default Account</displayName>
+			<default>true</default>
+			<objectClass>ri:AccountObjectClass</objectClass>
+			<attribute>
+				<ref>ri:identifier</ref>
+				<outbound>
+                    <strength>strong</strength>
+					<source>
+						<path>name</path>
+					</source>
+				</outbound>
+			</attribute>
+			<attribute>
+				<ref>ri:name</ref>
+				<outbound>
+                    <strength>strong</strength>
+					<source>
+						<path>fullName</path>
+					</source>
+				</outbound>
+			</attribute>
+			<attribute>
+				<ref>ri:mail</ref>
+				<outbound>
+                    <strength>strong</strength>
+					<source>
+						<path>emailAddress</path>
+					</source>
+				</outbound>
+			</attribute>
+			<attribute>
+				<ref>ri:courses</ref>
+                <limitations>
+                    <maxOccurs>unbounded</maxOccurs>
+                </limitations>
+                <tolerant>false</tolerant>
+                <!-- outbound is in metarole-course -->
+			</attribute>
+		</objectType>
+	</schemaHandling>
+	<capabilities xmlns:cap="http://midpoint.evolveum.com/xml/ns/public/resource/capabilities-3">
+		<configured>
+		</configured>
+	</capabilities>
+	<synchronization>
+		<objectSynchronization>
+			<enabled>true</enabled>
+			<correlation>
+				<q:equal>
+					<q:path>name</q:path>
+					<expression>
+						<path>
+							$account/attributes/identifier
+						</path>
+					</expression>
+				</q:equal>
+			</correlation>
+			<reaction>
+				<situation>linked</situation>
+				<action>
+					<handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#modifyUser</handlerUri>
+				</action>
+			</reaction>
+			<reaction>
+				<situation>deleted</situation>
+				<action>
+					<handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#unlinkAccount</handlerUri>
+				</action>
+			</reaction>
+			<reaction>
+				<situation>unlinked</situation>
+				<action>
+					<handlerUri>http://midpoint.evolveum.com/xml/ns/public/model/action-3#linkAccount</handlerUri>
+				</action>
+			</reaction>
+			<reaction>
+				<situation>unmatched</situation>
+			</reaction>
+		</objectSynchronization>
+	</synchronization>
+</c:resource>

@@ -1,0 +1,59 @@
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" 
+      xmlns:apti="http://midpoint.evolveum.com/xml/ns/public/common/api-types-3" 
+      xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3" 
+      xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3" 
+      xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3" 
+      xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+      xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3" 
+      xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      oid="1c7beff4-cdf6-4e9f-b54c-79d0766f6fbe">
+    <name>metarole-mailing-list</name>
+    <inducement id="1">
+        <targetRef oid="d81fb46c-20c7-44d3-8402-fef404ea1264" relation="org:default" type="c:OrgType" />     <!-- mailing-lists -->
+    </inducement>
+    <inducement id="2">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <kind>entitlement</kind>
+            <intent>generic-group</intent>
+        </construction>
+        <order>1</order>
+    </inducement>
+    <inducement id="3">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <association>
+                <c:ref>ri:group</c:ref>
+                <outbound>
+                    <expression>
+                        <associationFromLink>
+                            <projectionDiscriminator>
+                                <kind>entitlement</kind>
+                                <intent>generic-group</intent>
+                            </projectionDiscriminator>
+                        </associationFromLink>
+                    </expression>
+                </outbound>
+            </association>
+        </construction>
+        <order>2</order>
+    </inducement>
+    <inducement id="4">
+        <construction>
+            <resourceRef oid="fe805d13-481b-43ec-97d8-9d2df72cd38e" relation="org:default" type="c:ResourceType" />     <!-- Mailing lists CSV -->
+            <attribute>
+                <c:ref>ri:lists</c:ref>
+                <outbound>
+                    <strength>strong</strength>
+                    <expression>
+                        <script>
+                            <code>assignmentPath[0].target.identifier</code>
+                        </script>
+                    </expression>
+                </outbound>
+            </attribute>
+        </construction>
+        <order>2</order>
+    </inducement>
+</role>

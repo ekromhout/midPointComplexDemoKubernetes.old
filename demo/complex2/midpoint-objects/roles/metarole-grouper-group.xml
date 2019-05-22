@@ -1,0 +1,55 @@
+<role xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3" 
+      xmlns:apti="http://midpoint.evolveum.com/xml/ns/public/common/api-types-3" 
+      xmlns:c="http://midpoint.evolveum.com/xml/ns/public/common/common-3" 
+      xmlns:icfs="http://midpoint.evolveum.com/xml/ns/public/connector/icf-1/resource-schema-3" 
+      xmlns:org="http://midpoint.evolveum.com/xml/ns/public/common/org-3" 
+      xmlns:q="http://prism.evolveum.com/xml/ns/public/query-3"
+      xmlns:ri="http://midpoint.evolveum.com/xml/ns/public/resource/instance-3" 
+      xmlns:t="http://prism.evolveum.com/xml/ns/public/types-3" 
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+      oid="48e231be-8474-4ed0-a85e-6acf4c5e8d52">
+    <name>metarole-grouper-group</name>
+    <inducement id="1">
+        <targetRef oid="1f339075-5b2f-4a18-9c98-451f3eb0d28d" relation="org:default" type="c:OrgType" />     <!-- groups -->
+    </inducement>
+    <inducement id="2">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <kind>entitlement</kind>
+            <intent>generic-group</intent>
+        </construction>
+        <order>1</order>
+    </inducement>
+    <inducement id="3">
+        <construction>
+            <resourceRef oid="0a37121f-d515-4a23-9b6d-554c5ef61272" relation="org:default" type="c:ResourceType" />     <!-- OpenLDAP -->
+            <association>
+                <c:ref>ri:group</c:ref>
+                <outbound>
+                    <expression>
+                        <associationFromLink>
+                            <projectionDiscriminator>
+                                <kind>entitlement</kind>
+                                <intent>generic-group</intent>
+                            </projectionDiscriminator>
+                        </associationFromLink>
+                    </expression>
+                </outbound>
+            </association>
+        </construction>
+        <order>2</order>
+    </inducement>
+    <inducement id="4">
+        <construction>
+            <resourceRef oid="a343fc2e-3954-4034-ba1a-2b72c21e577a" relation="org:default" type="c:ResourceType" />     <!-- CS CSV -->
+        </construction>
+        <order>2</order>
+        <condition>
+            <expression>
+                <script>
+                    <code>assignmentPath[0].target.identifier == 'app:cs'</code>
+                </script>
+            </expression>
+        </condition>
+    </inducement>
+</role>

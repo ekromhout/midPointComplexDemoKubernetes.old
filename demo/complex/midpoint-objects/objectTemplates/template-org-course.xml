@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<objectTemplate xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+    oid="d35bdec6-643b-41d8-ad5d-8eeb701169d1">
+    <name>template-org-course</name>
+    <mapping>
+        <strength>strong</strength>
+        <expression>
+            <assignmentTargetSearch>
+                <targetType>RoleType</targetType>
+                <oid>8aa99e7b-f7d3-4585-9800-14bab4d26a43</oid>     <!--  metarole-course -->
+            </assignmentTargetSearch>
+        </expression>
+        <target>
+            <path>assignment</path>
+        </target>
+    </mapping>
+    <item>
+        <ref>name</ref>
+        <mapping>
+            <name>name</name>
+            <strength>strong</strength>
+            <source>
+                <path>identifier</path>
+            </source>
+            <expression>
+                <script>
+                    <code>
+                        'course_' + identifier
+                    </code>
+                </script>
+            </expression>
+        </mapping>
+    </item>
+    <item>
+        <ref>displayName</ref>
+        <mapping>
+            <name>displayName</name>
+            <strength>strong</strength>
+            <source>
+                <path>identifier</path>
+            </source>
+        </mapping>
+    </item>
+</objectTemplate>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<org xmlns="http://midpoint.evolveum.com/xml/ns/public/common/common-3"
+    oid="d81fb46c-20c7-44d3-8402-fef404ea1264">
+    <name>mailing-lists</name>
+    <displayName>Mailing lists</displayName>
+</org>
